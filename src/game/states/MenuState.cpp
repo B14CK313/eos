@@ -2,8 +2,9 @@
 // Created by jakob on 24.09.19.
 //
 
-#include <boost/log/trivial.hpp>
+#include <glbinding/gl/gl.h>
 #include <GLFW/glfw3.h>
+#include <boost/log/trivial.hpp>
 #include "../../eos/GameEngine.hpp"
 #include "GameStates.hpp"
 #include "MenuState.hpp"
@@ -25,13 +26,14 @@ void game::MenuState::onExit() {
 
 }
 
-void game::MenuState::resize(int width, int height){
+void game::MenuState::resize(int width, int height) {
 
 }
 
 void game::MenuState::input(int key, int scancode, int action, int mods) {
-    if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) glfwSetWindowShouldClose(gameEngine->window, GLFW_TRUE);
-    else if(key == GLFW_KEY_SPACE && action == GLFW_PRESS) gameEngine->stateManager.pushState(game::gameStates[game::GameState::INGAME]);
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) glfwSetWindowShouldClose(gameEngine->window, GLFW_TRUE);
+    else if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+        gameEngine->stateManager.pushState(game::gameStates[game::GameState::INGAME]);
 }
 
 void game::MenuState::update(double t, double dt) {

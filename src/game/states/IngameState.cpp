@@ -2,8 +2,9 @@
 // Created by jakob on 24.09.19.
 //
 
-#include <boost/log/trivial.hpp>
+#include <glbinding/gl/gl.h>
 #include <GLFW/glfw3.h>
+#include <boost/log/trivial.hpp>
 #include "../../eos/GameEngine.hpp"
 #include "IngameState.hpp"
 

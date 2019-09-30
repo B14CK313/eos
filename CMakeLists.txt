@@ -8,7 +8,7 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 else ()
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/release)
 endif ()
-set(SOURCE_FILES src/main.cpp src/eos/GameEngine.cpp src/eos/GameEngine.hpp src/eos/IGameState.hpp src/eos/StateManager.cpp src/eos/StateManager.hpp src/game/states/MenuState.cpp src/game/states/MenuState.hpp src/game/states/IngameState.cpp src/game/states/IngameState.hpp src/game/states/GameStates.cpp src/game/states/GameStates.hpp)
+set(SOURCE_FILES src/main.cpp src/eos/GameEngine.cpp src/eos/GameEngine.hpp src/eos/IGameState.hpp src/eos/StateManager.cpp src/eos/StateManager.hpp src/game/states/menu/MenuState.cpp src/game/states/menu/MenuState.hpp src/game/states/ingame/IngameState.cpp src/game/states/ingame/IngameState.hpp src/game/states/GameStates.cpp src/game/states/GameStates.hpp)
 
 if (WIN32)
     # ENV: BOOST_ROOT=I:\Programmieren\CCPP\Libraries\boost_1_70_0;BOOST_LIBRARYDIR=I:\Programmieren\CCPP\Libraries\boost_1_70_0\stage\lib;GLFW=I:\Programmieren\CCPP\Libraries\glfw-3.3;GLEW_ROOT=I:\Programmieren\CCPP\Libraries\glew-2.1.0

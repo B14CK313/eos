@@ -4,8 +4,8 @@
 
 #include <boost/assign.hpp>
 #include "../../eos/GameEngine.hpp"
-#include "MenuState.hpp"
-#include "IngameState.hpp"
+#include "menu/MenuState.hpp"
+#include "ingame/IngameState.hpp"
 #include "GameStates.hpp"
 
 void game::initGameStates(std::shared_ptr<eos::GameEngine> gameEngine) {

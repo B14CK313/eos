@@ -5,8 +5,8 @@
 #include <glbinding/gl/gl.h>
 #include <GLFW/glfw3.h>
 #include <boost/log/trivial.hpp>
-#include "../../eos/GameEngine.hpp"
-#include "GameStates.hpp"
+#include "../../../eos/GameEngine.hpp"
+#include "../GameStates.hpp"
 #include "MenuState.hpp"
 
 bool game::MenuState::init(std::shared_ptr<eos::GameEngine> gameEngine) {

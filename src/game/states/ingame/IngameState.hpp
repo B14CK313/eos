@@ -2,14 +2,15 @@
 // Created by jakob on 24.09.19.
 //
 
-#ifndef GLFW_GAMEENGINE_MENUSTATE_HPP
-#define GLFW_GAMEENGINE_MENUSTATE_HPP
+#ifndef GLFW_GAMEENGINE_INGAMESTATE_HPP
+#define GLFW_GAMEENGINE_INGAMESTATE_HPP
 
-#include "../../eos/IGameState.hpp"
+
+#include "../../../eos/IGameState.hpp"
 
 namespace game {
 
-    class MenuState : public eos::IGameState {
+    class IngameState : public eos::IGameState {
     public:
         bool init(std::shared_ptr<eos::GameEngine> gameEngine) override;
 
@@ -30,5 +31,4 @@ namespace game {
 
 }
 
-
-#endif //GLFW_GAMEENGINE_MENUSTATE_HPP
+#endif //GLFW_GAMEENGINE_INGAMESTATE_HPP

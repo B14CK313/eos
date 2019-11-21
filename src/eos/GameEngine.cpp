@@ -2,8 +2,6 @@
 // Created by jakob on 10.09.19.
 //
 
-#include <glbinding/gl/gl.h>
-#include <glbinding/glbinding.h>
 #include <boost/log/trivial.hpp>
 #include <boost/format.hpp>
 #include "GameEngine.hpp"
@@ -32,11 +30,11 @@ eos::GameEngine::GameEngine(short width, short height) : stateManager() {
     glfwMakeContextCurrent(window);
     BOOST_LOG_TRIVIAL(trace) << "GLContext set";
 
-    glbinding::initialize(glfwGetProcAddress);
-    // TODO: Test if glbinding initialized successful
-    BOOST_LOG_TRIVIAL(trace) << "glbinding initialized";
-    BOOST_LOG_TRIVIAL(info) << boost::format("OpenGL Version: %s") % *glGetString(GL_VERSION);
-    BOOST_LOG_TRIVIAL(debug) << boost::format("OpenGL Vendor: %s, Renderer: %s, Shanding Language Version: %s") % *glGetString(GL_VENDOR) % *glGetString(GL_RENDERER) % *glGetString(GL_SHADING_LANGUAGE_VERSION);
+    GLenum err = glewInit();
+    if(GLEW_OK != err) BOOST_LOG_TRIVIAL(error) << boost::format("glewInit failed, error: %s") % glewGetErrorString(err);
+    BOOST_LOG_TRIVIAL(info) << boost::format("GLEW Version: %s") % glewGetString(GLEW_VERSION);
+    BOOST_LOG_TRIVIAL(info) << boost::format("OpenGL Version: %s") % glGetString(GL_VERSION);
+    BOOST_LOG_TRIVIAL(debug) << boost::format("OpenGL Vendor: %s, Renderer: %s, Shanding Language Version: %s") % glGetString(GL_VENDOR) % glGetString(GL_RENDERER) % glGetString(GL_SHADING_LANGUAGE_VERSION);
 
     glViewport(0, 0, width, height);
     BOOST_LOG_TRIVIAL(trace) << boost::format("GLViewport: %ix%i") % width % height;

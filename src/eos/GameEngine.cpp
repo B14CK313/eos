@@ -2,6 +2,7 @@
 // Created by jakob on 10.09.19.
 //
 
+#include <thread>
 #include <boost/log/trivial.hpp>
 #include <boost/format.hpp>
 #include "GameEngine.hpp"
@@ -47,12 +48,18 @@ eos::GameEngine::GameEngine(short width, short height) : stateManager() {
 }
 
 bool eos::GameEngine::run() {
+    int frames = 0;
+    int updates = 0;
+    double prevSec = 0;
+
     const double dt = 0.01f;
     const double maxFrameTime = 0.25f;
 
     double t = 0.0f;
     double previousTime = glfwGetTime();
     double accumulator = 0.0f;
+
+    bool drawn = false;
 
     while(!glfwWindowShouldClose(window)) {
         double currentTime = glfwGetTime();
@@ -61,7 +68,14 @@ bool eos::GameEngine::run() {
         previousTime = currentTime;
         accumulator += frameTime;
 
-        //std::printf("t: %f, dt: %f, accumulator %f, frameTime: %f, FPS: %f\r", t, dt, accumulator, frameTime, 1/frameTime);
+        //std::printf("\rcurrentTime: %f,\tt: %f,\tdt: %f,\taccumulator %f,\tframeTime: %f,\tFPS: %f", currentTime, t, dt, accumulator, frameTime, 1/frameTime);
+
+        if(currentTime - prevSec >= 1.0f) {
+            std::printf("\r                                                                                                                          ,\tFrames: %i,\tUpdates: %i", frames, updates);
+            frames = 0;
+            updates = 0;
+            prevSec = currentTime;
+        }
 
         // Run update every dt
         while(accumulator >= dt){
@@ -71,10 +85,23 @@ bool eos::GameEngine::run() {
             stateManager.currentState()->update(t, dt);
             accumulator -= dt;
             t += dt;
+
+            drawn = false;
+
+            updates++;
         }
 
         double interpolation = accumulator / dt;
-        stateManager.currentState()->render(interpolation);
+
+        // Fix render calls to update, rendering without update is pointless
+        if(drawn) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        } else {
+            stateManager.currentState()->render(interpolation);
+            drawn = true;
+
+            frames++;
+        }
     }
 
     stateManager.currentState()->cleanup();

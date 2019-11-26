@@ -20,7 +20,7 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.currentState()->resize(width, height);
 }
 
-eos::GameEngine::GameEngine(short width, short height) : stateManager() {
+eos::GameEngine::GameEngine(short width, short height, int targetUPS, int targetFPS, bool capFPS) {
     if(!glfwInit()) BOOST_LOG_TRIVIAL(fatal) << "Could not initialize GLFW";
     window = glfwCreateWindow(width, height, "TEST", nullptr /*glfwGetPrimaryMonitor()*/, nullptr);
     if(!window) {
@@ -45,21 +45,34 @@ eos::GameEngine::GameEngine(short width, short height) : stateManager() {
     glfwSetErrorCallback(error_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    target_ups(targetUPS);
+    target_fps(targetFPS);
+}
+
+void eos::GameEngine::target_fps(int fps, bool cap) {
+    targetFPS = fps;
+    fpu = targetFPS * dt;
+    capFPS = cap;
+}
+
+void eos::GameEngine::target_ups(int ups) {
+    targetUPS = ups;
+    maxFrameTime = targetUPS * 25;
+    dt = 1.0f / targetUPS;
+    fpu = targetFPS * dt;
 }
 
 bool eos::GameEngine::run() {
-    int frames = 0;
-    int updates = 0;
-    double prevSec = 0;
-
-    const double dt = 0.01f;
-    const double maxFrameTime = 0.25f;
-
-    double t = 0.0f;
     double previousTime = glfwGetTime();
     double accumulator = 0.0f;
+    double t = 0.0f;
+    int frames = 0;
+    int updates = 0;
 
-    bool drawn = false;
+    double prevSec = 0;
+    int fps = 0;
+    int ups = 0;
 
     while(!glfwWindowShouldClose(window)) {
         double currentTime = glfwGetTime();
@@ -71,36 +84,36 @@ bool eos::GameEngine::run() {
         //std::printf("\rcurrentTime: %f,\tt: %f,\tdt: %f,\taccumulator %f,\tframeTime: %f,\tFPS: %f", currentTime, t, dt, accumulator, frameTime, 1/frameTime);
 
         if(currentTime - prevSec >= 1.0f) {
-            std::printf("\r                                                                                                                          ,\tFrames: %i,\tUpdates: %i", frames, updates);
-            frames = 0;
-            updates = 0;
+            std::printf("\rcurrentTime: %f, t: %f, dt: %f, accumulator %f, frameTime: %f, FPS (calc): %f, FPS: %i, UPS: %i ", currentTime, t, dt, accumulator, frameTime, 1/frameTime, fps, ups);
+            fflush(stdout);
+            fps = 0;
+            ups = 0;
             prevSec = currentTime;
         }
 
         // Run update every dt
         while(accumulator >= dt){
-            std::printf("t: %f, dt: %f, accumulator %f, frameTime: %f, FPS: %f\r", t, dt, accumulator, frameTime, 1/frameTime);
+            //std::printf("t: %f, dt: %f, accumulator %f, frameTime: %f, FPS: %f\r", t, dt, accumulator, frameTime, 1/frameTime);
 
             glfwPollEvents();
             stateManager.currentState()->update(t, dt);
             accumulator -= dt;
             t += dt;
 
-            drawn = false;
-
             updates++;
+            ups++;
         }
 
         double interpolation = accumulator / dt;
 
-        // Fix render calls to update, rendering without update is pointless
-        if(drawn) {
+        // FPS Cap
+        if(capFPS && updates * fpu <= frames) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         } else {
             stateManager.currentState()->render(interpolation);
-            drawn = true;
-
             frames++;
+
+            fps++;
         }
     }
 

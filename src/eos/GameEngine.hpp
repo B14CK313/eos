@@ -13,12 +13,25 @@ namespace eos {
 
     class GameEngine {
     public:
-        GameEngine(short width, short height);
+        GameEngine(short width, short height, int targetUPS, int targetFPS, bool capFPS = true);
 
         bool run();
 
-        StateManager stateManager;
+        void target_fps(int fps, bool cap = true);
+        void target_ups(int ups);
+
+        StateManager stateManager{};
         GLFWwindow* window;
+
+    private:
+        bool capFPS{};
+
+        int targetUPS{};
+        int targetFPS{};
+
+        double maxFrameTime{};
+        double dt{};
+        double fpu{};
     };
 
 }

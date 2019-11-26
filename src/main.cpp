@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
     init();
 
     BOOST_LOG_TRIVIAL(trace) << "Initializing GameEngine, pushing first GameStates";
-    auto gameEngine = std::make_shared<eos::GameEngine>(800, 600);
+    auto gameEngine = std::make_shared<eos::GameEngine>(1200, 900, 100, 120);
     game::initGameStates(gameEngine);
     BOOST_LOG_TRIVIAL(trace) << "Starting game loop...";
     return gameEngine->run();

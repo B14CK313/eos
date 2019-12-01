@@ -7,28 +7,7 @@
 #include <boost/format.hpp>
 #include "../include/eos/utils.hpp"
 
-const char* eos::Config::DEFAULT_CONFIG = R"#(
-window:
-{
-    title: "EOS_GameEngine";
-    size:
-    {
-        w = 800;
-        h = 600;
-    };
-    pos:
-    {
-        x = 0;
-        y = 0;
-    };
-};
-logToFile = true;
-targetUPS = 100;
-targetFPS = 120;
-capFPS = true;
-)#";
-
-eos::Config::Config(const std::string& path) : path(path) {
+eos::Config::Config(const std::string& path, const std::string& default_config) : path(path) {
     if(eos::utils::file_exists(path)) {
         try {
             BOOST_LOG_TRIVIAL(info) << boost::format("Config file found at '%s'") % path;
@@ -40,7 +19,7 @@ eos::Config::Config(const std::string& path) : path(path) {
         }
     } else {
         BOOST_LOG_TRIVIAL(info) << "Config file not found, starting with default values";
-        config.readString(DEFAULT_CONFIG);
+        config.readString(default_config);
     }
     BOOST_LOG_TRIVIAL(debug) << "Config successfully loaded";
 }

@@ -157,5 +157,6 @@ _deps
 
 ### Custom ###
 bin
+lib
 build
 .idea

@@ -12,9 +12,9 @@ namespace eos {
 
     class StateManager {
     public:
-        void changeState(std::shared_ptr<IGameState> state);
+        void changeState(const std::shared_ptr<IGameState>& state);
 
-        void pushState(std::shared_ptr<IGameState> state);
+        void pushState(const std::shared_ptr<IGameState>& state);
 
         void popState();
 

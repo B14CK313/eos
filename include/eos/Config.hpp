@@ -12,7 +12,9 @@ namespace eos {
 
     class Config {
     public:
-        explicit Config(const std::string& path);
+        static const std::string DEFAULT_CONFIG;
+
+        Config(const std::string& path, const std::string& default_config);
 
         template<typename T>
         T get(const std::string& key);
@@ -21,9 +23,7 @@ namespace eos {
         void set(const std::string& key, T value);
 
         void write();
-
     private:
-        static const char* DEFAULT_CONFIG;
         std::string path;
         libconfig::Config config;
     };

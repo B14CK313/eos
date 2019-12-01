@@ -14,7 +14,7 @@ namespace eos {
 
     class GameEngine {
     public:
-        explicit GameEngine(const std::string& config_path);
+        explicit GameEngine(const std::string& config_path, const std::string& default_config = eos::Config::DEFAULT_CONFIG);
 
         bool run();
 

@@ -21,7 +21,7 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.currentState()->resize(width, height);
 }
 
-eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path), targetUPS(config.get<int>("targetUPS")), targetFPS(config.get<int>("targetFPS")), capFPS(config.get<bool>("capFPS")) {
+eos::GameEngine::GameEngine(const std::string& config_path, const std::string& default_config) : config(config_path, default_config), targetUPS(config.get<int>("targetUPS")), targetFPS(config.get<int>("targetFPS")), capFPS(config.get<bool>("capFPS")) {
     if(config.get<bool>("logToFile"))
         boost::log::add_file_log(
             boost::log::keywords::file_name = "%Y-%m-%d_%H-%M-%S.%N.log",

@@ -5,7 +5,7 @@
 #include "../include/eos/StateManager.hpp"
 #include <boost/log/trivial.hpp>
 
-void eos::StateManager::changeState(std::shared_ptr<IGameState> state) {
+void eos::StateManager::changeState(const std::shared_ptr<IGameState>& state) {
     if(!states.empty()) {
         states.back()->cleanup();
         states.pop_back();
@@ -15,7 +15,7 @@ void eos::StateManager::changeState(std::shared_ptr<IGameState> state) {
     states.back()->onEnter();
 }
 
-void eos::StateManager::pushState(std::shared_ptr<IGameState> state) {
+void eos::StateManager::pushState(const std::shared_ptr<IGameState>& state) {
     if(!states.empty()) states.back()->onExit();
     states.push_back(state);
     states.back()->onEnter();

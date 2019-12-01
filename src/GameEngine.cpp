@@ -2,11 +2,11 @@
 // Created by jakob on 10.09.19.
 //
 
+#include "../include/eos/GameEngine.hpp"
 #include <thread>
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/format.hpp>
-#include "GameEngine.hpp"
 
 static void error_callback(int error, const char* description){
     BOOST_LOG_TRIVIAL(error) << description;
@@ -21,8 +21,8 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.currentState()->resize(width, height);
 }
 
-eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path), targetUPS(config.get<int>("eos.targetUPS")), targetFPS(config.get<int>("eos.targetFPS")), capFPS(config.get<bool>("eos.capFPS")) {
-    if(config.get<bool>("eos.logToFile"))
+eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path), targetUPS(config.get<int>("targetUPS")), targetFPS(config.get<int>("targetFPS")), capFPS(config.get<bool>("capFPS")) {
+    if(config.get<bool>("logToFile"))
         boost::log::add_file_log(
             boost::log::keywords::file_name = "%Y-%m-%d_%H-%M-%S.%N.log",
             boost::log::keywords::rotation_size = 10 * 1024 * 1024,
@@ -30,7 +30,7 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
         );
 
     if(!glfwInit()) BOOST_LOG_TRIVIAL(fatal) << "GLFW initialization failed";
-    window = glfwCreateWindow(config.get<int>("game.window.size.w"), config.get<int>("game.window.size.h"), config.get<std::string>("game.window.title").c_str(), nullptr /*glfwGetPrimaryMonitor()*/, nullptr);
+    window = glfwCreateWindow(config.get<int>("window.size.w"), config.get<int>("window.size.h"), config.get<std::string>("window.title").c_str(), nullptr /*glfwGetPrimaryMonitor()*/, nullptr);
     if(!window) {
         BOOST_LOG_TRIVIAL(fatal) << "Creating window failed";
         glfwTerminate();
@@ -45,8 +45,8 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
     BOOST_LOG_TRIVIAL(info) << boost::format("OpenGL Version: %s") % glGetString(GL_VERSION);
     BOOST_LOG_TRIVIAL(debug) << boost::format("OpenGL Vendor: %s, Renderer: %s, Shanding Language Version: %s") % glGetString(GL_VENDOR) % glGetString(GL_RENDERER) % glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-    glViewport(0, 0, config.get<int>("game.window.size.w"), config.get<int>("game.window.size.h"));
-    BOOST_LOG_TRIVIAL(trace) << boost::format("GLViewport: %ix%i") % config.get<int>("game.window.size.w") % config.get<int>("game.window.size.h");
+    glViewport(0, 0, config.get<int>("window.size.w"), config.get<int>("window.size.h"));
+    BOOST_LOG_TRIVIAL(trace) << boost::format("GLViewport: %ix%i") % config.get<int>("window.size.w") % config.get<int>("window.size.h");
 
     glfwSwapInterval(0);
     glfwSetWindowUserPointer(window, this);

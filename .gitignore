@@ -158,3 +158,4 @@ _deps
 ### Custom ###
 bin
 build
+.idea

@@ -2,35 +2,31 @@
 // Created by jakob on 26.11.19.
 //
 
-#include "Config.hpp"
+#include "../include/eos/Config.hpp"
 #include <boost/log/trivial.hpp>
 #include <boost/format.hpp>
-#include "utils.hpp"
+#include "../include/eos/utils.hpp"
 
 const char* eos::Config::DEFAULT_CONFIG = R"#(
-game:
+window:
 {
-    window:
+    title: "EOS_GameEngine";
+    size:
     {
-        title: "EOS_GameEngine Test";
-        size:
-        {
-            w = 800;
-            h = 600;
-        };
-        pos:
-        {
-            x = 0;
-            y = 0;
-        };
+        w = 800;
+        h = 600;
+    };
+    pos:
+    {
+        x = 0;
+        y = 0;
     };
 };
-eos:
-{
-    targetUPS = 100;
-    targetFPS = 120;
-    capFPS = true;
-};)#";
+logToFile = true;
+targetUPS = 100;
+targetFPS = 120;
+capFPS = true;
+)#";
 
 eos::Config::Config(const std::string& path) : path(path) {
     if(eos::utils::file_exists(path)) {

@@ -5,14 +5,17 @@
 #ifndef GLFW_GAMEENGINE_UTILS_HPP
 #define GLFW_GAMEENGINE_UTILS_HPP
 
-#include <GL/glew.h>
 #include <string>
 #include <vector>
+#include <GL/glew.h>
+#include <fstream>
 
-namespace eos::util {
+namespace eos::utils {
     GLuint load_shader(GLenum type, std::string path);
 
     GLuint create_program(std::vector<GLuint> shaderList);
+
+    bool file_exists(const std::string& path);
 }
 
 #endif //GLFW_GAMEENGINE_UTILS_HPP

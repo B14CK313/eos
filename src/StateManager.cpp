@@ -2,8 +2,8 @@
 // Created by jakob on 23.09.19.
 //
 
+#include "../include/eos/StateManager.hpp"
 #include <boost/log/trivial.hpp>
-#include "StateManager.hpp"
 
 void eos::StateManager::changeState(std::shared_ptr<IGameState> state) {
     if(!states.empty()) {

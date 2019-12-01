@@ -8,12 +8,13 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "StateManager.hpp"
+#include "Config.hpp"
 
 namespace eos {
 
     class GameEngine {
     public:
-        GameEngine(short width, short height, int targetUPS, int targetFPS, bool capFPS = true);
+        explicit GameEngine(const std::string& config_path);
 
         bool run();
 
@@ -21,13 +22,14 @@ namespace eos {
         void target_ups(int ups);
 
         StateManager stateManager{};
+        Config config;
         GLFWwindow* window;
 
     private:
-        bool capFPS{};
+        bool capFPS;
 
-        int targetUPS{};
-        int targetFPS{};
+        int targetUPS;
+        int targetFPS;
 
         double maxFrameTime{};
         double dt{};

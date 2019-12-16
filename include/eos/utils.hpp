@@ -11,11 +11,9 @@
 #include <fstream>
 
 namespace eos::utils {
-    GLuint load_shader(GLenum type, std::string path);
-
-    GLuint create_program(std::vector<GLuint> shaderList);
-
     bool file_exists(const std::string& path);
+
+    std::string load_file(const std::string& path);
 }
 
 #endif //GLFW_GAMEENGINE_UTILS_HPP

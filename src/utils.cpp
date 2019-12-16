@@ -5,8 +5,23 @@
 #include "../include/eos/utils.hpp"
 #include <sys/stat.h>
 #include <boost/log/trivial.hpp>
+#include <boost/format.hpp>
 
 bool eos::utils::file_exists(const std::string &path) {
     struct stat buffer{};
     return (stat (path.c_str(), &buffer) == 0);
+}
+
+std::string eos::utils::load_file(const std::string& path) {
+    std::ifstream ifstream{path, std::ios::in | std::ios::binary};
+    if (!ifstream) {
+        BOOST_LOG_TRIVIAL(error) << boost::format("Loading file %s failed. File does not exist.") % path;
+    }
+    std::string content;
+    ifstream.seekg(0, std::ios::end);
+    content.resize(ifstream.tellg());
+    ifstream.seekg(0, std::ios::beg);
+    ifstream.read(&content[0], content.size());
+    ifstream.close();
+    return(content);
 }

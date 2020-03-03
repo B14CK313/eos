@@ -23,6 +23,7 @@ void eos::StateManager::pushState(const std::shared_ptr<IGameState>& state) {
 
 void eos::StateManager::popState() {
     if(!states.empty()) {
+        states.back()->onExit();
         states.back()->cleanup();
         states.pop_back();
 

@@ -89,10 +89,8 @@ bool eos::GameEngine::run() {
         previousTime = currentTime;
         accumulator += frameTime;
 
-        //std::printf("\rcurrentTime: %f,\tt: %f,\tdt: %f,\taccumulator %f,\tframeTime: %f,\tFPS: %f", currentTime, t, dt, accumulator, frameTime, 1/frameTime);
-
         if(currentTime - prevSec >= 1.0f) {
-            std::printf("\rcurrentTime: %f, t: %f, dt: %f, accumulator %f, frameTime: %f, FPS (calc): %f, FPS: %i, UPS: %i ", currentTime, t, dt, accumulator, frameTime, 1/frameTime, fps, ups);
+            std::printf("\rcurrentTime: %f, t: %f, dt: %f, accumulator %f, frameTime: %f, FPS: %i, UPS: %i ", currentTime, t, dt, accumulator, frameTime, fps, ups);
             fflush(stdout);
             fps = 0;
             ups = 0;
@@ -120,7 +118,6 @@ bool eos::GameEngine::run() {
         } else {
             stateManager.currentState()->render(interpolation);
             frames++;
-
             fps++;
         }
     }

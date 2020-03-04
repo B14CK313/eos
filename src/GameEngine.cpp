@@ -21,8 +21,8 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.currentState()->resize(width, height);
 }
 
-eos::GameEngine::GameEngine(const std::string& config_path, const std::string& default_config) : config(config_path, default_config), targetUPS(config.get<int>("targetUPS")), targetFPS(config.get<int>("targetFPS")), capFPS(config.get<bool>("capFPS")) {
-    if(config.get<bool>("logToFile"))
+eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path) {
+    if(config.log.toFile)
         boost::log::add_file_log(
             boost::log::keywords::file_name = "%Y-%m-%d_%H-%M-%S.%N.log",
             boost::log::keywords::rotation_size = 10 * 1024 * 1024,
@@ -30,7 +30,7 @@ eos::GameEngine::GameEngine(const std::string& config_path, const std::string& d
         );
 
     if(!glfwInit()) BOOST_LOG_TRIVIAL(fatal) << "GLFW initialization failed";
-    window = glfwCreateWindow(config.get<int>("window.size.w"), config.get<int>("window.size.h"), config.get<std::string>("window.title").c_str(), nullptr /*glfwGetPrimaryMonitor()*/, nullptr);
+    window = glfwCreateWindow(config.window.width, config.window.height, config.window.title.c_str(), nullptr /*glfwGetPrimaryMonitor()*/, nullptr);
     if(!window) {
         BOOST_LOG_TRIVIAL(fatal) << "Creating window failed";
         glfwTerminate();
@@ -45,8 +45,8 @@ eos::GameEngine::GameEngine(const std::string& config_path, const std::string& d
     BOOST_LOG_TRIVIAL(info) << boost::format("OpenGL Version: %s") % glGetString(GL_VERSION);
     BOOST_LOG_TRIVIAL(debug) << boost::format("OpenGL Vendor: %s, Renderer: %s, Shanding Language Version: %s") % glGetString(GL_VENDOR) % glGetString(GL_RENDERER) % glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-    glViewport(0, 0, config.get<int>("window.size.w"), config.get<int>("window.size.h"));
-    BOOST_LOG_TRIVIAL(trace) << boost::format("GLViewport: %ix%i") % config.get<int>("window.size.w") % config.get<int>("window.size.h");
+    glViewport(0, 0, config.window.width, config.window.height);
+    BOOST_LOG_TRIVIAL(trace) << boost::format("GLViewport: %ix%i") % config.window.width % config.window.height;
 
     glfwSwapInterval(0);
     glfwSetWindowUserPointer(window, this);
@@ -54,21 +54,26 @@ eos::GameEngine::GameEngine(const std::string& config_path, const std::string& d
     glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    target_ups(targetUPS);
-    target_fps(targetFPS);
+    init();
 }
 
 void eos::GameEngine::target_fps(int fps, bool cap) {
-    targetFPS = fps;
-    fpu = targetFPS * dt;
-    capFPS = cap;
+    config.engine.targetFps = fps;
+    fpu = config.engine.targetFps * dt;
+    config.engine.capFps = cap;
 }
 
 void eos::GameEngine::target_ups(int ups) {
-    targetUPS = ups;
-    maxFrameTime = targetUPS * 25;
-    dt = 1.0f / targetUPS;
-    fpu = targetFPS * dt;
+    config.engine.targetUps = ups;
+    maxFrameTime = config.engine.targetUps * 25;
+    dt = 1.0f / config.engine.targetUps;
+    fpu = config.engine.targetFps * dt;
+}
+
+void eos::GameEngine::init() {
+    dt = 1.0f / config.engine.targetUps;
+    fpu = config.engine.targetFps * dt;
+    maxFrameTime = config.engine.targetUps * 25;
 }
 
 bool eos::GameEngine::run() {
@@ -113,7 +118,7 @@ bool eos::GameEngine::run() {
         double interpolation = accumulator / dt;
 
         // FPS Cap
-        if(capFPS && updates * fpu <= frames) {
+        if(config.engine.capFps && updates * fpu <= frames) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         } else {
             stateManager.currentState()->render(interpolation);

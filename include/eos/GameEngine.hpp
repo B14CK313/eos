@@ -14,8 +14,9 @@ namespace eos {
 
     class GameEngine {
     public:
-        explicit GameEngine(const std::string& config_path, const std::string& default_config = eos::Config::DEFAULT_CONFIG);
+        explicit GameEngine(const std::string& config_path);
 
+        void init();
         bool run();
 
         void target_fps(int fps, bool cap = true);
@@ -26,11 +27,6 @@ namespace eos {
         GLFWwindow* window;
 
     private:
-        bool capFPS;
-
-        int targetUPS;
-        int targetFPS;
-
         double maxFrameTime{};
         double dt{};
         double fpu{};

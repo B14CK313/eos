@@ -14,6 +14,8 @@ namespace eos::utils {
     bool file_exists(const std::string& path);
 
     std::string load_file(const std::string& path);
+
+    bool load_file(const std::string& path, std::string& content);
 }
 
 #endif //GLFW_GAMEENGINE_UTILS_HPP

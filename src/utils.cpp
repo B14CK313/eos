@@ -25,3 +25,17 @@ std::string eos::utils::load_file(const std::string& path) {
     ifstream.close();
     return(content);
 }
+
+bool eos::utils::load_file(const std::string& path, std::string& content) {
+    std::ifstream ifstream{path, std::ios::in | std::ios::binary};
+    if (!ifstream) {
+        BOOST_LOG_TRIVIAL(error) << boost::format("Loading file %s failed. File does not exist.") % path;
+        return false;
+    }
+    ifstream.seekg(0, std::ios::end);
+    content.resize(ifstream.tellg());
+    ifstream.seekg(0, std::ios::beg);
+    ifstream.read(&content[0], content.size());
+    ifstream.close();
+    return true;
+}

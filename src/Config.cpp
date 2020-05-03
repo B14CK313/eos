@@ -3,7 +3,7 @@
 //
 
 #include "../include/eos/Config.hpp"
-#include <boost/format.hpp>
+#include <fmt/core.h>
 #include "../include/eos/utils.hpp"
 
 #define LOAD_CONFIG_OPTION(section, option, type)\
@@ -18,7 +18,7 @@ else BOOST_LOG_TRIVIAL(warning) << "Config missing option 'section.option', usin
 eos::Config::Config(const std::string& path) : path(path) {
     std::string config_file;
     if (eos::utils::load_file(path, config_file)) {
-        BOOST_LOG_TRIVIAL(info) << boost::format("Config file found at '%s'") % path;
+        BOOST_LOG_TRIVIAL(info) << fmt::format("Config file found at '{}'", path);
         config.Parse(config_file.c_str());
         if (!config.HasParseError()) {
             if (config.HasMember("window")) {
@@ -44,8 +44,8 @@ eos::Config::Config(const std::string& path) : path(path) {
             BOOST_LOG_TRIVIAL(debug) << "Config successfully loaded";
         } else {
             BOOST_LOG_TRIVIAL(warning)
-                << boost::format("Parsing config file failed: %i: %s, starting with default values") %
-                   config.GetErrorOffset() % config.GetParseError();
+                << fmt::format("Parsing config file failed: {}: {}, starting with default values",
+                   config.GetErrorOffset(), config.GetParseError());
         }
     } else {
         BOOST_LOG_TRIVIAL(warning) << "Config file not found, starting with default values";

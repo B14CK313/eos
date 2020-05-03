@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 project(eos)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -29,6 +29,7 @@ set(GLEW_VERBOSE ON)
 find_package(GLEW REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(Boost COMPONENTS log REQUIRED)
+find_package(fmt REQUIRED)
 find_package(RapidJSON REQUIRED)
 if (WIN32)
     find_library(GLFW_LIBRARIES glfw3 PATHS $ENV{GLFW} PATH_SUFFIXES "lib-mingw-w64")
@@ -43,4 +44,4 @@ include_directories("${CMAKE_SOURCE_DIR}/include" ${GLFW_INCLUDE_DIRS} ${GLEW_IN
 
 add_definitions(${COMPILE_FLAGS})
 add_library(eos STATIC ${eos_SOURCE_FILES})
-target_link_libraries(eos PUBLIC ${Boost_LIBRARIES} ${GLFW_LIBRARIES} GLEW::GLEW ${OPENGL_LIBRARY})
+target_link_libraries(eos PUBLIC ${Boost_LIBRARIES} ${GLFW_LIBRARIES} GLEW::GLEW ${OPENGL_LIBRARY} fmt::fmt)

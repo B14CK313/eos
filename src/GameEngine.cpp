@@ -6,14 +6,14 @@
 #include <thread>
 #include <boost/log/trivial.hpp>
 #include <boost/log/utility/setup/file.hpp>
-#include <boost/format.hpp>
+#include <fmt/core.h>
 
 static void error_callback(int error, const char* description){
     BOOST_LOG_TRIVIAL(error) << description;
 }
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
-    static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.currentState()->input(key, scancode, action, mods);
+    if(key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -40,16 +40,15 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
     BOOST_LOG_TRIVIAL(trace) << "GLContext set";
 
     GLenum err = glewInit();
-    if(GLEW_OK != err) BOOST_LOG_TRIVIAL(error) << boost::format("glewInit failed, error: %s") % glewGetErrorString(err);
-    BOOST_LOG_TRIVIAL(info) << boost::format("GLEW Version: %s") % glewGetString(GLEW_VERSION);
-    BOOST_LOG_TRIVIAL(info) << boost::format("OpenGL Version: %s") % glGetString(GL_VERSION);
-    BOOST_LOG_TRIVIAL(debug) << boost::format("OpenGL Vendor: %s, Renderer: %s, Shanding Language Version: %s") % glGetString(GL_VENDOR) % glGetString(GL_RENDERER) % glGetString(GL_SHADING_LANGUAGE_VERSION);
+    if(GLEW_OK != err) BOOST_LOG_TRIVIAL(error) << fmt::format("glewInit failed, error: {}", glewGetErrorString(err));
+    BOOST_LOG_TRIVIAL(info) << fmt::format("GLEW Version: {}", glewGetString(GLEW_VERSION));
+    BOOST_LOG_TRIVIAL(info) << fmt::format("OpenGL Version: {}", glGetString(GL_VERSION));
+    BOOST_LOG_TRIVIAL(debug) << fmt::format("OpenGL Vendor: {}, Renderer: {}, Shanding Language Version: {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     glViewport(0, 0, config.window.width, config.window.height);
-    BOOST_LOG_TRIVIAL(trace) << boost::format("GLViewport: %ix%i") % config.window.width % config.window.height;
+    BOOST_LOG_TRIVIAL(trace) << fmt::format("GLViewport: {}x{}", config.window.width, config.window.height);
 
     glfwSwapInterval(0);
-    glfwSetWindowUserPointer(window, this);
     glfwSetErrorCallback(error_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -87,7 +86,7 @@ bool eos::GameEngine::run() {
     int fps = 0;
     int ups = 0;
 
-    while(!glfwWindowShouldClose(window)) {
+    while(glfwWindowShouldClose(window) == GLFW_FALSE) {
         double currentTime = glfwGetTime();
         double frameTime = currentTime - previousTime;
         if(frameTime > maxFrameTime) frameTime = maxFrameTime; // Avoid Spiral of Death

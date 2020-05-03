@@ -5,7 +5,7 @@
 #include "../include/eos/utils.hpp"
 #include <sys/stat.h>
 #include <boost/log/trivial.hpp>
-#include <boost/format.hpp>
+#include <fmt/core.h>
 
 bool eos::utils::file_exists(const std::string &path) {
     struct stat buffer{};
@@ -15,7 +15,7 @@ bool eos::utils::file_exists(const std::string &path) {
 std::string eos::utils::load_file(const std::string& path) {
     std::ifstream ifstream{path, std::ios::in | std::ios::binary};
     if (!ifstream) {
-        BOOST_LOG_TRIVIAL(error) << boost::format("Loading file %s failed. File does not exist.") % path;
+        BOOST_LOG_TRIVIAL(error) << fmt::format("Loading file {} failed. File does not exist.", path);
     }
     std::string content;
     ifstream.seekg(0, std::ios::end);
@@ -29,7 +29,7 @@ std::string eos::utils::load_file(const std::string& path) {
 bool eos::utils::load_file(const std::string& path, std::string& content) {
     std::ifstream ifstream{path, std::ios::in | std::ios::binary};
     if (!ifstream) {
-        BOOST_LOG_TRIVIAL(error) << boost::format("Loading file %s failed. File does not exist.") % path;
+        BOOST_LOG_TRIVIAL(error) << fmt::format("Loading file {} failed. File does not exist.", path);
         return false;
     }
     ifstream.seekg(0, std::ios::end);

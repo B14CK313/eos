@@ -4,12 +4,9 @@
 
 #include "../include/eos/GameEngine.hpp"
 #include <thread>
-#include <boost/log/trivial.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <fmt/core.h>
+#include <spdlog/spdlog.h>
 
 static void error_callback(int error, const char* description){
-    BOOST_LOG_TRIVIAL(error) << description;
 }
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
@@ -18,35 +15,36 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
-    static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.currentState()->resize(width, height);
+    //static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.currentState()->resize(width, height);
 }
 
 eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path) {
-    if(config.log.toFile)
+    /*if(config.log.toFile)
         boost::log::add_file_log(
             boost::log::keywords::file_name = "%Y-%m-%d_%H-%M-%S.%N.log",
             boost::log::keywords::rotation_size = 10 * 1024 * 1024,
             boost::log::keywords::time_based_rotation = boost::log::sinks::file::rotation_at_time_point(0, 0, 0)
         );
+    */
 
-    if(!glfwInit()) BOOST_LOG_TRIVIAL(fatal) << "GLFW initialization failed";
+    if(!glfwInit()) SPDLOG_CRITICAL("GLFW initialization failed");
     window = glfwCreateWindow(config.window.width, config.window.height, config.window.title.c_str(), nullptr /*glfwGetPrimaryMonitor()*/, nullptr);
     if(!window) {
-        BOOST_LOG_TRIVIAL(fatal) << "Creating window failed";
+        SPDLOG_CRITICAL("Creating window failed");
         glfwTerminate();
     }
 
     glfwMakeContextCurrent(window);
-    BOOST_LOG_TRIVIAL(trace) << "GLContext set";
+    SPDLOG_TRACE("GLContext set");
 
     GLenum err = glewInit();
-    if(GLEW_OK != err) BOOST_LOG_TRIVIAL(error) << fmt::format("glewInit failed, error: {}", glewGetErrorString(err));
-    BOOST_LOG_TRIVIAL(info) << fmt::format("GLEW Version: {}", glewGetString(GLEW_VERSION));
-    BOOST_LOG_TRIVIAL(info) << fmt::format("OpenGL Version: {}", glGetString(GL_VERSION));
-    BOOST_LOG_TRIVIAL(debug) << fmt::format("OpenGL Vendor: {}, Renderer: {}, Shanding Language Version: {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_SHADING_LANGUAGE_VERSION));
+    if(GLEW_OK != err) SPDLOG_ERROR("glewInit failed, error: {}", glewGetErrorString(err));
+    SPDLOG_INFO("GLEW Version: {}", glewGetString(GLEW_VERSION));
+    SPDLOG_INFO("OpenGL Version: {}", glGetString(GL_VERSION));
+    SPDLOG_DEBUG("OpenGL Vendor: {}, Renderer: {}, Shanding Language Version: {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     glViewport(0, 0, config.window.width, config.window.height);
-    BOOST_LOG_TRIVIAL(trace) << fmt::format("GLViewport: {}x{}", config.window.width, config.window.height);
+    SPDLOG_TRACE("GLViewport: {}x{}", config.window.width, config.window.height);
 
     glfwSwapInterval(0);
     glfwSetErrorCallback(error_callback);
@@ -56,21 +54,21 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
     init();
 }
 
-void eos::GameEngine::target_fps(int fps, bool cap) {
+[[maybe_unused]] void eos::GameEngine::target_fps(int fps, bool cap) {
     config.engine.targetFps = fps;
     fpu = config.engine.targetFps * dt;
     config.engine.capFps = cap;
 }
 
-void eos::GameEngine::target_ups(int ups) {
+[[maybe_unused]] void eos::GameEngine::target_ups(int ups) {
     config.engine.targetUps = ups;
     maxFrameTime = config.engine.targetUps * 25;
-    dt = 1.0f / config.engine.targetUps;
+    dt = 1.0 / config.engine.targetUps;
     fpu = config.engine.targetFps * dt;
 }
 
 void eos::GameEngine::init() {
-    dt = 1.0f / config.engine.targetUps;
+    dt = 1.0 / config.engine.targetUps;
     fpu = config.engine.targetFps * dt;
     maxFrameTime = config.engine.targetUps * 25;
 }

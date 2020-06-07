@@ -19,8 +19,9 @@ namespace eos {
         void init();
         bool run();
 
-        void target_fps(int fps, bool cap = true);
-        void target_ups(int ups);
+        [[maybe_unused]] void target_fps(int fps, bool cap = true);
+
+        [[maybe_unused]] void target_ups(int ups);
 
         StateManager stateManager{};
         Config config;

@@ -3,7 +3,7 @@
 //
 
 #include "../include/eos/StateManager.hpp"
-#include <boost/log/trivial.hpp>
+#include <spdlog/spdlog.h>
 
 void eos::StateManager::changeState(const std::shared_ptr<IGameState>& state) {
     if(!states.empty()) {
@@ -32,11 +32,11 @@ void eos::StateManager::popState() {
             return;
         }
     }
-    BOOST_LOG_TRIVIAL(error) << "No state on stack";
+    SPDLOG_ERROR("No state on stack");
 }
 
 std::shared_ptr<eos::IGameState> eos::StateManager::currentState() {
     if (!states.empty()) return states.back();
-    BOOST_LOG_TRIVIAL(error) << "No state on stack";
+    SPDLOG_ERROR("No state on stack");
     return nullptr;
 }

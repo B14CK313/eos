@@ -29,7 +29,6 @@ eos::Config::Config(const std::string& path) : path(path) {
                 SPDLOG_WARN("Config missing section window, using default values");
 
             if (config.HasMember("log")) {
-                LOAD_CONFIG_OPTION(log, toFile, Bool);
                 LOAD_CONFIG_OPTION(log, maxFiles, Int);
             } else
                 SPDLOG_WARN("Config missing section log, using default values");

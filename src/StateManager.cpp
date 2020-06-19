@@ -5,30 +5,20 @@
 #include "../include/eos/StateManager.hpp"
 #include <spdlog/spdlog.h>
 
-void eos::StateManager::changeState(const std::shared_ptr<IGameState>& state) {
-    if(!states.empty()) {
-        states.back()->cleanup();
-        states.pop_back();
-    }
-
-    states.push_back(state);
-    states.back()->onEnter();
-}
-
-void eos::StateManager::pushState(const std::shared_ptr<IGameState>& state) {
-    if(!states.empty()) states.back()->onExit();
-    states.push_back(state);
-    states.back()->onEnter();
+void eos::StateManager::pushState(std::shared_ptr<IGameState> state) {
+    if(!state_stack.empty()) state_stack.back()->onExit();
+    state_stack.push_back(state);
+    state_stack.back()->onEnter();
 }
 
 void eos::StateManager::popState() {
-    if(!states.empty()) {
-        states.back()->onExit();
-        states.back()->cleanup();
-        states.pop_back();
+    if(!state_stack.empty()) {
+        state_stack.back()->onExit();
+        state_stack.back()->cleanup();
+        state_stack.pop_back();
 
-        if(!states.empty()){
-            states.back()->onEnter();
+        if(!state_stack.empty()){
+            state_stack.back()->onEnter();
             return;
         }
     }
@@ -36,7 +26,7 @@ void eos::StateManager::popState() {
 }
 
 std::shared_ptr<eos::IGameState> eos::StateManager::currentState() {
-    if (!states.empty()) return states.back();
+    if (!state_stack.empty()) return state_stack.back();
     SPDLOG_ERROR("No state on stack");
     return nullptr;
 }

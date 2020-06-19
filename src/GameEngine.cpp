@@ -5,6 +5,8 @@
 #include "../include/eos/GameEngine.hpp"
 #include <thread>
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 static void error_callback(int error, const char* description){
 }
@@ -15,19 +17,24 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
-    //static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.currentState()->resize(width, height);
 }
 
 eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path) {
-    /*if(config.log.toFile)
-        boost::log::add_file_log(
-            boost::log::keywords::file_name = "%Y-%m-%d_%H-%M-%S.%N.log",
-            boost::log::keywords::rotation_size = 10 * 1024 * 1024,
-            boost::log::keywords::time_based_rotation = boost::log::sinks::file::rotation_at_time_point(0, 0, 0)
-        );
-    */
+    std::vector<spdlog::sink_ptr> sinks;
+    sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+    //console_sink->set_level(spdlog::level::trace);
+
+    sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("log.log", true));
+    //file_sink->set_level(spdlog::level::warn);
+
+    auto default_logger = std::make_shared<spdlog::logger>("default", sinks.begin(), sinks.end());
+    default_logger->flush_on(spdlog::level::trace);
+    spdlog::register_logger(default_logger);
+    spdlog::set_default_logger(default_logger);
+    SPDLOG_TRACE("Logger initialized");
 
     if(!glfwInit()) SPDLOG_CRITICAL("GLFW initialization failed");
+
     window = glfwCreateWindow(config.window.width, config.window.height, config.window.title.c_str(), nullptr /*glfwGetPrimaryMonitor()*/, nullptr);
     if(!window) {
         SPDLOG_CRITICAL("Creating window failed");
@@ -50,8 +57,6 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
     glfwSetErrorCallback(error_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    init();
 }
 
 [[maybe_unused]] void eos::GameEngine::target_fps(int fps, bool cap) {
@@ -67,7 +72,9 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
     fpu = config.engine.targetFps * dt;
 }
 
-void eos::GameEngine::init() {
+void eos::GameEngine::init(std::shared_ptr<IGameState> initialState) {
+    stateManager.pushState(initialState);
+
     dt = 1.0 / config.engine.targetUps;
     fpu = config.engine.targetFps * dt;
     maxFrameTime = config.engine.targetUps * 25;
@@ -119,6 +126,7 @@ bool eos::GameEngine::run() {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         } else {
             stateManager.currentState()->render(interpolation);
+            glfwSwapBuffers(window);
             frames++;
             fps++;
         }

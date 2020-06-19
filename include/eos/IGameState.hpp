@@ -15,7 +15,7 @@ namespace eos {
     public:
         virtual ~IGameState() = default;
 
-        virtual bool init(std::shared_ptr<GameEngine> gameEngine) = 0;
+        virtual bool init() = 0;
 
         virtual bool cleanup() = 0;
 

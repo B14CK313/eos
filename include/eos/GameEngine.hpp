@@ -16,7 +16,7 @@ namespace eos {
     public:
         explicit GameEngine(const std::string& config_path);
 
-        void init();
+        void init(std::shared_ptr<IGameState> initialState);
         bool run();
 
         [[maybe_unused]] void target_fps(int fps, bool cap = true);

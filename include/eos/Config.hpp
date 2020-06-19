@@ -23,7 +23,6 @@ namespace eos {
         } window;
 
         struct Log {
-            bool toFile{true};
             int maxFiles{3};
         } log;
 

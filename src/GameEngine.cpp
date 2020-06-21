@@ -4,6 +4,7 @@
 
 #include "../include/eos/GameEngine.hpp"
 #include <thread>
+#include <utility>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
@@ -13,6 +14,8 @@ static void error_callback(int error, const char* description){
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     if(key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(window, GL_TRUE);
+    // Dirty workaround
+    static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.currentState()->input(key, scancode, action, mods);
 }
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -35,6 +38,10 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
 
     if(!glfwInit()) SPDLOG_CRITICAL("GLFW initialization failed");
 
+    //Only use modern OPEN GL (All legacy functions will return an error)
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     window = glfwCreateWindow(config.window.width, config.window.height, config.window.title.c_str(), nullptr /*glfwGetPrimaryMonitor()*/, nullptr);
     if(!window) {
         SPDLOG_CRITICAL("Creating window failed");
@@ -54,6 +61,7 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
     SPDLOG_TRACE("GLViewport: {}x{}", config.window.width, config.window.height);
 
     glfwSwapInterval(0);
+    glfwSetWindowUserPointer(window, this);
     glfwSetErrorCallback(error_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -73,7 +81,7 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
 }
 
 void eos::GameEngine::init(std::shared_ptr<IGameState> initialState) {
-    stateManager.pushState(initialState);
+    stateManager.pushState(std::move(initialState));
 
     dt = 1.0 / config.engine.targetUps;
     fpu = config.engine.targetFps * dt;

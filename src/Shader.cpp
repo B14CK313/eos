@@ -58,13 +58,13 @@ void eos::Shader::check_compile_errors(unsigned int shader, Type type) {
     char infoLog[1024];
     if (type == Type::PROGRAM) {
         glGetProgramiv(shader, GL_LINK_STATUS, &status);
-        if (status != 0) {
+        if (status == 0) {
             glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
             SPDLOG_ERROR("Error linking program: {}", infoLog);
         }
     } else {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-        if (status != 0) {
+        if (status == 0) {
             glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
             SPDLOG_ERROR("Error compiling {} shader: {}", type == Type::VERTEX ? "vertex" : "fragment", infoLog);
         }

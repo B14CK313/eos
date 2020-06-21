@@ -2,8 +2,8 @@
 // Created by jakob on 26.11.19.
 //
 
-#ifndef GLFW_GAMEENGINE_CONFIG_HPP
-#define GLFW_GAMEENGINE_CONFIG_HPP
+#ifndef EOS_CONFIG_HPP
+#define EOS_CONFIG_HPP
 
 #include <string>
 #include <boost/log/trivial.hpp>
@@ -33,10 +33,10 @@ namespace eos {
         } engine;
 
     private:
-        std::string path;
-        rapidjson::Document config;
+        std::string _path;
+        rapidjson::Document _config;
     };
 
 }
 
-#endif //GLFW_GAMEENGINE_CONFIG_HPP
+#endif //EOS_CONFIG_HPP

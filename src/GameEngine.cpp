@@ -15,14 +15,14 @@ static void error_callback(int error, const char* description){
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     if(key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(window, GL_TRUE);
     // Dirty workaround
-    static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.currentState()->input(key, scancode, action, mods);
+    static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.current_state()->input(key, scancode, action, mods);
 }
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path) {
+eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) {
     std::vector<spdlog::sink_ptr> sinks;
     sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
     //console_sink->set_level(spdlog::level::trace);
@@ -30,10 +30,10 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
     sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("log.log", true));
     //file_sink->set_level(spdlog::level::warn);
 
-    auto default_logger = std::make_shared<spdlog::logger>("default", sinks.begin(), sinks.end());
-    default_logger->flush_on(spdlog::level::trace);
-    spdlog::register_logger(default_logger);
-    spdlog::set_default_logger(default_logger);
+    auto defaultLogger = std::make_shared<spdlog::logger>("default", sinks.begin(), sinks.end());
+    defaultLogger->flush_on(spdlog::level::trace);
+    spdlog::register_logger(defaultLogger);
+    spdlog::set_default_logger(defaultLogger);
     SPDLOG_TRACE("Logger initialized");
 
     if(!glfwInit()) SPDLOG_CRITICAL("GLFW initialization failed");
@@ -68,23 +68,23 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
 
 [[maybe_unused]] void eos::GameEngine::target_fps(int fps, bool cap) {
     config.engine.targetFps = fps;
-    fpu = config.engine.targetFps * dt;
+    _fpu = config.engine.targetFps * _dt;
     config.engine.capFps = cap;
 }
 
 [[maybe_unused]] void eos::GameEngine::target_ups(int ups) {
     config.engine.targetUps = ups;
-    maxFrameTime = config.engine.targetUps * 25;
-    dt = 1.0 / config.engine.targetUps;
-    fpu = config.engine.targetFps * dt;
+    _maxFrameTime = config.engine.targetUps * 25;
+    _dt = 1.0 / config.engine.targetUps;
+    _fpu = config.engine.targetFps * _dt;
 }
 
 void eos::GameEngine::init(std::shared_ptr<IGameState> initialState) {
-    stateManager.pushState(std::move(initialState));
+    stateManager.push_state(std::move(initialState));
 
-    dt = 1.0 / config.engine.targetUps;
-    fpu = config.engine.targetFps * dt;
-    maxFrameTime = config.engine.targetUps * 25;
+    _dt = 1.0 / config.engine.targetUps;
+    _fpu = config.engine.targetFps * _dt;
+    _maxFrameTime = config.engine.targetUps * 25;
 }
 
 bool eos::GameEngine::run() {
@@ -101,12 +101,12 @@ bool eos::GameEngine::run() {
     while(glfwWindowShouldClose(window) == GLFW_FALSE) {
         double currentTime = glfwGetTime();
         double frameTime = currentTime - previousTime;
-        if(frameTime > maxFrameTime) frameTime = maxFrameTime; // Avoid Spiral of Death
+        if(frameTime > _maxFrameTime) frameTime = _maxFrameTime; // Avoid Spiral of Death
         previousTime = currentTime;
         accumulator += frameTime;
 
         if(currentTime - prevSec >= 1.0f) {
-            std::printf("\rcurrentTime: %f, t: %f, dt: %f, accumulator %f, frameTime: %f, FPS: %i, UPS: %i ", currentTime, t, dt, accumulator, frameTime, fps, ups);
+            std::printf("\rcurrentTime: %f, t: %f, _dt: %f, accumulator %f, frameTime: %f, FPS: %i, UPS: %i ", currentTime, t, _dt, accumulator, frameTime, fps, ups);
             fflush(stdout);
             fps = 0;
             ups = 0;
@@ -114,32 +114,32 @@ bool eos::GameEngine::run() {
         }
 
         // Run update every dt
-        while(accumulator >= dt){
-            //std::printf("t: %f, dt: %f, accumulator %f, frameTime: %f, FPS: %f\r", t, dt, accumulator, frameTime, 1/frameTime);
+        while(accumulator >= _dt){
+            //std::printf("t: %f, _dt: %f, accumulator %f, frameTime: %f, FPS: %f\r", t, _dt, accumulator, frameTime, 1/frameTime);
 
             glfwPollEvents();
-            stateManager.currentState()->update(t, dt);
-            accumulator -= dt;
-            t += dt;
+            stateManager.current_state()->update(t, _dt);
+            accumulator -= _dt;
+            t += _dt;
 
             updates++;
             ups++;
         }
 
-        double interpolation = accumulator / dt;
+        double interpolation = accumulator / _dt;
 
         // FPS Cap
-        if(config.engine.capFps && updates * fpu <= frames) {
+        if(config.engine.capFps && updates * _fpu <= frames) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         } else {
-            stateManager.currentState()->render(interpolation);
+            stateManager.current_state()->render(interpolation);
             glfwSwapBuffers(window);
             frames++;
             fps++;
         }
     }
 
-    stateManager.currentState()->cleanup();
+    stateManager.current_state()->cleanup();
     glfwTerminate();
     return true;
 }

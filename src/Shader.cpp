@@ -20,51 +20,51 @@ eos::Shader::Shader(const std::string& vertexPath, const std::string& fragmentPa
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vertexShaderSource, nullptr);
     glCompileShader(vertex);
-    checkCompileErrors(vertex, Type::VERTEX);
+    check_compile_errors(vertex, Type::VERTEX);
     // fragment Shader
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fragmentShaderSource, nullptr);
     glCompileShader(fragment);
-    checkCompileErrors(fragment, Type::FRAGMENT);
+    check_compile_errors(fragment, Type::FRAGMENT);
     // shader Program
-    ID = glCreateProgram();
-    glAttachShader(ID, vertex);
-    glAttachShader(ID, fragment);
-    glLinkProgram(ID);
-    checkCompileErrors(ID, Type::PROGRAM);
+    id = glCreateProgram();
+    glAttachShader(id, vertex);
+    glAttachShader(id, fragment);
+    glLinkProgram(id);
+    check_compile_errors(id, Type::PROGRAM);
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 }
 
 void eos::Shader::use() const {
-    glUseProgram(ID);
+    glUseProgram(id);
 }
 
-void eos::Shader::setBool(const std::string& name, bool value) const {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int) value);
+void eos::Shader::set_bool(const std::string& name, bool value) const {
+    glUniform1i(glGetUniformLocation(id, name.c_str()), (int) value);
 }
 
-void eos::Shader::setInt(const std::string& name, int value) const {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+void eos::Shader::set_int(const std::string& name, int value) const {
+    glUniform1i(glGetUniformLocation(id, name.c_str()), value);
 }
 
-void eos::Shader::setFloat(const std::string& name, float value) const {
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+void eos::Shader::set_float(const std::string& name, float value) const {
+    glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 }
 
-void eos::Shader::checkCompileErrors(unsigned int shader, const Type type) {
+void eos::Shader::check_compile_errors(unsigned int shader, Type type) {
     int status;
     char infoLog[1024];
     if (type == Type::PROGRAM) {
         glGetProgramiv(shader, GL_LINK_STATUS, &status);
-        if (!status) {
+        if (status != 0) {
             glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
             SPDLOG_ERROR("Error linking program: {}", infoLog);
         }
     } else {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-        if (!status) {
+        if (status != 0) {
             glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
             SPDLOG_ERROR("Error compiling {} shader: {}", type == Type::VERTEX ? "vertex" : "fragment", infoLog);
         }

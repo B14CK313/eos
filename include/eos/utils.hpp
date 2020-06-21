@@ -2,8 +2,8 @@
 // Created by jakob on 09.10.19.
 //
 
-#ifndef GLFW_GAMEENGINE_UTILS_HPP
-#define GLFW_GAMEENGINE_UTILS_HPP
+#ifndef EOS_UTILS_HPP
+#define EOS_UTILS_HPP
 
 #include <string>
 #include <vector>
@@ -18,4 +18,4 @@ namespace eos::utils {
     bool load_file(const std::string& path, std::string& content);
 }
 
-#endif //GLFW_GAMEENGINE_UTILS_HPP
+#endif //EOS_UTILS_HPP

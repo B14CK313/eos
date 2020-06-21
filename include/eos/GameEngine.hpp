@@ -14,7 +14,7 @@ namespace eos {
 
     class GameEngine {
     public:
-        explicit GameEngine(const std::string& config_path);
+        explicit GameEngine(const std::string& configPath);
 
         void init(std::shared_ptr<IGameState> initialState);
         bool run();
@@ -28,9 +28,9 @@ namespace eos {
         GLFWwindow* window;
 
     private:
-        double maxFrameTime{};
-        double dt{};
-        double fpu{};
+        double _maxFrameTime{};
+        double _dt{};
+        double _fpu{};
     };
 
 }

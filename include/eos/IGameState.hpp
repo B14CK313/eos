@@ -19,9 +19,9 @@ namespace eos {
 
         virtual bool cleanup() = 0;
 
-        virtual void onEnter() = 0;
+        virtual void on_enter() = 0;
 
-        virtual void onExit() = 0;
+        virtual void on_exit() = 0;
 
         virtual void resize(int width, int height) = 0;
 

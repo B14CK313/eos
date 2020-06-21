@@ -2,7 +2,7 @@
 // Created by jakob on 19.06.20.
 //
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <spdlog/spdlog.h>
 #include "../include/eos/utils.hpp"
 #include "../include/eos/Shader.h"

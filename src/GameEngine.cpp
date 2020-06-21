@@ -51,9 +51,8 @@ eos::GameEngine::GameEngine(const std::string& config_path) : config(config_path
     glfwMakeContextCurrent(window);
     SPDLOG_TRACE("GLContext set");
 
-    GLenum err = glewInit();
-    if(GLEW_OK != err) SPDLOG_ERROR("glewInit failed, error: {}", glewGetErrorString(err));
-    SPDLOG_INFO("GLEW Version: {}", glewGetString(GLEW_VERSION));
+    if(!gladLoadGL()) SPDLOG_ERROR("gladLoadGL failed");
+    //SPDLOG_INFO("glad Version: {}", );
     SPDLOG_INFO("OpenGL Version: {}", glGetString(GL_VERSION));
     SPDLOG_DEBUG("OpenGL Vendor: {}, Renderer: {}, Shanding Language Version: {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_SHADING_LANGUAGE_VERSION));
 

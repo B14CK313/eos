@@ -5,7 +5,7 @@
 #ifndef EOS_GAMEENGINE_HPP
 #define EOS_GAMEENGINE_HPP
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "StateManager.hpp"
 #include "Config.hpp"

@@ -43,5 +43,5 @@ find_package(RapidJSON REQUIRED)
 include_directories(${CMAKE_SOURCE_DIR}/include ${GLFW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${RAPIDJSON_INCLUDE_DIRS})
 
 add_library(eos STATIC ${eos_SOURCE_FILES})
-target_link_libraries(eos PUBLIC ${Boost_LIBRARIES} ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} fmt::fmt spdlog::spdlog glad)
+target_link_libraries(eos PUBLIC ${Boost_LIBRARIES} ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} fmt::fmt spdlog::spdlog glad mango)
 target_include_directories(eos PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

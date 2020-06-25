@@ -68,23 +68,23 @@ eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) 
 
 [[maybe_unused]] void eos::GameEngine::target_fps(int fps, bool cap) {
     config.engine.targetFps = fps;
-    _fpu = config.engine.targetFps * _dt;
+    fpu_ = config.engine.targetFps * dt_;
     config.engine.capFps = cap;
 }
 
 [[maybe_unused]] void eos::GameEngine::target_ups(int ups) {
     config.engine.targetUps = ups;
-    _maxFrameTime = config.engine.targetUps * 25;
-    _dt = 1.0 / config.engine.targetUps;
-    _fpu = config.engine.targetFps * _dt;
+    maxFrameTime_ = config.engine.targetUps * 25;
+    dt_ = 1.0 / config.engine.targetUps;
+    fpu_ = config.engine.targetFps * dt_;
 }
 
 void eos::GameEngine::init(std::shared_ptr<IGameState> initialState) {
     stateManager.push_state(std::move(initialState));
 
-    _dt = 1.0 / config.engine.targetUps;
-    _fpu = config.engine.targetFps * _dt;
-    _maxFrameTime = config.engine.targetUps * 25;
+    dt_ = 1.0 / config.engine.targetUps;
+    fpu_ = config.engine.targetFps * dt_;
+    maxFrameTime_ = config.engine.targetUps * 25;
 }
 
 bool eos::GameEngine::run() {
@@ -101,12 +101,12 @@ bool eos::GameEngine::run() {
     while(glfwWindowShouldClose(window) == GLFW_FALSE) {
         double currentTime = glfwGetTime();
         double frameTime = currentTime - previousTime;
-        if(frameTime > _maxFrameTime) frameTime = _maxFrameTime; // Avoid Spiral of Death
+        if(frameTime > maxFrameTime_) frameTime = maxFrameTime_; // Avoid Spiral of Death
         previousTime = currentTime;
         accumulator += frameTime;
 
         if(currentTime - prevSec >= 1.0f) {
-            std::printf("\rcurrentTime: %f, t: %f, _dt: %f, accumulator %f, frameTime: %f, FPS: %i, UPS: %i ", currentTime, t, _dt, accumulator, frameTime, fps, ups);
+            std::printf("\rcurrentTime: %f, t: %f, _dt: %f, accumulator %f, frameTime: %f, FPS: %i, UPS: %i ", currentTime, t, dt_, accumulator, frameTime, fps, ups);
             fflush(stdout);
             fps = 0;
             ups = 0;
@@ -114,22 +114,22 @@ bool eos::GameEngine::run() {
         }
 
         // Run update every dt
-        while(accumulator >= _dt){
+        while(accumulator >= dt_){
             //std::printf("t: %f, _dt: %f, accumulator %f, frameTime: %f, FPS: %f\r", t, _dt, accumulator, frameTime, 1/frameTime);
 
             glfwPollEvents();
-            stateManager.current_state()->update(t, _dt);
-            accumulator -= _dt;
-            t += _dt;
+            stateManager.current_state()->update(t, dt_);
+            accumulator -= dt_;
+            t += dt_;
 
             updates++;
             ups++;
         }
 
-        double interpolation = accumulator / _dt;
+        double interpolation = accumulator / dt_;
 
         // FPS Cap
-        if(config.engine.capFps && updates * _fpu <= frames) {
+        if(config.engine.capFps && updates * fpu_ <= frames) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         } else {
             stateManager.current_state()->render(interpolation);

@@ -18,7 +18,7 @@ namespace eos {
 
         std::shared_ptr<IGameState> current_state();
     private:
-        std::vector<std::shared_ptr<IGameState>> _stateStack;
+        std::vector<std::shared_ptr<IGameState>> stateStack_;
     };
 
 }

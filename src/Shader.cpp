@@ -16,7 +16,7 @@ eos::Shader::Shader(const std::string& vertexPath, const std::string& fragmentPa
 
     //compile shaders
     unsigned int vertex, fragment;
-    // vertex shader
+    // vertex shader_
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vertexShaderSource, nullptr);
     glCompileShader(vertex);
@@ -26,31 +26,34 @@ eos::Shader::Shader(const std::string& vertexPath, const std::string& fragmentPa
     glShaderSource(fragment, 1, &fragmentShaderSource, nullptr);
     glCompileShader(fragment);
     check_compile_errors(fragment, Type::FRAGMENT);
-    // shader Program
-    id = glCreateProgram();
-    glAttachShader(id, vertex);
-    glAttachShader(id, fragment);
-    glLinkProgram(id);
-    check_compile_errors(id, Type::PROGRAM);
+    // shader_ Program
+    id_ = glCreateProgram();
+    glAttachShader(id_, vertex);
+    glAttachShader(id_, fragment);
+    glLinkProgram(id_);
+    check_compile_errors(id_, Type::PROGRAM);
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 }
 
 void eos::Shader::use() const {
-    glUseProgram(id);
+    glUseProgram(id_);
 }
 
-void eos::Shader::set_bool(const std::string& name, bool value) const {
-    glUniform1i(glGetUniformLocation(id, name.c_str()), (int) value);
+const eos::Shader& eos::Shader::set_bool(const std::string& name, bool value) const {
+    glUniform1i(glGetUniformLocation(id_, name.c_str()), (int) value);
+    return *this;
 }
 
-void eos::Shader::set_int(const std::string& name, int value) const {
-    glUniform1i(glGetUniformLocation(id, name.c_str()), value);
+const eos::Shader& eos::Shader::set_int(const std::string& name, int value) const {
+    glUniform1i(glGetUniformLocation(id_, name.c_str()), value);
+    return *this;
 }
 
-void eos::Shader::set_float(const std::string& name, float value) const {
-    glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+const eos::Shader& eos::Shader::set_float(const std::string& name, float value) const {
+    glUniform1f(glGetUniformLocation(id_, name.c_str()), value);
+    return *this;
 }
 
 void eos::Shader::check_compile_errors(unsigned int shader, Type type) {

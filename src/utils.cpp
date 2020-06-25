@@ -25,16 +25,10 @@ std::string eos::utils::load_file(const std::string& path) {
     return(content);
 }
 
-bool eos::utils::load_file(const std::string& path, std::string& content) {
+std::vector<unsigned char> eos::utils::load_file_unsigned_char(const std::string& path) {
     std::ifstream ifstream{path, std::ios::in | std::ios::binary};
     if (!ifstream) {
         SPDLOG_ERROR("Loading file {} failed. File does not exist.", path);
-        return false;
     }
-    ifstream.seekg(0, std::ios::end);
-    content.resize(ifstream.tellg());
-    ifstream.seekg(0, std::ios::beg);
-    ifstream.read(&content[0], content.size());
-    ifstream.close();
-    return true;
+    return std::vector<unsigned char>((std::istream_iterator<unsigned char>(ifstream)), (std::istream_iterator<unsigned char>()));
 }

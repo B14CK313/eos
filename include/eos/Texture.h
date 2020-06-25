@@ -12,10 +12,10 @@ namespace eos {
 
     class Texture {
     public:
-        Texture(const std::string& path, unsigned int colorFormat = GL_RGB, unsigned int wrapS = GL_REPEAT,
+        explicit Texture(const std::string& path, unsigned int colorFormat = GL_RGB, unsigned int wrapS = GL_REPEAT,
                 unsigned int wrapT = GL_REPEAT, unsigned int filterMin = GL_LINEAR, unsigned int filterMag = GL_LINEAR);
 
-        void bind();
+        void bind() const;
 
         void cleanup();
 
@@ -26,7 +26,7 @@ namespace eos {
         const Texture& set_filter(unsigned int filterMin, unsigned int filterMag) const;
 
     private:
-        unsigned int id_;
+        unsigned int id_{};
     };
 
 }

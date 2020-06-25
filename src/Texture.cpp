@@ -3,8 +3,10 @@
 //
 
 #include <glad/glad.h>
-#include <stb/stb_image.h>
+#include <mango/image/image.hpp>
 #include <spdlog/spdlog.h>
+#include <eos/utils.hpp>
+#include <filesystem>
 #include "eos/Texture.h"
 
 eos::Texture::Texture(const std::string& path, unsigned int colorFormat, unsigned int wrapS, unsigned int wrapT,
@@ -15,18 +17,18 @@ eos::Texture::Texture(const std::string& path, unsigned int colorFormat, unsigne
     set_wrap(wrapS, wrapT);
     set_filter(filterMin, filterMag);
 
-    int width, height, nrChannels;
-    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, colorFormat, width, height, 0, colorFormat, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        SPDLOG_ERROR("Failed to load texture from {}", path);
+    std::vector<unsigned char> buffer = eos::utils::load_file_unsigned_char(path);
+    mango::Memory memory(buffer.data(), buffer.size());
+    mango::ImageDecoder decoder(memory, std::filesystem::path(path).extension());
+    if(decoder.isDecoder()){
+        mango::ImageHeader header = decoder.header();
+        const int stride = header.width * header.format.bytes();
+        mango::Surface surface(header.width, header.height, header.format, stride, &id_);
+        decoder.decode(surface);
     }
-    stbi_image_free(data);
 }
 
-void eos::Texture::bind() {
+void eos::Texture::bind() const {
     glBindTexture(GL_TEXTURE_2D, id_);
 }
 

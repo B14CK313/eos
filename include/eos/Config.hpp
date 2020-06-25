@@ -33,8 +33,8 @@ namespace eos {
         } engine;
 
     private:
-        std::string _path;
-        rapidjson::Document _config;
+        std::string path_;
+        rapidjson::Document config_;
     };
 
 }

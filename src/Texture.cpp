@@ -4,36 +4,73 @@
 
 #include <glad/glad.h>
 #include <mango/image/image.hpp>
+
 #include <spdlog/spdlog.h>
-#include <eos/utils.hpp>
-#include <filesystem>
 #include "eos/Texture.h"
 
 eos::Texture::Texture(const std::string& path, unsigned int colorFormat, unsigned int wrapS, unsigned int wrapT,
-                 unsigned int filterMin, unsigned int filterMag) {
-    glGenTextures(1, &id_);
-    glBindTexture(GL_TEXTURE_2D, id_); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-
-    set_wrap(wrapS, wrapT);
-    set_filter(filterMin, filterMag);
-
-    std::vector<unsigned char> buffer = eos::utils::load_file_unsigned_char(path);
-    mango::Memory memory(buffer.data(), buffer.size());
-    mango::ImageDecoder decoder(memory, std::filesystem::path(path).extension());
-    if(decoder.isDecoder()){
+                      unsigned int filterMin, unsigned int filterMag) {
+    // Creates memory mapped file
+    mango::filesystem::File file(path);
+    mango::ImageDecoder decoder(file, mango::filesystem::getExtension(path));
+    // Can decode file
+    if (decoder.isDecoder()) {
         mango::ImageHeader header = decoder.header();
         const int stride = header.width * header.format.bytes();
-        mango::Surface surface(header.width, header.height, header.format, stride, &id_);
-        decoder.decode(surface);
+
+        // Generate ids for texture and PBO and bind to them
+        glGenTextures(1, &textureId_);
+        glBindTexture(GL_TEXTURE_2D, textureId_);
+        glGenBuffers(1, &pboId_);
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pboId_);
+
+        set_wrap(wrapS, wrapT);
+        set_filter(filterMin, filterMag);
+
+        // allocate memory on GPU
+        glBufferData(GL_PIXEL_UNPACK_BUFFER, stride * header.height, nullptr, GL_STREAM_DRAW);
+        void* mappedBuffer = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+        if (mappedBuffer) {
+            // define output
+            mango::Surface surface(header.width, header.height, mango::FORMAT_R8G8B8A8, stride, mappedBuffer);
+            SPDLOG_TRACE("Loading image; format: R: {}, G: {}, B: {}, A: {}, O: {} {} {} {}, type: {} is float: {}",
+                        header.format.size[0], header.format.size[1], header.format.size[2], header.format.size[3],
+                        header.format.offset[0], header.format.offset[1], header.format.offset[2],
+                        header.format.offset[3], header.format.type, header.format.isFloat());
+            SPDLOG_TRACE("To surface with format: R: {}, G: {}, B: {}, A: {}, O: {} {} {} {}, type: {} is float: {}",
+                        surface.format.size[0], surface.format.size[1], surface.format.size[2], surface.format.size[3],
+                        surface.format.offset[0], surface.format.offset[1], surface.format.offset[2],
+                        surface.format.offset[3], surface.format.type, surface.format.isFloat());
+            // decode directly into mapped memory
+            mango::ImageDecodeStatus status = decoder.decode(surface);
+            surface.yflip();
+
+            if (!status.success) {
+                SPDLOG_ERROR("Failed to decode image, {}", status.info);
+            }
+
+            if (!glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER)) {
+                SPDLOG_ERROR("Failed to unmap GL_PIXEL_UNPACK_BUFFER");
+            }
+        } else {
+            SPDLOG_ERROR("Failed to map GL_PIXEL_UNPACK_BUFFER");
+        }
+
+        // Create texture from PBO
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, header.width, header.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        // Buffer is not used anymore, unbind
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
     }
 }
 
 void eos::Texture::bind() const {
-    glBindTexture(GL_TEXTURE_2D, id_);
+    glBindTexture(GL_TEXTURE_2D, textureId_);
 }
 
 void eos::Texture::cleanup() {
-    glDeleteTextures(1, &id_);
+    glDeleteBuffers(1, &pboId_);
+    glDeleteTextures(1, &textureId_);
 }
 
 const eos::Texture& eos::Texture::set_wrap(unsigned int wrapS, unsigned int wrapT) const {

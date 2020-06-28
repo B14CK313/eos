@@ -25,10 +25,10 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) {
     std::vector<spdlog::sink_ptr> sinks;
     sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
-    //console_sink->set_level(spdlog::level::trace);
+    sinks[0]->set_level(spdlog::level::trace);
 
     sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("log.log", true));
-    //file_sink->set_level(spdlog::level::warn);
+    sinks[1]->set_level(spdlog::level::warn);
 
     auto defaultLogger = std::make_shared<spdlog::logger>("default", sinks.begin(), sinks.end());
     defaultLogger->flush_on(spdlog::level::trace);

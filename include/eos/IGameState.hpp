@@ -31,8 +31,8 @@ namespace eos {
 
         virtual void render(double interpolation) = 0;
 
-    public:
-        std::shared_ptr<GameEngine> gameEngine;
+    protected:
+        std::weak_ptr<GameEngine> gameEngine_;
     };
 
 }

@@ -37,11 +37,11 @@ find_package(OpenGL REQUIRED)
 find_package(Boost COMPONENTS log REQUIRED)
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
-add_compile_definitions(SPDLOG_ACTIVE_LEVEL=0)
 find_package(RapidJSON REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/include ${GLFW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${RAPIDJSON_INCLUDE_DIRS})
 
 add_library(eos STATIC ${eos_SOURCE_FILES})
-target_link_libraries(eos PUBLIC ${Boost_LIBRARIES} ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} fmt::fmt spdlog::spdlog glad)
+target_link_libraries(eos PUBLIC ${Boost_LIBRARIES} ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} fmt::fmt spdlog::spdlog glad mango)
 target_include_directories(eos PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_compile_definitions(SPDLOG_ACTIVE_LEVEL=0)

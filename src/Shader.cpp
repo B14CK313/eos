@@ -16,17 +16,17 @@ eos::Shader::Shader(const std::string& vertexPath, const std::string& fragmentPa
 
     //compile shaders
     unsigned int vertex, fragment;
-    // vertex shader_
+    // vertex shader
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vertexShaderSource, nullptr);
     glCompileShader(vertex);
     check_compile_errors(vertex, Type::VERTEX);
-    // fragment Shader
+    // fragment shader
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fragmentShaderSource, nullptr);
     glCompileShader(fragment);
     check_compile_errors(fragment, Type::FRAGMENT);
-    // shader_ Program
+    // shader Program
     id_ = glCreateProgram();
     glAttachShader(id_, vertex);
     glAttachShader(id_, fragment);
@@ -35,6 +35,10 @@ eos::Shader::Shader(const std::string& vertexPath, const std::string& fragmentPa
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
+}
+
+eos::Shader::~Shader() {
+    glDeleteProgram(id_);
 }
 
 void eos::Shader::use() const {

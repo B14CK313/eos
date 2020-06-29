@@ -14,7 +14,6 @@ void eos::StateManager::push_state(std::shared_ptr<IGameState> state) {
 void eos::StateManager::pop_state() {
     if(!stateStack_.empty()) {
         stateStack_.back()->on_exit();
-        stateStack_.back()->cleanup();
         stateStack_.pop_back();
 
         if(!stateStack_.empty()){

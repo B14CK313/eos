@@ -25,20 +25,20 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) {
     std::vector<spdlog::sink_ptr> sinks;
     sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
-    //console_sink->set_level(spdlog::level::trace);
+    sinks[0]->set_level(spdlog::level::trace);
 
-    sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>("log.log", true));
-    //file_sink->set_level(spdlog::level::warn);
+    sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(config.log.fileName, true));
+    sinks[1]->set_level(spdlog::level::warn);
 
     auto defaultLogger = std::make_shared<spdlog::logger>("default", sinks.begin(), sinks.end());
-    defaultLogger->flush_on(spdlog::level::trace);
+    defaultLogger->set_level(spdlog::level::trace);
     spdlog::register_logger(defaultLogger);
     spdlog::set_default_logger(defaultLogger);
     SPDLOG_TRACE("Logger initialized");
 
     if(!glfwInit()) SPDLOG_CRITICAL("GLFW initialization failed");
 
-    //Only use modern OPEN GL (All legacy functions will return an error)
+    //Only use modern OpenGL (All legacy functions will return an error)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -139,7 +139,7 @@ bool eos::GameEngine::run() {
         }
     }
 
-    stateManager.current_state()->cleanup();
+    glfwDestroyWindow(window);
     glfwTerminate();
     return true;
 }

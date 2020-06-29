@@ -15,10 +15,6 @@ namespace eos {
     public:
         virtual ~IGameState() = default;
 
-        virtual bool init() = 0;
-
-        virtual bool cleanup() = 0;
-
         virtual void on_enter() = 0;
 
         virtual void on_exit() = 0;
@@ -31,8 +27,8 @@ namespace eos {
 
         virtual void render(double interpolation) = 0;
 
-    public:
-        std::shared_ptr<GameEngine> gameEngine;
+    protected:
+        std::weak_ptr<GameEngine> gameEngine_;
     };
 
 }

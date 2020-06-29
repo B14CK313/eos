@@ -64,13 +64,12 @@ eos::Texture::Texture(const std::string& path, unsigned int colorFormat, unsigne
     }
 }
 
+eos::Texture::~Texture() {
+    glDeleteBuffers(1, &pboId_);
+    glDeleteTextures(1, &textureId_);}
+
 void eos::Texture::bind() const {
     glBindTexture(GL_TEXTURE_2D, textureId_);
-}
-
-void eos::Texture::cleanup() {
-    glDeleteBuffers(1, &pboId_);
-    glDeleteTextures(1, &textureId_);
 }
 
 const eos::Texture& eos::Texture::set_wrap(unsigned int wrapS, unsigned int wrapT) const {

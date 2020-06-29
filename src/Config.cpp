@@ -30,6 +30,7 @@ eos::Config::Config(const std::string& path) : path_(path) {
 
             if (config_.HasMember("log")) {
                 LOAD_CONFIG_OPTION(log, maxFiles, Int);
+                LOAD_CONFIG_OPTION(log, fileName, String);
             } else
                 SPDLOG_WARN("Config missing section log, using default values");
 

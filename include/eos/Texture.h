@@ -15,9 +15,9 @@ namespace eos {
         explicit Texture(const std::string& path, unsigned int colorFormat = GL_RGBA, unsigned int wrapS = GL_REPEAT,
                 unsigned int wrapT = GL_REPEAT, unsigned int filterMin = GL_LINEAR, unsigned int filterMag = GL_LINEAR);
 
-        void bind() const;
+        virtual ~Texture();
 
-        void cleanup();
+        void bind() const;
 
         // set the texture wrapping parameters
         const Texture& set_wrap(unsigned int wrapS, unsigned int wrapT) const;

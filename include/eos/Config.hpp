@@ -24,6 +24,7 @@ namespace eos {
 
         struct Log {
             int maxFiles{3};
+            std::string fileName{"log.log"};
         } log;
 
         struct Engine {

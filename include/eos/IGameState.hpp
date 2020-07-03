@@ -15,10 +15,6 @@ namespace eos {
     public:
         virtual ~IGameState() = default;
 
-        virtual bool init() = 0;
-
-        virtual bool cleanup() = 0;
-
         virtual void on_enter() = 0;
 
         virtual void on_exit() = 0;

@@ -13,23 +13,25 @@ namespace eos {
     public:
         enum class Type {PROGRAM, FRAGMENT, VERTEX};
 
-        // the program ID
-        unsigned int id;
-
         // constructor reads and builds the shader
         Shader(const std::string& vertexPath, const std::string& fragmentPath);
+
+        ~Shader();
 
         // use/activate the shader
         void use() const;
 
         // utility uniform functions
-        void set_bool(const std::string& name, bool value) const;
+        const Shader& set_bool(const std::string& name, bool value) const;
 
-        void set_int(const std::string& name, int value) const;
+        const Shader& set_int(const std::string& name, int value) const;
 
-        void set_float(const std::string& name, float value) const;
+        const Shader& set_float(const std::string& name, float value) const;
 
     private:
+        // the program ID
+        unsigned int id_;
+
         static void check_compile_errors(unsigned int shader, Type type);
     };
 

@@ -28,9 +28,9 @@ namespace eos {
         GLFWwindow* window;
 
     private:
-        double _maxFrameTime{};
-        double _dt{};
-        double _fpu{};
+        double maxFrameTime_{};
+        double dt_{};
+        double fpu_{};
     };
 
 }

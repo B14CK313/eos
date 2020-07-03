@@ -24,6 +24,7 @@ namespace eos {
 
         struct Log {
             int maxFiles{3};
+            std::string fileName{"log.log"};
         } log;
 
         struct Engine {
@@ -33,8 +34,8 @@ namespace eos {
         } engine;
 
     private:
-        std::string _path;
-        rapidjson::Document _config;
+        std::string path_;
+        rapidjson::Document config_;
     };
 
 }

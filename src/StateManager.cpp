@@ -6,18 +6,17 @@
 #include <spdlog/spdlog.h>
 
 void eos::StateManager::push_state(std::shared_ptr<IGameState> state) {
-    if (!stateStack_.empty()) stateStack_.back()->on_exit();
+    if(!stateStack_.empty()) stateStack_.back()->on_exit();
     stateStack_.push_back(state);
-    state->on_enter();
+    stateStack_.back()->on_enter();
 }
 
 void eos::StateManager::pop_state() {
-    if (!stateStack_.empty()) {
+    if(!stateStack_.empty()) {
         stateStack_.back()->on_exit();
-        stateStack_.back()->cleanup();
         stateStack_.pop_back();
 
-        if (!stateStack_.empty()) {
+        if(!stateStack_.empty()){
             stateStack_.back()->on_enter();
             return;
         }

@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "modernize-use-nodiscard"
 //
 // Created by jakob on 19.06.20.
 //
@@ -6,6 +8,7 @@
 #define EOS_SHADER_H
 
 #include <string>
+#include <glm/glm.hpp>
 
 namespace eos {
 
@@ -28,6 +31,26 @@ namespace eos {
 
         const Shader& set_float(const std::string& name, float value) const;
 
+        const Shader& set_vec2(const std::string& name, const glm::vec2& value) const;
+
+        const Shader& set_vec2(const std::string& name, float x, float y) const;
+
+        const Shader& set_vec3(const std::string& name, const glm::vec3& value) const;
+
+        const Shader& set_vec3(const std::string& name, float x, float y, float z) const;
+
+        const Shader& set_vec4(const std::string& name, const glm::vec4& value) const;
+
+        const Shader& set_vec4(const std::string& name, float x, float y, float z, float w) const;
+
+        const Shader& set_mat2(const std::string& name, const glm::mat2& mat) const;
+
+        const Shader& set_mat3(const std::string& name, const glm::mat3& mat) const;
+
+        const Shader& set_mat4(const std::string& name, const glm::mat4& mat) const;
+
+        int get_uniform_location(const std::string& name) const;
+
     private:
         // the program ID
         unsigned int id_;
@@ -38,3 +61,5 @@ namespace eos {
 }
 
 #endif //EOS_SHADER_H
+
+#pragma clang diagnostic pop

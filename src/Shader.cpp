@@ -60,6 +60,55 @@ const eos::Shader& eos::Shader::set_float(const std::string& name, float value) 
     return *this;
 }
 
+const eos::Shader& eos::Shader::set_vec2(const std::string& name, const glm::vec2& value) const {
+    glUniform2fv(get_uniform_location(name), 1, &value[0]);
+    return *this;
+}
+
+const eos::Shader& eos::Shader::set_vec2(const std::string& name, float x, float y) const {
+    glUniform2f(get_uniform_location(name), x, y);
+    return *this;
+}
+
+const eos::Shader& eos::Shader::set_vec3(const std::string& name, const glm::vec3& value) const {
+    glUniform3fv(get_uniform_location(name), 1, &value[0]);
+    return *this;
+}
+
+const eos::Shader& eos::Shader::set_vec3(const std::string& name, float x, float y, float z) const {
+    glUniform3f(get_uniform_location(name), x, y, z);
+    return *this;
+}
+
+const eos::Shader& eos::Shader::set_vec4(const std::string& name, const glm::vec4& value) const {
+    glUniform4fv(get_uniform_location(name), 1, &value[0]);
+    return *this;
+}
+
+const eos::Shader& eos::Shader::set_vec4(const std::string& name, float x, float y, float z, float w) const {
+    glUniform4f(get_uniform_location(name), x, y, z, w);
+    return *this;
+}
+
+const eos::Shader& eos::Shader::set_mat2(const std::string& name, const glm::mat2& mat) const {
+    glUniformMatrix2fv(get_uniform_location(name), 1, GL_FALSE, &mat[0][0]);
+    return *this;
+}
+
+const eos::Shader& eos::Shader::set_mat3(const std::string& name, const glm::mat3& mat) const {
+    glUniformMatrix3fv(get_uniform_location(name), 1, GL_FALSE, &mat[0][0]);
+    return *this;
+}
+
+const eos::Shader& eos::Shader::set_mat4(const std::string& name, const glm::mat4& mat) const {
+    glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, &mat[0][0]);
+    return *this;
+}
+
+int eos::Shader::get_uniform_location(const std::string& name) const {
+    return glGetUniformLocation(id_, name.c_str());
+}
+
 void eos::Shader::check_compile_errors(unsigned int shader, Type type) {
     int status;
     char infoLog[1024];

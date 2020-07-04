@@ -32,6 +32,7 @@ eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) 
 
     auto defaultLogger = std::make_shared<spdlog::logger>("default", sinks.begin(), sinks.end());
     defaultLogger->set_level(spdlog::level::trace);
+    defaultLogger->set_pattern("[%Y-%m-%d %T.%e] [%^%l%$] [%s:%#] %v");
     spdlog::register_logger(defaultLogger);
     spdlog::set_default_logger(defaultLogger);
     SPDLOG_TRACE("Logger initialized");
@@ -54,7 +55,7 @@ eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) 
     if(!gladLoadGL()) SPDLOG_ERROR("gladLoadGL failed");
     //SPDLOG_INFO("glad Version: {}", );
     SPDLOG_INFO("OpenGL Version: {}", glGetString(GL_VERSION));
-    SPDLOG_DEBUG("OpenGL Vendor: {}, Renderer: {}, Shanding Language Version: {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_SHADING_LANGUAGE_VERSION));
+    SPDLOG_DEBUG("OpenGL Vendor: {}, Renderer: {}, Shading Language Version: {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     glViewport(0, 0, config.window.width, config.window.height);
     SPDLOG_TRACE("GLViewport: {}x{}", config.window.width, config.window.height);
@@ -106,7 +107,9 @@ bool eos::GameEngine::run() {
         accumulator += frameTime;
 
         if(currentTime - prevSec >= 1.0f) {
+#ifdef DEBUG
             std::printf("\rcurrentTime: %f, t: %f, _dt: %f, accumulator %f, frameTime: %f, FPS: %i, UPS: %i ", currentTime, t, dt_, accumulator, frameTime, fps, ups);
+#endif //DEBUG
             fflush(stdout);
             fps = 0;
             ups = 0;
@@ -115,8 +118,6 @@ bool eos::GameEngine::run() {
 
         // Run update every dt
         while(accumulator >= dt_){
-            //std::printf("t: %f, _dt: %f, accumulator %f, frameTime: %f, FPS: %f\r", t, _dt, accumulator, frameTime, 1/frameTime);
-
             glfwPollEvents();
             stateManager.current_state()->update(t, dt_);
             accumulator -= dt_;

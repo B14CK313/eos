@@ -2,11 +2,12 @@
 // Created by jakob on 25.06.20.
 //
 
-#ifndef GAME_TEXTURE_H
-#define GAME_TEXTURE_H
+#ifndef EOS_TEXTURE_H
+#define EOS_TEXTURE_H
 
 
 #include <string>
+#include <glad/glad.h>
 
 namespace eos {
 
@@ -32,4 +33,4 @@ namespace eos {
 
 }
 
-#endif //GAME_TEXTURE_H
+#endif //EOS_TEXTURE_H

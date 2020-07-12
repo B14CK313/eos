@@ -72,6 +72,10 @@ void eos::Texture::bind() const {
     glBindTexture(GL_TEXTURE_2D, textureId_);
 }
 
+unsigned int eos::Texture::get_id() const {
+    return textureId_;
+}
+
 const eos::Texture& eos::Texture::set_wrap(unsigned int wrapS, unsigned int wrapT) const {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);

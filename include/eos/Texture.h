@@ -14,11 +14,13 @@ namespace eos {
     class Texture {
     public:
         explicit Texture(const std::string& path, unsigned int colorFormat = GL_RGBA, unsigned int wrapS = GL_REPEAT,
-                unsigned int wrapT = GL_REPEAT, unsigned int filterMin = GL_LINEAR, unsigned int filterMag = GL_LINEAR);
+                unsigned int wrapT = GL_REPEAT, unsigned int filterMin = GL_LINEAR_MIPMAP_LINEAR, unsigned int filterMag = GL_LINEAR_MIPMAP_LINEAR);
 
         virtual ~Texture();
 
         void bind() const;
+
+        [[nodiscard]] unsigned int get_id() const;
 
         // set the texture wrapping parameters
         const Texture& set_wrap(unsigned int wrapS, unsigned int wrapT) const;

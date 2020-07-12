@@ -29,6 +29,8 @@ namespace eos {
 
         const Shader& set_int(const std::string& name, int value) const;
 
+        const Shader& set_uint(const std::string& name, unsigned int value) const;
+
         const Shader& set_float(const std::string& name, float value) const;
 
         const Shader& set_vec2(const std::string& name, const glm::vec2& value) const;

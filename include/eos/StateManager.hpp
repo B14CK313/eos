@@ -16,8 +16,16 @@ namespace eos {
 
         void pop_state();
 
-        std::shared_ptr<IGameState> current_state();
+        void resize(int width, int height);
+
+        void input(int key, int scancode, int action, int mods);
+
+        void update(double t, double dt);
+
+        void render(double interpolation);
+
     private:
+        // TODO: use unique_ptr
         std::vector<std::shared_ptr<IGameState>> stateStack_;
     };
 

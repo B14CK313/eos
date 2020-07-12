@@ -15,7 +15,7 @@ static void error_callback(int error, const char* description){
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     if(key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(window, GL_TRUE);
     // Dirty workaround
-    static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.current_state()->input(key, scancode, action, mods);
+    static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.input(key, scancode, action, mods);
 }
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -43,6 +43,7 @@ eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
     window = glfwCreateWindow(config.window.width, config.window.height, config.window.title.c_str(), nullptr /*glfwGetPrimaryMonitor()*/, nullptr);
     if(!window) {
         SPDLOG_CRITICAL("Creating window failed");
@@ -52,14 +53,20 @@ eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) 
     glfwMakeContextCurrent(window);
     SPDLOG_TRACE("GLContext set");
 
-    if(!gladLoadGL()) SPDLOG_ERROR("gladLoadGL failed");
+    if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) SPDLOG_ERROR("gladLoadGL failed");
     //SPDLOG_INFO("glad Version: {}", );
     SPDLOG_INFO("OpenGL Version: {}", glGetString(GL_VERSION));
     SPDLOG_DEBUG("OpenGL Vendor: {}, Renderer: {}, Shading Language Version: {}", glGetString(GL_VENDOR), glGetString(GL_RENDERER), glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-    glViewport(0, 0, config.window.width, config.window.height);
-    SPDLOG_TRACE("GLViewport: {}x{}", config.window.width, config.window.height);
+    int width;
+    int height;
+    glfwGetWindowSize(window, &width, &height);
+    glViewport(0, 0, width, height);
+    SPDLOG_TRACE("GLViewport: {}x{} (Config: {}x{})", width, height, config.window.width, config.window.height);
 
+    glDisable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
     glfwSwapInterval(0);
     glfwSetWindowUserPointer(window, this);
     glfwSetErrorCallback(error_callback);
@@ -78,6 +85,20 @@ eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) 
     maxFrameTime_ = config.engine.targetUps * 25;
     dt_ = 1.0 / config.engine.targetUps;
     fpu_ = config.engine.targetFps * dt_;
+}
+
+void eos::GameEngine::get_window_size(int& width, int& height) const {
+    glfwGetWindowSize(window, &width, &height);
+}
+
+void eos::GameEngine::get_window_size(glm::ivec2& dims) const {
+    glfwGetWindowSize(window, &dims[0], &dims[1]);
+}
+
+glm::ivec2 eos::GameEngine::get_window_size() const {
+    glm::ivec2 dim;
+    glfwGetWindowSize(window, &dim[0], &dim[1]);
+    return dim;
 }
 
 void eos::GameEngine::init(std::shared_ptr<IGameState> initialState) {
@@ -119,7 +140,7 @@ bool eos::GameEngine::run() {
         // Run update every dt
         while(accumulator >= dt_){
             glfwPollEvents();
-            stateManager.current_state()->update(t, dt_);
+            stateManager.update(t, dt_);
             accumulator -= dt_;
             t += dt_;
 
@@ -133,7 +154,7 @@ bool eos::GameEngine::run() {
         if(config.engine.capFps && updates * fpu_ <= frames) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         } else {
-            stateManager.current_state()->render(interpolation);
+            stateManager.render(interpolation);
             glfwSwapBuffers(window);
             frames++;
             fps++;

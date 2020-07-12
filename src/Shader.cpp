@@ -46,17 +46,22 @@ void eos::Shader::use() const {
 }
 
 const eos::Shader& eos::Shader::set_bool(const std::string& name, bool value) const {
-    glUniform1i(glGetUniformLocation(id_, name.c_str()), (int) value);
+    glUniform1i(get_uniform_location(name), (int) value);
     return *this;
 }
 
 const eos::Shader& eos::Shader::set_int(const std::string& name, int value) const {
-    glUniform1i(glGetUniformLocation(id_, name.c_str()), value);
+    glUniform1i(get_uniform_location(name), value);
+    return *this;
+}
+
+const eos::Shader& eos::Shader::set_uint(const std::string& name, unsigned int value) const {
+    glUniform1ui(get_uniform_location(name), value);
     return *this;
 }
 
 const eos::Shader& eos::Shader::set_float(const std::string& name, float value) const {
-    glUniform1f(glGetUniformLocation(id_, name.c_str()), value);
+    glUniform1f(get_uniform_location(name), value);
     return *this;
 }
 

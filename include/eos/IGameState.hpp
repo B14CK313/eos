@@ -6,6 +6,7 @@
 #define EOS_IGAMESTATE_HPP
 
 #include <memory>
+#include <GLFW/glfw3.h>
 
 namespace eos {
 

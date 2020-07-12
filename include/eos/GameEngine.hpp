@@ -7,6 +7,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include "StateManager.hpp"
 #include "Config.hpp"
 
@@ -19,9 +20,15 @@ namespace eos {
         void init(std::shared_ptr<IGameState> initialState);
         bool run();
 
-        [[maybe_unused]] void target_fps(int fps, bool cap = true);
+        void target_fps(int fps, bool cap = true);
 
-        [[maybe_unused]] void target_ups(int ups);
+        void target_ups(int ups);
+
+        void get_window_size(int& width, int& height) const;
+
+        void get_window_size(glm::ivec2& dims) const;
+
+        [[nodiscard]] glm::ivec2 get_window_size() const;
 
         StateManager stateManager{};
         Config config;

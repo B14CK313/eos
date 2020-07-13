@@ -22,14 +22,15 @@ namespace eos {
 
         virtual void resize(int width, int height) = 0;
 
-        virtual void input(int key, int scancode, int action, int mods) = 0;
+        virtual void key_input(int key, int scancode, int action, int mods) = 0;
+
+        virtual void mouse_input(double x, double y) = 0;
+
+        virtual void scroll_input(double xoffset, double yoffset) = 0;
 
         virtual void update(double t, double dt) = 0;
 
         virtual void render(double interpolation) = 0;
-
-    protected:
-        std::weak_ptr<GameEngine> gameEngine_;
     };
 
 }

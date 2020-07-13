@@ -15,9 +15,8 @@ namespace eos {
 
     class GameEngine {
     public:
-        explicit GameEngine(const std::string& configPath);
+        explicit GameEngine();
 
-        void init(std::shared_ptr<IGameState> initialState);
         bool run();
 
         void target_fps(int fps, bool cap = true);
@@ -29,10 +28,6 @@ namespace eos {
         void get_window_size(glm::ivec2& dims) const;
 
         [[nodiscard]] glm::ivec2 get_window_size() const;
-
-        StateManager stateManager{};
-        Config config;
-        GLFWwindow* window;
 
     private:
         double maxFrameTime_{};

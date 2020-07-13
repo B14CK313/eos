@@ -12,21 +12,16 @@ namespace eos {
 
     class StateManager {
     public:
-        void push_state(std::shared_ptr<IGameState> state);
+        explicit StateManager(std::unique_ptr<IGameState> initialState);
+
+        void push_state(std::unique_ptr<IGameState> state);
 
         void pop_state();
 
-        void resize(int width, int height);
-
-        void input(int key, int scancode, int action, int mods);
-
-        void update(double t, double dt);
-
-        void render(double interpolation);
+        eos::IGameState* getState();
 
     private:
-        // TODO: use unique_ptr
-        std::vector<std::shared_ptr<IGameState>> stateStack_;
+        std::vector<std::unique_ptr<IGameState>> stateStack_;
     };
 
 }

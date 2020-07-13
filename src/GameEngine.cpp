@@ -8,26 +8,33 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <eos/ServiceProvider.h>
 
 static void error_callback(int error, const char* description){
 }
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
-    if(key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(window, GL_TRUE);
-    // Dirty workaround
-    static_cast<eos::GameEngine*>(glfwGetWindowUserPointer(window))->stateManager.input(key, scancode, action, mods);
+    eos::ServiceProvider::getStateManager()->getState()->key_input(key, scancode, action, mods);
+}
+
+static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    eos::ServiceProvider::getStateManager()->getState()->mouse_input(xpos, ypos);
+}
+
+static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    eos::ServiceProvider::getStateManager()->getState()->scroll_input(xoffset, yoffset);
 }
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) {
+eos::GameEngine::GameEngine() {
     std::vector<spdlog::sink_ptr> sinks;
     sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
     sinks[0]->set_level(spdlog::level::trace);
 
-    sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(config.log.fileName, true));
+    sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(eos::ServiceProvider::getConfig()->log.fileName, true));
     sinks[1]->set_level(spdlog::level::warn);
 
     auto defaultLogger = std::make_shared<spdlog::logger>("default", sinks.begin(), sinks.end());
@@ -44,13 +51,13 @@ eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
-    window = glfwCreateWindow(config.window.width, config.window.height, config.window.title.c_str(), nullptr /*glfwGetPrimaryMonitor()*/, nullptr);
-    if(!window) {
+    eos::ServiceProvider::provide(glfwCreateWindow(eos::ServiceProvider::getConfig()->window.width, eos::ServiceProvider::getConfig()->window.height, eos::ServiceProvider::getConfig()->window.title.c_str(), nullptr /*glfwGetPrimaryMonitor()*/, nullptr));
+    if(!eos::ServiceProvider::getWindow()) {
         SPDLOG_CRITICAL("Creating window failed");
         glfwTerminate();
     }
 
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(eos::ServiceProvider::getWindow());
     SPDLOG_TRACE("GLContext set");
 
     if(!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) SPDLOG_ERROR("gladLoadGL failed");
@@ -60,53 +67,50 @@ eos::GameEngine::GameEngine(const std::string& configPath) : config(configPath) 
 
     int width;
     int height;
-    glfwGetWindowSize(window, &width, &height);
+    glfwGetWindowSize(eos::ServiceProvider::getWindow(), &width, &height);
     glViewport(0, 0, width, height);
-    SPDLOG_TRACE("GLViewport: {}x{} (Config: {}x{})", width, height, config.window.width, config.window.height);
+    SPDLOG_TRACE("GLViewport: {}x{} (Config: {}x{})", width, height, eos::ServiceProvider::getConfig()->window.width, eos::ServiceProvider::getConfig()->window.height);
 
     glDisable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
     glfwSwapInterval(0);
-    glfwSetWindowUserPointer(window, this);
     glfwSetErrorCallback(error_callback);
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetKeyCallback(eos::ServiceProvider::getWindow(), key_callback);
+    glfwSetCursorPosCallback(eos::ServiceProvider::getWindow(), mouse_callback);
+    glfwSetScrollCallback(eos::ServiceProvider::getWindow(), scroll_callback);
+    glfwSetFramebufferSizeCallback(eos::ServiceProvider::getWindow(), framebuffer_size_callback);
+
+    dt_ = 1.0 / eos::ServiceProvider::getConfig()->engine.targetUps;
+    fpu_ = eos::ServiceProvider::getConfig()->engine.targetFps * dt_;
+    maxFrameTime_ = eos::ServiceProvider::getConfig()->engine.targetUps * 25;
 }
 
 [[maybe_unused]] void eos::GameEngine::target_fps(int fps, bool cap) {
-    config.engine.targetFps = fps;
-    fpu_ = config.engine.targetFps * dt_;
-    config.engine.capFps = cap;
+    eos::ServiceProvider::getConfig()->engine.targetFps = fps;
+    fpu_ = eos::ServiceProvider::getConfig()->engine.targetFps * dt_;
+    eos::ServiceProvider::getConfig()->engine.capFps = cap;
 }
 
 [[maybe_unused]] void eos::GameEngine::target_ups(int ups) {
-    config.engine.targetUps = ups;
-    maxFrameTime_ = config.engine.targetUps * 25;
-    dt_ = 1.0 / config.engine.targetUps;
-    fpu_ = config.engine.targetFps * dt_;
+    eos::ServiceProvider::getConfig()->engine.targetUps = ups;
+    maxFrameTime_ = eos::ServiceProvider::getConfig()->engine.targetUps * 25;
+    dt_ = 1.0 / eos::ServiceProvider::getConfig()->engine.targetUps;
+    fpu_ = eos::ServiceProvider::getConfig()->engine.targetFps * dt_;
 }
 
 void eos::GameEngine::get_window_size(int& width, int& height) const {
-    glfwGetWindowSize(window, &width, &height);
+    glfwGetWindowSize(eos::ServiceProvider::getWindow(), &width, &height);
 }
 
 void eos::GameEngine::get_window_size(glm::ivec2& dims) const {
-    glfwGetWindowSize(window, &dims[0], &dims[1]);
+    glfwGetWindowSize(eos::ServiceProvider::getWindow(), &dims[0], &dims[1]);
 }
 
 glm::ivec2 eos::GameEngine::get_window_size() const {
     glm::ivec2 dim;
-    glfwGetWindowSize(window, &dim[0], &dim[1]);
+    glfwGetWindowSize(eos::ServiceProvider::getWindow(), &dim[0], &dim[1]);
     return dim;
-}
-
-void eos::GameEngine::init(std::shared_ptr<IGameState> initialState) {
-    stateManager.push_state(std::move(initialState));
-
-    dt_ = 1.0 / config.engine.targetUps;
-    fpu_ = config.engine.targetFps * dt_;
-    maxFrameTime_ = config.engine.targetUps * 25;
 }
 
 bool eos::GameEngine::run() {
@@ -120,7 +124,7 @@ bool eos::GameEngine::run() {
     int fps = 0;
     int ups = 0;
 
-    while(glfwWindowShouldClose(window) == GLFW_FALSE) {
+    while(glfwWindowShouldClose(eos::ServiceProvider::getWindow()) == GLFW_FALSE) {
         double currentTime = glfwGetTime();
         double frameTime = currentTime - previousTime;
         if(frameTime > maxFrameTime_) frameTime = maxFrameTime_; // Avoid Spiral of Death
@@ -140,7 +144,7 @@ bool eos::GameEngine::run() {
         // Run update every dt
         while(accumulator >= dt_){
             glfwPollEvents();
-            stateManager.update(t, dt_);
+            eos::ServiceProvider::getStateManager()->getState()->update(t, dt_);
             accumulator -= dt_;
             t += dt_;
 
@@ -151,17 +155,17 @@ bool eos::GameEngine::run() {
         double interpolation = accumulator / dt_;
 
         // FPS Cap
-        if(config.engine.capFps && updates * fpu_ <= frames) {
+        if(eos::ServiceProvider::getConfig()->engine.capFps && updates * fpu_ <= frames) {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         } else {
-            stateManager.render(interpolation);
-            glfwSwapBuffers(window);
+            eos::ServiceProvider::getStateManager()->getState()->render(interpolation);
+            glfwSwapBuffers(eos::ServiceProvider::getWindow());
             frames++;
             fps++;
         }
     }
 
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(eos::ServiceProvider::getWindow());
     glfwTerminate();
     return true;
 }

@@ -23,12 +23,6 @@ namespace eos {
 
         void target_ups(int ups);
 
-        void get_window_size(int& width, int& height) const;
-
-        void get_window_size(glm::ivec2& dims) const;
-
-        [[nodiscard]] glm::ivec2 get_window_size() const;
-
     private:
         double maxFrameTime_{};
         double dt_{};

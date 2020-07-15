@@ -12,6 +12,9 @@ namespace eos {
 
     class ServiceProvider {
     public:
+        static void init(const std::string& configPath, std::unique_ptr<eos::IGameState> initialState);
+
+
         static void provide(std::unique_ptr<eos::GameEngine> gameEngine);
 
         static eos::GameEngine& getGameEngine();

@@ -6,9 +6,16 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 
+void eos::ServiceProvider::init(const std::string& configPath, std::unique_ptr<eos::IGameState> initialState) {
+    provide(std::make_unique<eos::Config>(configPath));
+    provide(std::make_unique<eos::StateManager>(std::move(initialState)));
+}
+
+
 void eos::ServiceProvider::provide(std::unique_ptr<eos::GameEngine> gameEngine) {
     gameEngine_ = std::move(gameEngine);
 }
+
 
 eos::GameEngine& eos::ServiceProvider::getGameEngine() {
     if(!gameEngine_) {
@@ -17,10 +24,10 @@ eos::GameEngine& eos::ServiceProvider::getGameEngine() {
     return *gameEngine_;
 }
 
-
 void eos::ServiceProvider::provide(std::unique_ptr<eos::StateManager> stateManager) {
     stateManager_ = std::move(stateManager);
 }
+
 
 eos::StateManager& eos::ServiceProvider::getStateManager() {
     if(!stateManager_) {
@@ -29,10 +36,10 @@ eos::StateManager& eos::ServiceProvider::getStateManager() {
     return *stateManager_;
 }
 
-
 void eos::ServiceProvider::provide(std::unique_ptr<eos::Config> config) {
     config_ = std::move(config);
 }
+
 
 eos::Config& eos::ServiceProvider::getConfig() {
     if(!config_){
@@ -40,7 +47,6 @@ eos::Config& eos::ServiceProvider::getConfig() {
     }
     return *config_;
 }
-
 
 void eos::ServiceProvider::provide(std::unique_ptr<eos::Window> window) {
     window_ = std::move(window);

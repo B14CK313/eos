@@ -103,6 +103,8 @@ bool eos::GameEngine::run() {
     int fps = 0;
     int ups = 0;
 
+    SPDLOG_TRACE("Starting game loop...");
+
     while (!eos::ServiceProvider::getWindow().get_should_close()) {
         double currentTime = glfwGetTime();
         double frameTime = currentTime - previousTime;

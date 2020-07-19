@@ -49,7 +49,7 @@ namespace eos {
 
         const eos::Window& set_should_close() const;
 
-        bool get_should_close() const;
+        [[nodiscard]] bool get_should_close() const;
 
         const eos::Window& get_size(int& width, int& height) const;
 

@@ -16,12 +16,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     eos::ServiceProvider::getStateManager().getState()->key_input(key, scancode, action, mods);
 }
 
-static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    eos::ServiceProvider::getStateManager().getState()->mouse_input(xpos, ypos);
+static void mouse_callback(GLFWwindow* window, double xPos, double yPos) {
+    eos::ServiceProvider::getStateManager().getState()->mouse_input(xPos, yPos);
 }
 
-static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    eos::ServiceProvider::getStateManager().getState()->scroll_input(xoffset, yoffset);
+static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset) {
+    eos::ServiceProvider::getStateManager().getState()->scroll_input(xOffset, yOffset);
 }
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {

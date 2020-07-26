@@ -43,9 +43,7 @@ eos::Config::Config(const std::string& path) : path_(path) {
 
             SPDLOG_DEBUG("Config successfully loaded");
         } else {
-            BOOST_LOG_TRIVIAL(warning)
-                << fmt::format("Parsing config file failed: {}: {}, starting with default values",
-                               config_.GetErrorOffset(), config_.GetParseError());
+            SPDLOG_WARN("Parsing config file failed: {}: {}, starting with default values", config_.GetErrorOffset(), config_.GetParseError());
         }
     } else {
         SPDLOG_WARN("Config file not found, starting with default values");

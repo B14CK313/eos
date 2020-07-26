@@ -2,14 +2,14 @@
 // Created by jakob on 16.07.20.
 //
 
-#ifndef EOS_CAMERA_H
-#define EOS_CAMERA_H
+#ifndef EOS_ARCBALL_CAMERA_H
+#define EOS_ARCBALL_CAMERA_H
 
 #include <glm/glm.hpp>
 
 namespace eos {
 
-    class Camera {
+    class ArcballCamera {
     private:
         // Default camera values
         constexpr static const glm::vec3 FRONT{0.0f, 0.0f, -1.0f};
@@ -21,7 +21,7 @@ namespace eos {
         constexpr static const float ZOOM = 45.0f;
 
     public:
-        enum Movement {
+        enum struct Movement {
             FORWARD,
             BACKWARD,
             LEFT,
@@ -41,17 +41,19 @@ namespace eos {
         float sensitivity_{SENSITIVITY};
         float zoom_{ZOOM};
 
-        explicit Camera(glm::vec3 pos = {0.0f, 0.0f, 0.0f}, float yaw = YAW, float pitch = PITCH, glm::vec3 worldUp = WORLD_UP);
+        explicit ArcballCamera(glm::vec3 pos = {0.0f, 0.0f, 0.0f}, float yaw = YAW, float pitch = PITCH, glm::vec3 worldUp = WORLD_UP);
 
-        explicit Camera(glm::vec3 pos, glm::vec3 front, glm::vec3 worldUp = WORLD_UP);
+        explicit ArcballCamera(glm::vec3 pos, glm::vec3 front, glm::vec3 worldUp = WORLD_UP);
 
-        Camera(glm::vec3 pos, float speed, float sensitivity = SENSITIVITY, float zoom = ZOOM);
+        ArcballCamera(glm::vec3 pos, float speed, float sensitivity = SENSITIVITY, float zoom = ZOOM);
 
         [[nodiscard]] glm::mat4 get_view_matrix() const;
 
-        [[nodiscard]] glm::mat4 get_projection_matrix(float windowWidth, float windowHeight, float zNear = 0.1f, float zFar = 100.0f) const;
+        void apply_view_matrix(const eos::Shader& shader, const std::string& name = "view") const;
 
         [[nodiscard]] glm::mat4 get_projection_matrix(float zNear = 0.1f, float zFar = 100.0f) const;
+
+        void apply_projection_matrix(const eos::Shader& shader, const std::string& name = "projection", float zNear = 0.1f, float zFar = 100.0f) const;
 
         void key_input(Movement dir);
 
@@ -65,4 +67,4 @@ namespace eos {
 }
 
 
-#endif //EOS_CAMERA_H
+#endif //EOS_ARCBALL_CAMERA_H

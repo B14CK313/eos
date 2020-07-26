@@ -14,7 +14,7 @@ namespace eos {
 
     class Shader {
     public:
-        enum class Type {PROGRAM, FRAGMENT, VERTEX};
+        enum struct Type {PROGRAM, FRAGMENT, VERTEX};
 
         // constructor reads and builds the shader
         Shader(const std::string& vertexPath, const std::string& fragmentPath);

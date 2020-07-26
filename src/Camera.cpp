@@ -1,75 +1,120 @@
 //
-// Created by jakob on 16.07.20.
+// Created by jakob on 19.07.20.
 //
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <eos/ServiceProvider.h>
-#include "eos/Camera.h"
+#include "eos/Shader.h"
+#include "eos/Camera.hpp"
 
+eos::Camera::Camera(const glm::vec3& pos) : pos_{pos} {}
 
+eos::Camera::Camera(const glm::vec3& pos, float yaw, float pitch) : pos_{pos}, yaw_{yaw}, pitch_{pitch} {}
 
-eos::Camera::Camera(glm::vec3 pos, float yaw, float pitch, glm::vec3 worldUp) : pos_{pos}, yaw_{yaw}, pitch_{pitch}, worldUp_{worldUp} {
-    update_vectors();
+eos::Camera& eos::Camera::move(eos::Direction dir) {
+    if(dir == eos::Direction::FORWARD) move_forward(1.0f);
+    else if(dir == eos::Direction::BACKWARD) move_backward(1.0f);
+    else if(dir == eos::Direction::RIGHT) move_right(1.0f);
+    else if(dir == eos::Direction::LEFT) move_left(1.0f);
+    else if(dir == eos::Direction::UP) move_up(1.0f);
+    else if(dir == eos::Direction::DOWN) move_down(1.0f);
+    return *this;
 }
 
-eos::Camera::Camera(glm::vec3 pos, glm::vec3 front, glm::vec3 worldUp) : pos_{pos}, front_{front}, worldUp_{worldUp} {
-    update_vectors();
+eos::Camera& eos::Camera::move(const glm::vec3& dir) {
+    glm::vec3 offset;
+    offset += dir.x * glm::normalize(glm::cross(target_, up_));
+    offset.y += dir.y;
+    offset += dir.z * glm::normalize(glm::vec3{target_.x, 0.0f, target_.z});
+    pos_ += glm::normalize(offset);
+    recalculate_vectors();
+    return *this;
 }
 
-eos::Camera::Camera(glm::vec3 pos, float speed, float sensitivity, float zoom) : pos_{pos}, speed_{speed}, sensitivity_{sensitivity}, zoom_{zoom} {
-    update_vectors();
+eos::Camera& eos::Camera::move_long(float dist) {
+    pos_ += dist * glm::normalize(glm::vec3{target_.x, 0.0f, target_.z});
+    recalculate_vectors();
+    return *this;
 }
 
-glm::mat4 eos::Camera::get_view_matrix() const {
-    return glm::lookAt(pos_, pos_ + front_, up_);
+eos::Camera& eos::Camera::move_forward(float dist) {
+    return move_long(dist);
 }
 
-glm::mat4 eos::Camera::get_projection_matrix(float windowWidth, float windowHeight, float zNear, float zFar) const {
-    return glm::perspective(glm::radians(zoom_), windowWidth / windowHeight, zNear, zFar);
+eos::Camera& eos::Camera::move_backward(float dist) {
+    return move_forward(-dist);
 }
 
-glm::mat4 eos::Camera::get_projection_matrix(float zNear, float zFar) const {
-    int windowWidth, windowHeight;
-    eos::ServiceProvider::getWindow().get_size(windowWidth, windowHeight);
-    return get_projection_matrix(static_cast<float>(windowWidth), static_cast<float>(windowHeight), zNear, zFar);
+eos::Camera& eos::Camera::move_lat(float dist) {
+    pos_ += dist * glm::normalize(glm::cross(target_, up_));
+    recalculate_vectors();
+    return *this;
 }
 
-void eos::Camera::key_input(eos::Camera::Movement dir) {
-    float velocity = speed_;
-    if (dir == FORWARD) pos_ += front_ * velocity;
-    if (dir == BACKWARD) pos_ -= front_ * velocity;
-    if (dir == LEFT) pos_ -= right_ * velocity;
-    if (dir == RIGHT) pos_ += right_ * velocity;
+eos::Camera& eos::Camera::move_right(float dist) {
+    return move_lat(dist);
 }
 
-void eos::Camera::mouse_input(float xOffset, float yOffset, bool constrainPitch) {
-    xOffset *= sensitivity_;
-    yOffset *= sensitivity_;
+eos::Camera& eos::Camera::move_left(float dist) {
+    return move_right(-dist);
+}
 
-    yaw_ += xOffset;
-    pitch_ += yOffset;
+eos::Camera& eos::Camera::move_vert(float dist) {
+    pos_.y += dist;
+    recalculate_vectors();
+    return *this;
+}
 
-    // make sure that when pitch is out of bounds, screen doesn't get flipped
+eos::Camera& eos::Camera::move_up(float dist) {
+    return move_vert(dist);
+}
+
+eos::Camera& eos::Camera::move_down(float dist) {
+    return move_up(-dist);
+}
+
+eos::Camera& eos::Camera::teleport(const glm::vec3& pos) {
+    pos_ = pos;
+    recalculate_vectors();
+    return *this;
+}
+
+eos::Camera& eos::Camera::rotate(float deltaX, float deltaY, bool constrainPitch) {
+    yaw_ += deltaX * 0.1f;
+    pitch_ += deltaY * 0.1f;
+
     if (constrainPitch) {
         if (pitch_ > 89.0f) pitch_ = 89.0f;
         if (pitch_ < -89.0f) pitch_ = -89.0f;
     }
 
-    update_vectors();
+    recalculate_vectors();
+    return *this;
 }
 
-void eos::Camera::scroll_input(float yOffset) {
-    zoom_ -= yOffset;
-    if (zoom_ < 1.0f) zoom_ = 1.0f;
-    if (zoom_ > 45.0f) zoom_ = 45.0f;
+glm::mat4 eos::Camera::get_view_matrix() const {
+    return glm::lookAt(pos_, pos_ + target_, up_);
 }
 
-void eos::Camera::update_vectors() {
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw_)) * cos(glm::radians(pitch_));
-    front.y = sin(glm::radians(pitch_));
-    front.z = sin(glm::radians(yaw_)) * cos(glm::radians(pitch_));
-    front_ = glm::normalize(front);
-    right_ = glm::normalize(glm::cross(front_, worldUp_));
-    up_ = glm::normalize(glm::cross(right_, front_));
+void eos::Camera::apply_view_matrix(const eos::Shader& shader, const std::string& name) const {
+    shader.set_mat4(name, get_view_matrix());
+}
+
+glm::mat4 eos::Camera::get_projection_matrix(float zNear, float zFar) const {
+    int windowWidth, windowHeight;
+    eos::ServiceProvider::getWindow().get_size(windowWidth, windowHeight);
+    return glm::perspectiveFov(fov_, static_cast<float>(windowWidth), static_cast<float>(windowHeight), zNear, zFar);
+}
+
+void eos::Camera::apply_projection_matrix(const eos::Shader& shader, const std::string& name, float zNear,
+                                          float zFar) const {
+    shader.set_mat4(name, get_projection_matrix(zNear, zFar));
+}
+
+void eos::Camera::recalculate_vectors() {
+    glm::vec3 target;
+    target.x = cos(glm::radians(yaw_)) * cos(glm::radians(pitch_));
+    target.y = sin(glm::radians(pitch_));
+    target.z = sin(glm::radians(yaw_)) * cos(glm::radians(pitch_));
+    target_ = glm::normalize(target);
 }

@@ -12,6 +12,8 @@
 #include <spdlog/spdlog.h>
 
 namespace eos::utils {
+    //TODO: Split into files (fileaccess, ...)
+
     bool file_exists(const std::string& path);
 
     std::string load_file(const std::string& path);

@@ -5,8 +5,8 @@
 #ifndef EOS_SERVICEPROVIDER_H
 #define EOS_SERVICEPROVIDER_H
 
-#include "GameEngine.hpp"
-#include "Window.h"
+#include "eos/core/GameEngine.hpp"
+#include "eos/scene/Window.h"
 
 namespace eos {
 

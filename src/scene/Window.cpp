@@ -3,8 +3,8 @@
 //
 
 #include <spdlog/spdlog.h>
-#include <eos/ServiceProvider.h>
-#include "eos/Window.h"
+#include <eos/core/ServiceProvider.h>
+#include "eos/scene/Window.h"
 
 eos::Window::Window(int width, int height, const std::string& title, std::initializer_list<Hint> hints,
                     GLFWmonitor* monitor, GLFWwindow* share) {

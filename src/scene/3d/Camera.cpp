@@ -3,9 +3,9 @@
 //
 
 #include <glm/gtc/matrix_transform.hpp>
-#include <eos/ServiceProvider.h>
-#include "eos/Shader.h"
-#include "eos/Camera.hpp"
+#include <eos/core/ServiceProvider.h>
+#include "eos/scene/resources/Shader.h"
+#include "eos/scene/3d/Camera.hpp"
 
 eos::Camera::Camera(const glm::vec3& pos) : pos_{pos} {}
 

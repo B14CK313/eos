@@ -2,7 +2,7 @@
 // Created by jakob on 13.07.20.
 //
 
-#include "eos/ServiceProvider.h"
+#include "eos/core/ServiceProvider.h"
 #include <memory>
 #include <spdlog/spdlog.h>
 

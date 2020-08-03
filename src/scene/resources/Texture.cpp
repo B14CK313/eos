@@ -6,7 +6,7 @@
 #include <mango/image/image.hpp>
 
 #include <spdlog/spdlog.h>
-#include "eos/Texture.h"
+#include "eos/scene/resources/Texture.h"
 
 eos::Texture::Texture(const std::string& path, unsigned int colorFormat, unsigned int wrapS, unsigned int wrapT,
                       unsigned int filterMin, unsigned int filterMag) {

@@ -8,8 +8,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include "StateManager.hpp"
-#include "Config.hpp"
+#include "eos/scene/StateManager.hpp"
+#include "eos/core/io/Config.hpp"
 
 namespace eos {
 

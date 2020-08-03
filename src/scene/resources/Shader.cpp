@@ -4,8 +4,8 @@
 
 #include <glad/glad.h>
 #include <spdlog/spdlog.h>
-#include "../include/eos/utils.hpp"
-#include "../include/eos/Shader.h"
+#include "eos/utils.hpp"
+#include "eos/scene/resources/Shader.h"
 
 eos::Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
     const std::string vertexShaderSourceString = eos::utils::load_file(vertexPath);

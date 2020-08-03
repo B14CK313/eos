@@ -2,12 +2,12 @@
 // Created by jakob on 10.09.19.
 //
 
-#include "../include/eos/GameEngine.hpp"
+#include "eos/core/GameEngine.hpp"
 #include <thread>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
-#include <eos/ServiceProvider.h>
+#include <eos/core/ServiceProvider.h>
 
 static void error_callback(int error, const char* description) {
 }

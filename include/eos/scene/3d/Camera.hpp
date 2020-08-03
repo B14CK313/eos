@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 #include <string>
-#include "Constants.hpp"
+#include "eos/Constants.hpp"
 
 namespace eos {
 

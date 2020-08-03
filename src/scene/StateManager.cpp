@@ -2,7 +2,7 @@
 // Created by jakob on 23.09.19.
 //
 
-#include "../include/eos/StateManager.hpp"
+#include "eos/scene/StateManager.hpp"
 #include <spdlog/spdlog.h>
 
 eos::StateManager::StateManager(std::unique_ptr<IGameState> initialState) {

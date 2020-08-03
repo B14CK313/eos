@@ -3,8 +3,8 @@
 //
 
 #include <spdlog/spdlog.h>
-#include "../include/eos/Config.hpp"
-#include "../include/eos/utils.hpp"
+#include "eos/core/io/Config.hpp"
+#include "eos/utils.hpp"
 
 #define LOAD_CONFIG_OPTION(section, option, type)\
 do {\

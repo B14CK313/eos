@@ -12,7 +12,7 @@ else ()
     set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib/release)
     add_compile_definitions(SPDLOG_ACTIVE_LEVEL=2)
 endif ()
-set(eos_SOURCE_FILES src/GameEngine.cpp include/eos/GameEngine.hpp include/eos/IGameState.hpp src/StateManager.cpp include/eos/StateManager.hpp src/utils.cpp include/eos/utils.hpp src/Config.cpp include/eos/Config.hpp src/Constants.cpp include/eos/Constants.hpp src/Shader.cpp include/eos/Shader.h src/stb_image.cpp src/Texture.cpp include/eos/Texture.h src/GameObject.cpp include/eos/GameObject.h src/ServiceProvider.cpp include/eos/ServiceProvider.h src/Window.cpp include/eos/Window.h src/ArcballCamera.cpp include/eos/ArcballCamera.h src/Camera.cpp include/eos/Camera.hpp)
+set(eos_SOURCE_FILES src/core/GameEngine.cpp include/eos/core/GameEngine.hpp include/eos/scene/IGameState.hpp src/scene/StateManager.cpp include/eos/scene/StateManager.hpp src/utils.cpp include/eos/utils.hpp src/core/io/Config.cpp include/eos/core/io/Config.hpp src/Constants.cpp include/eos/Constants.hpp src/scene/resources/Shader.cpp include/eos/scene/resources/Shader.h src/stb_image.cpp src/scene/resources/Texture.cpp include/eos/scene/resources/Texture.h src/scene/3d/GameObject.cpp include/eos/scene/3d/GameObject.h src/core/ServiceProvider.cpp include/eos/core/ServiceProvider.h src/scene/Window.cpp include/eos/scene/Window.h src/scene/3d/ArcballCamera.cpp include/eos/scene/3d/ArcballCamera.h src/scene/3d/Camera.cpp include/eos/scene/3d/Camera.hpp)
 
 if (WIN32)
     # ENV: BOOST_ROOT=I:\Programmieren\CCPP\Libraries\boost_1_70_0;BOOST_LIBRARYDIR=I:\Programmieren\CCPP\Libraries\boost_1_70_0\stage\lib;GLFW=I:\Programmieren\CCPP\Libraries\glfw-3.3;GLEW_ROOT=I:\Programmieren\CCPP\Libraries\glew-2.1.0

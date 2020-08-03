@@ -2,7 +2,7 @@
 // Created by jakob on 19.07.20.
 //
 
-#include "../include/eos/GameObject.h"
+#include "eos/scene/3d/GameObject.h"
 
 eos::GameObject::GameObject(glm::vec3 pos, float mass) : pos_{pos}, mass_{mass} {
 

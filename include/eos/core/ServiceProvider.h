@@ -35,13 +35,13 @@ namespace eos {
         static eos::Window& getWindow();
 
     private:
-        inline static std::unique_ptr<eos::GameEngine> gameEngine_;
+        static std::unique_ptr<eos::GameEngine> gameEngine_;
 
-        inline static std::unique_ptr<eos::StateManager> stateManager_;
+        static std::unique_ptr<eos::StateManager> stateManager_;
 
-        inline static std::unique_ptr<eos::Config> config_;
+        static std::unique_ptr<eos::Config> config_;
 
-        inline static std::unique_ptr<eos::Window> window_;
+        static std::unique_ptr<eos::Window> window_;
 
     };
 }

@@ -6,16 +6,19 @@
 #include <memory>
 #include <spdlog/spdlog.h>
 
+std::unique_ptr<eos::GameEngine> eos::ServiceProvider::gameEngine_;
+std::unique_ptr<eos::StateManager> eos::ServiceProvider::stateManager_;
+std::unique_ptr<eos::Config> eos::ServiceProvider::config_;
+std::unique_ptr<eos::Window> eos::ServiceProvider::window_;
+
 void eos::ServiceProvider::init(const std::string& configPath, std::unique_ptr<eos::IGameState> initialState) {
     provide(std::make_unique<eos::Config>(configPath));
     provide(std::make_unique<eos::StateManager>(std::move(initialState)));
 }
 
-
 void eos::ServiceProvider::provide(std::unique_ptr<eos::GameEngine> gameEngine) {
     gameEngine_ = std::move(gameEngine);
 }
-
 
 eos::GameEngine& eos::ServiceProvider::getGameEngine() {
     if(!gameEngine_) {
@@ -28,7 +31,6 @@ void eos::ServiceProvider::provide(std::unique_ptr<eos::StateManager> stateManag
     stateManager_ = std::move(stateManager);
 }
 
-
 eos::StateManager& eos::ServiceProvider::getStateManager() {
     if(!stateManager_) {
         SPDLOG_CRITICAL("No StateManager was provided!");
@@ -39,7 +41,6 @@ eos::StateManager& eos::ServiceProvider::getStateManager() {
 void eos::ServiceProvider::provide(std::unique_ptr<eos::Config> config) {
     config_ = std::move(config);
 }
-
 
 eos::Config& eos::ServiceProvider::getConfig() {
     if(!config_){

@@ -6,8 +6,6 @@
 #define EOS_CONFIG_HPP
 
 #include <string>
-#include <boost/log/trivial.hpp>
-#include <boost/format.hpp>
 #include <rapidjson/document.h>
 
 namespace eos {

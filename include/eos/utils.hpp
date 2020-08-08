@@ -15,13 +15,13 @@ namespace eos {
     namespace utils {
         //TODO: Split into files (fileaccess, ...)
 
-        bool file_exists(const std::string& path);
+        bool file_exists(std::string_view path);
 
-        std::string load_file(const std::string& path);
+        std::string load_file(std::string_view path);
 
         template<typename T>
-        bool load_file(const std::string& path, T& content) {
-            std::ifstream ifstream{path, std::ios::in | std::ios::binary};
+        bool load_file(const std::string_view path, T& content) {
+            std::ifstream ifstream{path.data(), std::ios::in | std::ios::binary};
             if (!ifstream) {
                 SPDLOG_ERROR("Loading file {} failed. File does not exist.", path);
                 return false;
@@ -34,7 +34,7 @@ namespace eos {
             return true;
         }
 
-        std::vector<unsigned char> load_file_unsigned_char(const std::string& path);
+        std::vector<unsigned char> load_file_unsigned_char(std::string_view path);
     }
 }
 

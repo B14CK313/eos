@@ -49,11 +49,11 @@ namespace eos {
 
         [[nodiscard]] glm::mat4 get_view_matrix() const;
 
-        void apply_view_matrix(const eos::Shader& shader, const std::string& name = "view") const;
+        void apply_view_matrix(const eos::Shader& shader, const std::string_view name = "view") const;
 
         [[nodiscard]] glm::mat4 get_projection_matrix(float zNear = 0.1f, float zFar = 100.0f) const;
 
-        void apply_projection_matrix(const eos::Shader& shader, const std::string& name = "projection", float zNear = 0.1f, float zFar = 100.0f) const;
+        void apply_projection_matrix(const eos::Shader& shader, const std::string_view name = "projection", float zNear = 0.1f, float zFar = 100.0f) const;
 
         void key_input(Movement dir);
 

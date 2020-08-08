@@ -6,6 +6,7 @@
 #define EOS_GAMEOBJECT_H
 
 #include <glm/glm.hpp>
+#include <eos/core/Color.hpp>
 #include "eos/Constants.hpp"
 
 namespace eos {
@@ -19,6 +20,8 @@ namespace eos {
         float pitch_{0.0f}; // Rotation around x-axis (up/down)
         float yaw_{-90.0f}; // Rotation around y-axis (left/right)
         float roll_{0.0f}; // Rotation around z-axis
+
+        Color color_;
 
         explicit WorldObject(glm::vec3 pos);
 

@@ -6,13 +6,13 @@
 #include <spdlog/spdlog.h>
 #include <sys/stat.h>
 
-bool eos::utils::file_exists(const std::string &path) {
+bool eos::utils::file_exists(const std::string_view path) {
     struct stat buffer{};
-    return (stat (path.c_str(), &buffer) == 0);
+    return (stat (path.data(), &buffer) == 0);
 }
 
-std::string eos::utils::load_file(const std::string& path) {
-    std::ifstream ifstream{path, std::ios::in | std::ios::binary};
+std::string eos::utils::load_file(const std::string_view path) {
+    std::ifstream ifstream{path.data(), std::ios::in | std::ios::binary};
     if (!ifstream) {
         SPDLOG_ERROR("Loading file {} failed. File does not exist.", path);
     }
@@ -25,8 +25,8 @@ std::string eos::utils::load_file(const std::string& path) {
     return(content);
 }
 
-std::vector<unsigned char> eos::utils::load_file_unsigned_char(const std::string& path) {
-    std::ifstream ifstream{path, std::ios::in | std::ios::binary};
+std::vector<unsigned char> eos::utils::load_file_unsigned_char(const std::string_view path) {
+    std::ifstream ifstream{path.data(), std::ios::in | std::ios::binary};
     if (!ifstream) {
         SPDLOG_ERROR("Loading file {} failed. File does not exist.", path);
     }

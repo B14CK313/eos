@@ -11,8 +11,6 @@ namespace eos {
 
     class LightObject {
     public:
-        Color color_;
-
         LightObject();
     };
 }

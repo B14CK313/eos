@@ -15,7 +15,7 @@ glm::mat4 eos::Camera::get_view_matrix() const {
     return glm::lookAt(pos_, pos_ + target_, up_);
 }
 
-void eos::Camera::apply_view_matrix(const std::initializer_list<std::shared_ptr<eos::Shader>>& shaders, const std::string& name) const {
+void eos::Camera::apply_view_matrix(const std::initializer_list<std::shared_ptr<eos::Shader>>& shaders, const std::string_view name) const {
     for(const auto& shader : shaders) {
         shader->use();
         shader->set_mat4(name, get_view_matrix());
@@ -28,7 +28,7 @@ glm::mat4 eos::Camera::get_projection_matrix(float zNear, float zFar) const {
     return glm::perspectiveFov(fov_, static_cast<float>(windowWidth), static_cast<float>(windowHeight), zNear, zFar);
 }
 
-void eos::Camera::apply_projection_matrix(const std::initializer_list<std::shared_ptr<eos::Shader>>& shaders, const std::string& name, float zNear,
+void eos::Camera::apply_projection_matrix(const std::initializer_list<std::shared_ptr<eos::Shader>>& shaders, const std::string_view name, float zNear,
                                           float zFar) const {
     glm::mat4 projectionMatrix = get_projection_matrix(zNear, zFar);
     for (const auto& shader : shaders) {

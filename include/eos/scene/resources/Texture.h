@@ -13,7 +13,7 @@ namespace eos {
 
     class Texture {
     public:
-        explicit Texture(const std::string& path, unsigned int colorFormat = GL_RGBA, unsigned int wrapS = GL_REPEAT,
+        explicit Texture(const std::string_view path, unsigned int colorFormat = GL_RGBA, unsigned int wrapS = GL_REPEAT,
                 unsigned int wrapT = GL_REPEAT, unsigned int filterMin = GL_LINEAR_MIPMAP_LINEAR, unsigned int filterMag = GL_LINEAR_MIPMAP_LINEAR);
 
         virtual ~Texture();

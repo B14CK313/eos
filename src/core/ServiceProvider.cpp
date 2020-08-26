@@ -10,6 +10,7 @@ std::unique_ptr<eos::GameEngine> eos::ServiceProvider::gameEngine_;
 std::unique_ptr<eos::StateManager> eos::ServiceProvider::stateManager_;
 std::unique_ptr<eos::Config> eos::ServiceProvider::config_;
 std::unique_ptr<eos::Window> eos::ServiceProvider::window_;
+std::unique_ptr<FT_Library> eos::ServiceProvider::freetype_;
 
 void eos::ServiceProvider::init(const std::string_view configPath, std::unique_ptr<eos::IGameState> initialState) {
     provide(std::make_unique<eos::Config>(configPath));
@@ -60,4 +61,14 @@ eos::Window& eos::ServiceProvider::getWindow() {
         }
     }
     return *window_;
+}
+
+FT_Library& eos::ServiceProvider::getFreetype() {
+    if(!freetype_) {
+        freetype_ = std::make_unique<FT_Library>();
+        if(FT_Error error = FT_Init_FreeType(freetype_.get())){
+            SPDLOG_ERROR("Could not initialize Freetype Library, error code {}", error);
+        }
+    }
+    return *freetype_;
 }

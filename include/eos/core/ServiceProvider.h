@@ -5,6 +5,8 @@
 #ifndef EOS_SERVICEPROVIDER_H
 #define EOS_SERVICEPROVIDER_H
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include "eos/core/GameEngine.hpp"
 #include "eos/scene/Window.h"
 
@@ -34,6 +36,9 @@ namespace eos {
 
         static eos::Window& getWindow();
 
+
+        static FT_Library& getFreetype();
+
     private:
         static std::unique_ptr<eos::GameEngine> gameEngine_;
 
@@ -43,6 +48,7 @@ namespace eos {
 
         static std::unique_ptr<eos::Window> window_;
 
+        static std::unique_ptr<FT_Library> freetype_;
     };
 }
 

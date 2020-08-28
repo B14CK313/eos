@@ -18,7 +18,7 @@ glm::mat4 eos::Camera::get_view_matrix() const {
 void eos::Camera::apply_view_matrix(const std::initializer_list<std::shared_ptr<eos::Shader>>& shaders, const std::string_view name) const {
     for(const auto& shader : shaders) {
         shader->use();
-        shader->set_mat4(name, get_view_matrix());
+        shader->set_mat4_uniform(name, get_view_matrix());
     }
 }
 
@@ -33,6 +33,6 @@ void eos::Camera::apply_projection_matrix(const std::initializer_list<std::share
     glm::mat4 projectionMatrix = get_projection_matrix(zNear, zFar);
     for (const auto& shader : shaders) {
         shader->use();
-        shader->set_mat4(name, projectionMatrix);
+        shader->set_mat4_uniform(name, projectionMatrix);
     }
 }

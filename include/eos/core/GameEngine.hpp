@@ -23,10 +23,17 @@ namespace eos {
 
         void target_ups(int ups);
 
+        int get_fps() const;
+
+        int get_ups() const;
+
     private:
         double maxFrameTime_{};
         double dt_{};
         double fpu_{};
+
+        int fps_;
+        int ups_;
     };
 
 }

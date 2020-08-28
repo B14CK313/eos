@@ -114,9 +114,10 @@ bool eos::GameEngine::run() {
 
         if (currentTime - prevSec >= 1.0f) {
 #ifdef DEBUG
-            std::printf("\rcurrentTime: %f, t: %f, _dt: %f, accumulator %f, frameTime: %f, FPS: %i, UPS: %i ",
-                        currentTime, t, dt_, accumulator, frameTime, fps, ups);
+            //std::printf("\rcurrentTime: %f, t: %f, _dt: %f, accumulator %f, frameTime: %f, FPS: %i, UPS: %i ", currentTime, t, dt_, accumulator, frameTime, fps, ups);
 #endif //DEBUG
+            fps_ = fps;
+            ups_ = ups;
             fflush(stdout);
             fps = 0;
             ups = 0;
@@ -148,4 +149,12 @@ bool eos::GameEngine::run() {
     }
 
     return true;
+}
+
+int eos::GameEngine::get_fps() const {
+    return fps_;
+}
+
+int eos::GameEngine::get_ups() const {
+    return ups_;
 }

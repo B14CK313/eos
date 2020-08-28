@@ -25,33 +25,35 @@ namespace eos {
         void use() const;
 
         // utility uniform functions
-        const Shader& set_bool(const std::string_view name, bool value) const;
+        const Shader& set_bool_uniform(const std::string_view name, bool value) const;
 
-        const Shader& set_int(const std::string_view name, int value) const;
+        const Shader& set_int_uniform(const std::string_view name, int value) const;
 
-        const Shader& set_uint(const std::string_view name, unsigned int value) const;
+        const Shader& set_uint_uniform(const std::string_view name, unsigned int value) const;
 
-        const Shader& set_float(const std::string_view name, float value) const;
+        const Shader& set_float_uniform(const std::string_view name, float value) const;
 
-        const Shader& set_vec2(const std::string_view name, const glm::vec2& value) const;
+        const Shader& set_vec2_uniform(const std::string_view name, const glm::vec2& value) const;
 
-        const Shader& set_vec2(const std::string_view name, float x, float y) const;
+        const Shader& set_vec2_uniform(const std::string_view name, float x, float y) const;
 
-        const Shader& set_vec3(const std::string_view name, const glm::vec3& value) const;
+        const Shader& set_vec3_uniform(const std::string_view name, const glm::vec3& value) const;
 
-        const Shader& set_vec3(const std::string_view name, float x, float y, float z) const;
+        const Shader& set_vec3_uniform(const std::string_view name, float x, float y, float z) const;
 
-        const Shader& set_vec4(const std::string_view name, const glm::vec4& value) const;
+        const Shader& set_vec4_uniform(const std::string_view name, const glm::vec4& value) const;
 
-        const Shader& set_vec4(const std::string_view name, float x, float y, float z, float w) const;
+        const Shader& set_vec4_uniform(const std::string_view name, float x, float y, float z, float w) const;
 
-        const Shader& set_mat2(const std::string_view name, const glm::mat2& mat) const;
+        const Shader& set_mat2_uniform(const std::string_view name, const glm::mat2& mat) const;
 
-        const Shader& set_mat3(const std::string_view name, const glm::mat3& mat) const;
+        const Shader& set_mat3_uniform(const std::string_view name, const glm::mat3& mat) const;
 
-        const Shader& set_mat4(const std::string_view name, const glm::mat4& mat) const;
+        const Shader& set_mat4_uniform(const std::string_view name, const glm::mat4& mat) const;
 
         int get_uniform_location(const std::string_view name) const;
+
+        int get_attribute_location(const std::string_view name) const;
 
     private:
         // the program ID

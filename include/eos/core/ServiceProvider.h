@@ -16,6 +16,8 @@ namespace eos {
     public:
         static void init(const std::string_view configPath, std::unique_ptr<eos::IGameState> initialState);
 
+        static void cleanup();
+
 
         static void provide(std::unique_ptr<eos::GameEngine> gameEngine);
 

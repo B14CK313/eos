@@ -17,6 +17,10 @@ void eos::ServiceProvider::init(const std::string_view configPath, std::unique_p
     provide(std::make_unique<eos::StateManager>(std::move(initialState)));
 }
 
+void eos::ServiceProvider::cleanup() {
+    if(freetype_) FT_Done_FreeType(*freetype_);
+}
+
 void eos::ServiceProvider::provide(std::unique_ptr<eos::GameEngine> gameEngine) {
     gameEngine_ = std::move(gameEngine);
 }

@@ -36,7 +36,7 @@ else ()
     add_compile_options(-O3)
 endif ()
 
-set(EOS_SOURCES src/core/GameEngine.cpp include/eos/core/GameEngine.hpp include/eos/scene/IGameState.hpp src/scene/StateManager.cpp include/eos/scene/StateManager.hpp src/utils.cpp include/eos/utils.hpp src/core/io/Config.cpp include/eos/core/io/Config.hpp src/Constants.cpp include/eos/Constants.hpp src/scene/resources/Shader.cpp include/eos/scene/resources/Shader.h src/stb_image.cpp src/scene/resources/Texture.cpp include/eos/scene/resources/Texture.h src/scene/3d/WorldObject.cpp include/eos/scene/3d/WorldObject.h src/core/ServiceProvider.cpp include/eos/core/ServiceProvider.h src/scene/Window.cpp include/eos/scene/Window.h src/scene/3d/ArcballCamera.cpp include/eos/scene/3d/ArcballCamera.h src/scene/3d/Camera.cpp include/eos/scene/3d/Camera.hpp src/scene/3d/PhysicsObject.cpp include/eos/scene/3d/PhysicsObject.hpp src/scene/3d/LightObject.cpp include/eos/scene/3d/LightObject.hpp src/core/Color.cpp include/eos/core/Color.hpp src/scene/resources/Font.cpp include/eos/scene/resources/Font.hpp src/scene/resources/Text.cpp include/eos/scene/resources/Text.hpp)
+set(EOS_SOURCES src/core/GameEngine.cpp include/eos/core/GameEngine.hpp include/eos/scene/IGameState.hpp src/scene/StateManager.cpp include/eos/scene/StateManager.hpp src/utils.cpp include/eos/utils.hpp src/core/io/Config.cpp include/eos/core/io/Config.hpp src/Constants.cpp include/eos/Constants.hpp src/scene/resources/Shader.cpp include/eos/scene/resources/Shader.h src/stb_image.cpp src/scene/resources/Texture.cpp include/eos/scene/resources/Texture.h src/scene/3d/WorldObject.cpp include/eos/scene/3d/WorldObject.h src/core/ServiceProvider.cpp include/eos/core/ServiceProvider.h src/scene/Window.cpp include/eos/scene/Window.h src/scene/3d/ArcballCamera.cpp include/eos/scene/3d/ArcballCamera.h src/scene/3d/Camera.cpp include/eos/scene/3d/Camera.hpp src/scene/3d/PhysicsObject.cpp include/eos/scene/3d/PhysicsObject.hpp src/scene/3d/LightObject.cpp include/eos/scene/3d/LightObject.hpp src/core/Color.cpp include/eos/core/Color.hpp src/scene/resources/Font.cpp include/eos/scene/resources/Font.hpp src/scene/3d/GuiObject.cpp include/eos/scene/3d/GuiObject.hpp src/scene/resources/RegularTextureAtlas.cpp include/eos/scene/resources/RegularTextureAtlas.hpp include/eos/scene/resources/IrregularTextureAtlas.hpp src/scene/resources/IrregularTextureAtlas.cpp include/eos/scene/resources/TextureAtlas.hpp src/scene/resources/TextureAtlas.cpp)
 
 add_library(eos ${EOS_SOURCES} ${EOS_HEADERS})
 add_library(eos::eos ALIAS eos)
@@ -48,10 +48,11 @@ pkg_search_module(GLFW REQUIRED glfw3)
 find_package(OpenGL REQUIRED)
 find_package(glm REQUIRED)
 find_package(Freetype REQUIRED)
-find_package(Harfbuzz REQUIRED)
 add_subdirectory(ext/glad)
 add_subdirectory(ext/mango)
 add_subdirectory(ext/quill/quill)
+add_subdirectory(ext/utfcpp)
+add_subdirectory(ext/msdfgen)
 add_subdirectory(ext/stb)
 target_link_libraries(eos PUBLIC stb)
 
@@ -72,7 +73,7 @@ add_compile_definitions(DGLFW_INCLUDE_NONE)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${GLFW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${RAPIDJSON_INCLUDE_DIRS})
 
-target_link_libraries(eos PUBLIC ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} Freetype::Freetype harfbuzz::harfbuzz fmt::fmt spdlog::spdlog glad mango glm)
+target_link_libraries(eos PUBLIC ${GLFW_LIBRARIES} ${OPENGL_LIBRARY} Freetype::Freetype utf8cpp msdfgen::msdfgen msdfgen::msdfgen-ext fmt::fmt spdlog::spdlog glad mango glm)
 target_include_directories(eos PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
 if (EOS_TEST)

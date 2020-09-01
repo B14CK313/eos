@@ -148,6 +148,8 @@ bool eos::GameEngine::run() {
         }
     }
 
+    ServiceProvider::cleanup();
+
     return true;
 }
 

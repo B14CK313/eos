@@ -6,13 +6,14 @@
 #include <spdlog/spdlog.h>
 #include <sys/stat.h>
 
-bool eos::utils::file_exists(const std::string_view path) {
+bool eos::utils::file_exists(const std::string& path) {
     struct stat buffer{};
-    return (stat (path.data(), &buffer) == 0);
+    return (stat (path.c_str(), &buffer) == 0);
 }
 
-std::string eos::utils::load_file(const std::string_view path) {
-    std::ifstream ifstream{path.data(), std::ios::in | std::ios::binary};
+std::string eos::utils::load_file(const std::string& path) {
+    // Use binary: https://utf8everywhere.org/#faq.crlf
+    boost::nowide::ifstream ifstream{path.c_str(), std::ios::in | std::ios::binary};
     if (!ifstream) {
         SPDLOG_ERROR("Loading file {} failed. File does not exist.", path);
     }
@@ -23,12 +24,4 @@ std::string eos::utils::load_file(const std::string_view path) {
     ifstream.read(&content[0], content.size());
     ifstream.close();
     return(content);
-}
-
-std::vector<unsigned char> eos::utils::load_file_unsigned_char(const std::string_view path) {
-    std::ifstream ifstream{path.data(), std::ios::in | std::ios::binary};
-    if (!ifstream) {
-        SPDLOG_ERROR("Loading file {} failed. File does not exist.", path);
-    }
-    return std::vector<unsigned char>((std::istream_iterator<unsigned char>(ifstream)), (std::istream_iterator<unsigned char>()));
 }

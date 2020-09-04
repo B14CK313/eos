@@ -8,11 +8,11 @@
 #include <spdlog/spdlog.h>
 #include "eos/scene/resources/Texture.h"
 
-eos::Texture::Texture(const std::string_view path, unsigned int colorFormat, unsigned int wrapS, unsigned int wrapT,
+eos::Texture::Texture(const std::string& path, unsigned int colorFormat, unsigned int wrapS, unsigned int wrapT,
                       unsigned int filterMin, unsigned int filterMag) {
     // Creates memory mapped file
-    mango::filesystem::File file(path.data());
-    mango::ImageDecoder decoder(file, mango::filesystem::getExtension(path.data()));
+    mango::filesystem::File file(path.c_str());
+    mango::ImageDecoder decoder(file, mango::filesystem::getExtension(path.c_str()));
     // Can decode file
     if (decoder.isDecoder()) {
         mango::ImageHeader header = decoder.header();

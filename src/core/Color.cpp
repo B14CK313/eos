@@ -12,8 +12,8 @@ eos::Color::Color(float r, float g, float b, float a) : compound_{r, g, b, a} {}
 
 eos::Color::Color(short r, short g, short b, short a) : compound_{r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f} {}
 
-eos::Color::Color(const std::string_view hex) {
-    unsigned int hexNum = std::stoi(hex.data(), nullptr, 16);
+eos::Color::Color(const std::string& hex) {
+    unsigned int hexNum = std::stoi(hex.c_str(), nullptr, 16);
     if (hex.length() == 2) {
         float value = hexNum / 255.0f;
         r_ = value;

@@ -8,8 +8,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "eos/scene/resources/Font.hpp"
 
-eos::Font::Font(const std::string_view path, float size) : path_(path) {
-    if (FT_Error err = FT_New_Face(eos::ServiceProvider::getFreetype(), path.data(), 0, &fontFace_)) {
+eos::Font::Font(const std::string& path, float size) : path_(path) {
+    if (FT_Error err = FT_New_Face(eos::ServiceProvider::getFreetype(), path.c_str(), 0, &fontFace_)) {
         SPDLOG_ERROR("FT_New_Face Error, code {}", err);
         throw;
     }
@@ -89,7 +89,7 @@ void eos::Font::cache(char c, uint32_t codepoint) {
     }
 }
 
-void eos::Font::render(const std::string& text, glm::vec2 pos, eos::Color color, glm::vec2 scale) {
+void eos::Font::render(const std::string& text, glm::vec2 pos, eos::Color color) {
     struct Vertices {
         glm::vec4 bl;
         glm::vec4 br;

@@ -14,7 +14,7 @@ namespace eos {
 
     class ServiceProvider {
     public:
-        static void init(const std::string_view configPath, std::unique_ptr<eos::IGameState> initialState);
+        static void init(const std::string& configPath, std::unique_ptr<eos::IGameState> initialState);
 
         static void cleanup();
 

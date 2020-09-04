@@ -25,7 +25,7 @@ glm::mat4 eos::ArcballCamera::get_view_matrix() const {
     return glm::lookAt(pos_, pos_ + front_, up_);
 }
 
-void eos::ArcballCamera::apply_view_matrix(const eos::Shader& shader, const std::string_view name) const {
+void eos::ArcballCamera::apply_view_matrix(const eos::Shader& shader, const std::string& name) const {
     shader.set_mat4_uniform(name, get_view_matrix());
 }
 
@@ -35,7 +35,7 @@ glm::mat4 eos::ArcballCamera::get_projection_matrix(float zNear, float zFar) con
     return glm::perspective(glm::radians(zoom_), static_cast<float>(windowWidth) / static_cast<float>(windowHeight), zNear, zFar);
 }
 
-void eos::ArcballCamera::apply_projection_matrix(const eos::Shader& shader, const std::string_view name, float zNear,
+void eos::ArcballCamera::apply_projection_matrix(const eos::Shader& shader, const std::string& name, float zNear,
                                                  float zFar) const {
     shader.set_mat4_uniform(name, get_projection_matrix(zNear, zFar));
 }

@@ -52,7 +52,7 @@ namespace eos {
             long advance;
         };
 
-        Font(std::string_view path, float size);
+        Font(const std::string& path, float size);
 
         ~Font();
 
@@ -62,7 +62,7 @@ namespace eos {
 
         void cache(char c, uint32_t codepoint);
 
-        void render(const std::string& text, glm::vec2 pos, eos::Color color = 0x33_l, glm::vec2 scale = {1.0f, 1.0f});
+        void render(const std::string& text, glm::vec2 pos, eos::Color color = 0x00_l);
 
         void render_cache(glm::vec2 pos, glm::vec2 scale);
 
@@ -71,7 +71,7 @@ namespace eos {
         unsigned int vbo_;
         unsigned int ebo_;
 
-        std::string_view path_;
+        const std::string& path_;
 
         FT_Face fontFace_;
         IrregularTextureAtlas textureAtlas_{{512, 512}, GL_UNSIGNED_BYTE, GL_RED};

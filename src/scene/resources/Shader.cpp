@@ -7,7 +7,7 @@
 #include "eos/utils.hpp"
 #include "eos/scene/resources/Shader.h"
 
-eos::Shader::Shader(const std::string_view vertexPath, const std::string_view fragmentPath) {
+eos::Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
     const std::string vertexShaderSourceString = eos::utils::load_file(vertexPath);
     const char * const vertexShaderSource = vertexShaderSourceString.c_str();
 
@@ -45,77 +45,77 @@ void eos::Shader::use() const {
     glUseProgram(id_);
 }
 
-const eos::Shader& eos::Shader::set_bool_uniform(const std::string_view name, bool value) const {
+const eos::Shader& eos::Shader::set_bool_uniform(const std::string& name, bool value) const {
     glUniform1i(get_uniform_location(name), (int) value);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_int_uniform(const std::string_view name, int value) const {
+const eos::Shader& eos::Shader::set_int_uniform(const std::string& name, int value) const {
     glUniform1i(get_uniform_location(name), value);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_uint_uniform(const std::string_view name, unsigned int value) const {
+const eos::Shader& eos::Shader::set_uint_uniform(const std::string& name, unsigned int value) const {
     glUniform1ui(get_uniform_location(name), value);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_float_uniform(const std::string_view name, float value) const {
+const eos::Shader& eos::Shader::set_float_uniform(const std::string& name, float value) const {
     glUniform1f(get_uniform_location(name), value);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_vec2_uniform(const std::string_view name, const glm::vec2& value) const {
+const eos::Shader& eos::Shader::set_vec2_uniform(const std::string& name, const glm::vec2& value) const {
     glUniform2fv(get_uniform_location(name), 1, &value[0]);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_vec2_uniform(const std::string_view name, float x, float y) const {
+const eos::Shader& eos::Shader::set_vec2_uniform(const std::string& name, float x, float y) const {
     glUniform2f(get_uniform_location(name), x, y);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_vec3_uniform(const std::string_view name, const glm::vec3& value) const {
+const eos::Shader& eos::Shader::set_vec3_uniform(const std::string& name, const glm::vec3& value) const {
     glUniform3fv(get_uniform_location(name), 1, &value[0]);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_vec3_uniform(const std::string_view name, float x, float y, float z) const {
+const eos::Shader& eos::Shader::set_vec3_uniform(const std::string& name, float x, float y, float z) const {
     glUniform3f(get_uniform_location(name), x, y, z);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_vec4_uniform(const std::string_view name, const glm::vec4& value) const {
+const eos::Shader& eos::Shader::set_vec4_uniform(const std::string& name, const glm::vec4& value) const {
     glUniform4fv(get_uniform_location(name), 1, &value[0]);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_vec4_uniform(const std::string_view name, float x, float y, float z, float w) const {
+const eos::Shader& eos::Shader::set_vec4_uniform(const std::string& name, float x, float y, float z, float w) const {
     glUniform4f(get_uniform_location(name), x, y, z, w);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_mat2_uniform(const std::string_view name, const glm::mat2& mat) const {
+const eos::Shader& eos::Shader::set_mat2_uniform(const std::string& name, const glm::mat2& mat) const {
     glUniformMatrix2fv(get_uniform_location(name), 1, GL_FALSE, &mat[0][0]);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_mat3_uniform(const std::string_view name, const glm::mat3& mat) const {
+const eos::Shader& eos::Shader::set_mat3_uniform(const std::string& name, const glm::mat3& mat) const {
     glUniformMatrix3fv(get_uniform_location(name), 1, GL_FALSE, &mat[0][0]);
     return *this;
 }
 
-const eos::Shader& eos::Shader::set_mat4_uniform(const std::string_view name, const glm::mat4& mat) const {
+const eos::Shader& eos::Shader::set_mat4_uniform(const std::string& name, const glm::mat4& mat) const {
     glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, &mat[0][0]);
     return *this;
 }
 
-int eos::Shader::get_uniform_location(const std::string_view name) const {
-    return glGetUniformLocation(id_, name.data());
+int eos::Shader::get_uniform_location(const std::string& name) const {
+    return glGetUniformLocation(id_, name.c_str());
 }
 
-int eos::Shader::get_attribute_location(const std::string_view name) const {
-    return glGetAttribLocation(id_, name.data());
+int eos::Shader::get_attribute_location(const std::string& name) const {
+    return glGetAttribLocation(id_, name.c_str());
 }
 
 void eos::Shader::check_compile_errors(unsigned int shader, Type type) {

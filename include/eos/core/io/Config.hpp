@@ -12,7 +12,7 @@ namespace eos {
 
     class Config {
     public:
-        explicit Config(std::string_view path);
+        explicit Config(const std::string& path);
 
         struct Window {
             std::string title{"EOS GameEngine"};

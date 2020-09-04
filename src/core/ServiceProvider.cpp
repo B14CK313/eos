@@ -12,7 +12,7 @@ std::unique_ptr<eos::Config> eos::ServiceProvider::config_;
 std::unique_ptr<eos::Window> eos::ServiceProvider::window_;
 std::unique_ptr<FT_Library> eos::ServiceProvider::freetype_;
 
-void eos::ServiceProvider::init(const std::string_view configPath, std::unique_ptr<eos::IGameState> initialState) {
+void eos::ServiceProvider::init(const std::string& configPath, std::unique_ptr<eos::IGameState> initialState) {
     provide(std::make_unique<eos::Config>(configPath));
     provide(std::make_unique<eos::StateManager>(std::move(initialState)));
 }

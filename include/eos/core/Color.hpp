@@ -28,7 +28,7 @@ namespace eos {
 
         Color(short r, short g, short b, short a = 255);
 
-        explicit Color(std::string_view hex);
+        explicit Color(const std::string& hex);
 
         operator glm::vec4() const;
 

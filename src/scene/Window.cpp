@@ -6,7 +6,7 @@
 #include <eos/core/ServiceProvider.h>
 #include "eos/scene/Window.h"
 
-eos::Window::Window(int width, int height, const std::string_view title, std::initializer_list<Hint> hints,
+eos::Window::Window(int width, int height, const std::string& title, std::initializer_list<Hint> hints,
                     GLFWmonitor* monitor, GLFWwindow* share) {
     if (!glfwInit()) SPDLOG_CRITICAL("GLFW initialization failed");
 
@@ -14,7 +14,7 @@ eos::Window::Window(int width, int height, const std::string_view title, std::in
         glfwWindowHint(hint.name, hint.value);
     }
 
-    glfwWindow_ = glfwCreateWindow(width, height, title.data(), monitor, share);
+    glfwWindow_ = glfwCreateWindow(width, height, title.c_str(), monitor, share);
 
     if(!glfwWindow_) {
         SPDLOG_CRITICAL("Creating window failed");

@@ -15,7 +15,7 @@ else SPDLOG_WARN("Config option 'section.option' has wrong type, using default v
 else SPDLOG_WARN("Config missing option 'section.option', using default value");\
 } while (0)
 
-eos::Config::Config(const std::string_view path) : path_(path) {
+eos::Config::Config(const std::string& path) : path_(path) {
     std::string configFile;
     if (eos::utils::load_file(path, configFile)) {
         SPDLOG_INFO(fmt::format("Config file found at '{}'", path));

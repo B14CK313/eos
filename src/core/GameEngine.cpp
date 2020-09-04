@@ -3,11 +3,93 @@
 //
 
 #include "eos/core/GameEngine.hpp"
+#include <sstream>
 #include <thread>
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <eos/core/ServiceProvider.h>
+
+void APIENTRY
+glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message,
+              const void* userParam) {
+    // ignore non-significant error/warning codes
+    if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
+    std::stringstream sstream;
+    sstream << "Debug message (" << id << "): " << message << std::endl;
+
+    switch (source) {
+        case GL_DEBUG_SOURCE_API:
+            sstream << "Source: API";
+            break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+            sstream << "Source: Window System";
+            break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER:
+            sstream << "Source: Shader Compiler";
+            break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY:
+            sstream << "Source: Third Party";
+            break;
+        case GL_DEBUG_SOURCE_APPLICATION:
+            sstream << "Source: Application";
+            break;
+        case GL_DEBUG_SOURCE_OTHER:
+            sstream << "Source: Other";
+            break;
+    }
+    sstream << std::endl;
+
+    switch (type) {
+        case GL_DEBUG_TYPE_ERROR:
+            sstream << "Type: Error";
+            break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+            sstream << "Type: Deprecated Behaviour";
+            break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+            sstream << "Type: Undefined Behaviour";
+            break;
+        case GL_DEBUG_TYPE_PORTABILITY:
+            sstream << "Type: Portability";
+            break;
+        case GL_DEBUG_TYPE_PERFORMANCE:
+            sstream << "Type: Performance";
+            break;
+        case GL_DEBUG_TYPE_MARKER:
+            sstream << "Type: Marker";
+            break;
+        case GL_DEBUG_TYPE_PUSH_GROUP:
+            sstream << "Type: Push Group";
+            break;
+        case GL_DEBUG_TYPE_POP_GROUP:
+            sstream << "Type: Pop Group";
+            break;
+        case GL_DEBUG_TYPE_OTHER:
+            sstream << "Type: Other";
+            break;
+    }
+    sstream << std::endl;
+
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_HIGH:
+            sstream << "Severity: high";
+            break;
+        case GL_DEBUG_SEVERITY_MEDIUM:
+            sstream << "Severity: medium";
+            break;
+        case GL_DEBUG_SEVERITY_LOW:
+            sstream << "Severity: low";
+            break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION:
+            sstream << "Severity: notification";
+            break;
+    }
+    sstream << std::endl;
+
+    SPDLOG_ERROR(sstream.str());
+}
 
 static void error_callback(int error, const char* description) {
 }
@@ -45,11 +127,20 @@ eos::GameEngine::GameEngine() {
     SPDLOG_TRACE("Logger initialized");
 
     //Only use modern OpenGL (All legacy functions will return an error)
-    eos::ServiceProvider::provide(std::make_unique<eos::Window>(
-            std::initializer_list<eos::Window::Hint>{{GLFW_CONTEXT_VERSION_MAJOR, 3},
-                                                     {GLFW_CONTEXT_VERSION_MINOR, 3},
-                                                     {GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE},
-                                                     {GLFW_SAMPLES,               4}}));
+#ifdef DEBUG
+    std::initializer_list<eos::Window::Hint> hints{{GLFW_CONTEXT_VERSION_MAJOR, 4},
+                                                   {GLFW_CONTEXT_VERSION_MINOR, 4},
+                                                   {GLFW_OPENGL_PROFILE,       GLFW_OPENGL_CORE_PROFILE},
+                                                   {GLFW_SAMPLES,               4},
+                                                   {GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE}};
+#else //DEBUG
+    std::initializer_list<eos::Window::Hint> hints{{GLFW_CONTEXT_VERSION_MAJOR, 3},
+                                                   {GLFW_CONTEXT_VERSION_MINOR, 3},
+                                                   {GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE},
+                                                   {GLFW_SAMPLES,               4}};
+#endif //DEBUG
+
+    eos::ServiceProvider::provide(std::make_unique<eos::Window>(hints));
 
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) SPDLOG_ERROR("gladLoadGL failed");
     //SPDLOG_INFO("glad Version: {}", );
@@ -66,13 +157,23 @@ eos::GameEngine::GameEngine() {
     glDisable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
+#ifdef DEBUG
+    GLint flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+        glDebugMessageCallback(glDebugOutput, nullptr);
+        glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+    }
+#endif //DEBUG
     eos::ServiceProvider::getWindow()
-        .set_swap_interval(0)
-        .set_error_callback(error_callback)
-        .set_key_callback(key_callback)
-        .set_cursor_pos_callback(mouse_callback)
-        .set_scroll_callback(scroll_callback)
-        .set_framebuffer_size_callback(framebuffer_size_callback);
+            .set_swap_interval(0)
+            .set_error_callback(error_callback)
+            .set_key_callback(key_callback)
+            .set_cursor_pos_callback(mouse_callback)
+            .set_scroll_callback(scroll_callback)
+            .set_framebuffer_size_callback(framebuffer_size_callback);
 
     dt_ = 1.0 / eos::ServiceProvider::getConfig().engine.targetUps;
     fpu_ = eos::ServiceProvider::getConfig().engine.targetFps * dt_;

@@ -39,32 +39,46 @@
  */
 
 #include <unordered_map>
-#include <msdfgen/msdfgen.h>
-#include <msdfgen/msdfgen-ext.h>
+#include <eos/core/Color.hpp>
+#include <freetype/freetype.h>
 #include "IrregularTextureAtlas.hpp"
 
 namespace eos {
     class Font {
     public:
-        Font(const std::string_view path, float size);
+        struct Glyph {
+            size_t index;
+            glm::uvec2 bearing;
+            long advance;
+        };
 
-        void cache(std::string_view chars);
+        Font(std::string_view path, float size);
+
+        ~Font();
+
+        void cache(const std::string& chars);
+
+        void cache(const std::basic_string<char8_t>& chars);
 
         void cache(char c, uint32_t codepoint);
 
-        void render(std::string_view text, glm::vec2 pos);
+        void render(const std::string& text, glm::vec2 pos, eos::Color color = 0x33_l, glm::vec2 scale = {1.0f, 1.0f});
+
+        void render_cache(glm::vec2 pos, glm::vec2 scale);
 
     private:
-        const int dpi_ = 72;
-        const int horRes_ = 64;
-
-        std::shared_ptr<Shader> shader_;
+        unsigned int vao_;
+        unsigned int vbo_;
+        unsigned int ebo_;
 
         std::string_view path_;
-        msdfgen::FontHandle* font_;
-        IrregularTextureAtlas textureAtlas_{{512, 512}, GL_FLOAT, GL_RGB};
 
-        std::unordered_map<char, size_t> glyphMap_; // char => index in TextureAtlas;
+        FT_Face fontFace_;
+        IrregularTextureAtlas textureAtlas_{{512, 512}, GL_UNSIGNED_BYTE, GL_RED};
+
+        std::unordered_map<char, Glyph> glyphMap_;
+
+        std::shared_ptr<Shader> shader_;
     };
 }
 

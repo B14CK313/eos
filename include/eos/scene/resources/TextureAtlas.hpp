@@ -13,17 +13,14 @@
 namespace eos {
     class TextureAtlas {
     public:
-        virtual glm::uvec4 operator[](size_t slot) const = 0;
+        operator GLuint() const;
 
-        GLuint texture_;
-
-#ifdef DEBUG
-        void render(glm::uvec2 pos, float scale) const;
-#endif //DEBUG
+        void render(glm::uvec2 pos, glm::vec2 scale) const;
 
     protected:
         TextureAtlas(glm::uvec2 atlasDim, int type, int format, int internalformat = -1);
 
+        GLuint texture_;
         int type_;
         int format_;
         int internalformat_;

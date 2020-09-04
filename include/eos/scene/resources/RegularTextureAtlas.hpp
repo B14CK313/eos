@@ -20,7 +20,7 @@ namespace eos {
 
         size_t insert(const void* data);
 
-        glm::uvec4 operator[](size_t slot) const override;
+        glm::uvec2 operator[](size_t slot) const;
 
         glm::uvec2 get_free_slot();
 

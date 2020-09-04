@@ -21,21 +21,21 @@ eos::TextureAtlas::TextureAtlas(glm::uvec2 atlasDim, int type, int format, int i
 #ifdef DEBUG
     const float vertices[]{
             // positions          // texture coords
-            -0.9f, -0.9f, 0.0f, 0.0f, 0.0f, // bottom left
-            0.9f, -0.9f, 0.0f, 1.0f, 0.0f, // bottom right
-            0.9f, 0.9f, 0.0f, 1.0f, 1.0f, // top right
-            0.9f, 0.9f, 0.0f, 1.0f, 1.0f, // top right
-            -0.9f, 0.9f, 0.0f, 0.0f, 1.0f, // top left
-            -0.9f, -0.9f, 0.0f, 0.0f, 0.0f  //bottom left
+            -0.9f, -0.9f, 0.0f, 0.0f, 1.0f, // bottom left
+            0.9f, -0.9f, 0.0f, 1.0f, 1.0f, // bottom right
+            0.9f, 0.9f, 0.0f, 1.0f, 0.0f, // top right
+            0.9f, 0.9f, 0.0f, 1.0f, 0.0f, // top right
+            -0.9f, 0.9f, 0.0f, 0.0f, 0.0f, // top left
+            -0.9f, -0.9f, 0.0f, 0.0f, 1.0f  //bottom left
     };
     shader_ = std::make_shared<Shader>("res/textureRect.vert", "res/textureRect.frag");
     shader_->use();
     shader_->set_int_uniform("textureSampler", 1);
 
     glGenVertexArrays(1, &vao_);
-    glGenBuffers(1, &vbo_);
-
     glBindVertexArray(vao_);
+
+    glGenBuffers(1, &vbo_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
@@ -48,9 +48,14 @@ eos::TextureAtlas::TextureAtlas(glm::uvec2 atlasDim, int type, int format, int i
 #endif //DEBUG
 }
 
+eos::TextureAtlas::operator GLuint() const {
+    return texture_;
+}
+
+
+void eos::TextureAtlas::render(glm::uvec2 pos, glm::vec2 scale) const {
 #ifdef DEBUG
 
-void eos::TextureAtlas::render(glm::uvec2 pos, float scale) const {
     shader_->use();
     //shader_->set_vec2_uniform("pos", pos);
     //shader_->set_float_uniform("scale", scale);
@@ -62,6 +67,5 @@ void eos::TextureAtlas::render(glm::uvec2 pos, float scale) const {
 
     glBindVertexArray(vao_);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-}
-
 #endif //DEBUG
+}

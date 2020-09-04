@@ -1,4 +1,4 @@
-//
+//, textureDim_.x, textureDim_.y
 // Created by jakob on 29.08.20.
 //
 
@@ -13,7 +13,6 @@ eos::RegularTextureAtlas::RegularTextureAtlas(glm::uvec2 atlasDim, glm::uvec2 te
 size_t eos::RegularTextureAtlas::insert(const void* data) {
     glm::uvec2 slot = get_free_slot();
 
-    shader_->use();
     glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, texture_);
     glTexSubImage2D(GL_TEXTURE_2D, 0, slot.x, slot.y, textureDim_.x, textureDim_.y, format_, type_, data);
@@ -23,9 +22,9 @@ size_t eos::RegularTextureAtlas::insert(const void* data) {
     return slots_.size() - 1;
 }
 
-glm::uvec4 eos::RegularTextureAtlas::operator[](size_t slot) const {
+glm::uvec2 eos::RegularTextureAtlas::operator[](size_t slot) const {
     if (slot < slots_.size()) {
-        return {slots_[slot].x, slots_[slot].y, textureDim_.x, textureDim_.y};
+        return slots_[slot], slots_[slot];
     } else {
         throw;
     }

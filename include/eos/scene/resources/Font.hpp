@@ -39,19 +39,21 @@
  */
 
 #include <unordered_map>
-#include <freetype/freetype.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include <eos/core/ColorRGB.hpp>
 #include "IrregularTextureAtlas.hpp"
 
 namespace eos {
     class Font {
     public:
-        struct Glyph {
-            size_t index;
+        struct Character {
+            IrregularTextureAtlas::SubTexture texture;
             glm::uvec2 bearing;
             long advance;
         };
 
+    public:
         Font(const std::string& path, float size);
 
         ~Font();
@@ -60,52 +62,22 @@ namespace eos {
 
         void cache(const std::basic_string<char8_t>& chars);
 
-        void cache(char c, uint32_t codepoint);
+        void cache(char32_t codepoint);
 
-        void render(const std::string& text, glm::vec2 pos, eos::ColorRGB color = 0x00_l) const;
+        Character get(char32_t codepoint);
 
-        void render(const std::string& text, glm::vec2 pos, eos::ColorHSV gradientStartColor, eos::ColorHSV gradientStopColor) const;
+        void use();
 
-        void render_cache(glm::vec2 pos, glm::vec2 scale);
+        void render(glm::vec2 pos, glm::vec2 scale);
 
     private:
-        struct Vertex {
-            glm::vec4 pos;
-            glm::vec4 color;
-        };
-
-        struct Vertices {
-            Vertex bl;
-            Vertex br;
-            Vertex tr;
-            Vertex tl;
-        };
-
-        struct Indices {
-            unsigned short bl1;
-            unsigned short br1;
-            unsigned short tr1;
-
-            unsigned short bl2;
-            unsigned short tr2;
-            unsigned short tl2;
-        };
-
-        unsigned int vao_;
-        unsigned int vbo_;
-        unsigned int ebo_;
-
         const std::string& path_;
 
         FT_Face fontFace_;
+
         IrregularTextureAtlas textureAtlas_{{512, 512}, GL_UNSIGNED_BYTE, GL_RED};
 
-        std::unordered_map<char, Glyph> glyphMap_;
-
-        std::shared_ptr<Shader> shader_;
-
-    private:
-        std::u32string setup_render(const std::string& text) const;
+        std::unordered_map<char32_t, Character> characterMap_;
     };
 }
 

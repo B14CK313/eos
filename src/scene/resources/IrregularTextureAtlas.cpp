@@ -7,25 +7,14 @@
 eos::IrregularTextureAtlas::IrregularTextureAtlas(glm::uvec2 atlasDim, int type, int format, int internalformat)
         : TextureAtlas(atlasDim, type, format, internalformat) {}
 
-size_t eos::IrregularTextureAtlas::insert(const void* data, glm::uvec2 textureDim) {
+eos::IrregularTextureAtlas::SubTexture eos::IrregularTextureAtlas::insert(const void* data, glm::uvec2 textureDim) {
     glm::vec2 slot = get_free_slot(textureDim);
-    SubTexture subTexture = {textureDim, glm::vec4{slot.x / atlasDim_.x, slot.y / atlasDim_.y, static_cast<float>(textureDim.x) / atlasDim_.x, static_cast<float>(textureDim.y) / atlasDim_.y}};
 
     glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, texture_);
     glTexSubImage2D(GL_TEXTURE_2D, 0, slot.x, slot.y, textureDim.x, textureDim.y, format_, type_, data);
     glGenerateMipmap(GL_TEXTURE_2D);
-    slots_.push_back(subTexture);
-
-    return slots_.size() - 1;
-}
-
-const eos::IrregularTextureAtlas::SubTexture& eos::IrregularTextureAtlas::operator[](size_t slot) const {
-    if (slot < slots_.size() && slot >= 0) {
-        return slots_[slot];
-    } else {
-        throw;
-    }
+    return {textureDim, glm::vec4{slot.x / atlasDim_.x, slot.y / atlasDim_.y, static_cast<float>(textureDim.x) / atlasDim_.x, static_cast<float>(textureDim.y) / atlasDim_.y}};
 }
 
 glm::uvec2 eos::IrregularTextureAtlas::get_free_slot(glm::uvec2 textureDim) {

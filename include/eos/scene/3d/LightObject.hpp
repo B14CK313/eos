@@ -5,7 +5,7 @@
 #ifndef EOS_LIGHTOBJECT_HPP
 #define EOS_LIGHTOBJECT_HPP
 
-#include <eos/core/Color.hpp>
+#include <eos/core/ColorRGB.hpp>
 
 namespace eos {
 

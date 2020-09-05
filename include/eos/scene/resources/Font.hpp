@@ -39,8 +39,8 @@
  */
 
 #include <unordered_map>
-#include <eos/core/Color.hpp>
 #include <freetype/freetype.h>
+#include <eos/core/ColorRGB.hpp>
 #include "IrregularTextureAtlas.hpp"
 
 namespace eos {
@@ -62,11 +62,35 @@ namespace eos {
 
         void cache(char c, uint32_t codepoint);
 
-        void render(const std::string& text, glm::vec2 pos, eos::Color color = 0x00_l);
+        void render(const std::string& text, glm::vec2 pos, eos::ColorRGB color = 0x00_l) const;
+
+        void render(const std::string& text, glm::vec2 pos, eos::ColorHSV gradientStartColor, eos::ColorHSV gradientStopColor) const;
 
         void render_cache(glm::vec2 pos, glm::vec2 scale);
 
     private:
+        struct Vertex {
+            glm::vec4 pos;
+            glm::vec4 color;
+        };
+
+        struct Vertices {
+            Vertex bl;
+            Vertex br;
+            Vertex tr;
+            Vertex tl;
+        };
+
+        struct Indices {
+            unsigned short bl1;
+            unsigned short br1;
+            unsigned short tr1;
+
+            unsigned short bl2;
+            unsigned short tr2;
+            unsigned short tl2;
+        };
+
         unsigned int vao_;
         unsigned int vbo_;
         unsigned int ebo_;
@@ -79,6 +103,9 @@ namespace eos {
         std::unordered_map<char, Glyph> glyphMap_;
 
         std::shared_ptr<Shader> shader_;
+
+    private:
+        std::u32string setup_render(const std::string& text) const;
     };
 }
 

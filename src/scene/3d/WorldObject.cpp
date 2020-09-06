@@ -57,8 +57,8 @@ eos::WorldObject& eos::WorldObject::teleport(const glm::vec3& pos) {
 }
 
 eos::WorldObject& eos::WorldObject::rotate(float deltaX, float deltaY, bool constrainPitch) {
-    yaw_ += deltaX * 0.1f;
-    pitch_ += deltaY * 0.1f;
+    yaw_ += deltaX;
+    pitch_ += deltaY;
 
     if (constrainPitch) {
         if (pitch_ > 89.0f) pitch_ = 89.0f;

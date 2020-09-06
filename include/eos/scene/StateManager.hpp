@@ -6,22 +6,22 @@
 #define EOS_STATEMANAGER_HPP
 
 #include <vector>
-#include "IGameState.hpp"
+#include "GameState.hpp"
 
 namespace eos {
 
     class StateManager {
     public:
-        explicit StateManager(std::unique_ptr<IGameState> initialState);
+        explicit StateManager(std::unique_ptr<GameState> initialState);
 
-        void push_state(std::unique_ptr<IGameState> state);
+        void push_state(std::unique_ptr<GameState> state);
 
         void pop_state();
 
-        eos::IGameState* getState();
+        eos::GameState* getState();
 
     private:
-        std::vector<std::unique_ptr<IGameState>> stateStack_;
+        std::vector<std::unique_ptr<GameState>> stateStack_;
     };
 
 }

@@ -81,6 +81,7 @@ eos::Font::Character eos::Font::get(char32_t codepoint) {
         return characterMap_.at(codepoint);
     } else {
         SPDLOG_ERROR("Character {} not in cache!", static_cast<int32_t>(codepoint));
+        return Character();
     }
 }
 

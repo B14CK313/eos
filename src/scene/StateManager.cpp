@@ -5,11 +5,11 @@
 #include "eos/scene/StateManager.hpp"
 #include <spdlog/spdlog.h>
 
-eos::StateManager::StateManager(std::unique_ptr<IGameState> initialState) {
+eos::StateManager::StateManager(std::unique_ptr<GameState> initialState) {
     push_state(std::move(initialState));
 }
 
-void eos::StateManager::push_state(std::unique_ptr<IGameState> state) {
+void eos::StateManager::push_state(std::unique_ptr<GameState> state) {
     if (!stateStack_.empty()) stateStack_.back()->on_exit();
     stateStack_.push_back(std::move(state));
     stateStack_.back()->on_enter();
@@ -28,7 +28,7 @@ void eos::StateManager::pop_state() {
     SPDLOG_ERROR("No state on stack");
 }
 
-eos::IGameState* eos::StateManager::getState() {
+eos::GameState* eos::StateManager::getState() {
     if (!stateStack_.empty()) {
         return stateStack_.back().get();
     } else {

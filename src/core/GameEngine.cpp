@@ -6,8 +6,6 @@
 #include <sstream>
 #include <thread>
 #include <spdlog/spdlog.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/sinks/basic_file_sink.h>
 #include <eos/core/ServiceProvider.h>
 
 void APIENTRY
@@ -91,68 +89,16 @@ glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsi
     SPDLOG_ERROR(sstream.str());
 }
 
-static void error_callback(int error, const char* description) {
-}
-
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    eos::ServiceProvider::getStateManager().getState()->key_input(key, scancode, action, mods);
-}
-
-static void mouse_callback(GLFWwindow* window, double xPos, double yPos) {
-    eos::ServiceProvider::getStateManager().getState()->mouse_input(xPos, yPos);
-}
-
-static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset) {
-    eos::ServiceProvider::getStateManager().getState()->scroll_input(xOffset, yOffset);
-}
-
-static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
 eos::GameEngine::GameEngine() {
-    std::vector<spdlog::sink_ptr> sinks;
-    sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
-    sinks[0]->set_level(spdlog::level::trace);
+    config_ = eos::ServiceProvider::getConfigPtr();
+    window_ = eos::ServiceProvider::getWindowPtr();
+    stateManager_ = eos::ServiceProvider::getStateManagerPtr();
 
-    sinks.push_back(
-            std::make_shared<spdlog::sinks::basic_file_sink_mt>(eos::ServiceProvider::getConfig().log.fileName, true));
-    sinks[1]->set_level(spdlog::level::warn);
-
-    auto defaultLogger = std::make_shared<spdlog::logger>("default", sinks.begin(), sinks.end());
-    defaultLogger->set_level(spdlog::level::trace);
-    defaultLogger->set_pattern("[%Y-%m-%d %T.%e] [%^%l%$] [%s:%#] %v");
-    spdlog::register_logger(defaultLogger);
-    spdlog::set_default_logger(defaultLogger);
-    SPDLOG_TRACE("Logger initialized");
-
-    //Only use modern OpenGL (All legacy functions will return an error)
-#ifdef DEBUG
-    std::initializer_list<eos::Window::Hint> hints{{GLFW_CONTEXT_VERSION_MAJOR, 4},
-                                                   {GLFW_CONTEXT_VERSION_MINOR, 4},
-                                                   {GLFW_OPENGL_PROFILE,       GLFW_OPENGL_CORE_PROFILE},
-                                                   {GLFW_SAMPLES,               4},
-                                                   {GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE}};
-#else //DEBUG
-    std::initializer_list<eos::Window::Hint> hints{{GLFW_CONTEXT_VERSION_MAJOR, 3},
-                                                   {GLFW_CONTEXT_VERSION_MINOR, 3},
-                                                   {GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE},
-                                                   {GLFW_SAMPLES,               4}};
-#endif //DEBUG
-
-    eos::ServiceProvider::provide(std::make_unique<eos::Window>(hints));
-
-    if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) SPDLOG_ERROR("gladLoadGL failed");
-    //SPDLOG_INFO("glad Version: {}", );
-    SPDLOG_INFO("OpenGL Version: {}", glGetString(GL_VERSION));
-    SPDLOG_DEBUG("OpenGL Vendor: {}, Renderer: {}, Shading Language Version: {}", glGetString(GL_VENDOR),
-                 glGetString(GL_RENDERER), glGetString(GL_SHADING_LANGUAGE_VERSION));
-
-    glm::ivec2 dims;
-    eos::ServiceProvider::getWindow().get_size(dims);
-    glViewport(0, 0, dims[0], dims[1]);
-    SPDLOG_TRACE("GLViewport: {}x{} (Config: {}x{})", dims[0], dims[1], eos::ServiceProvider::getConfig().window.width,
-                 eos::ServiceProvider::getConfig().window.height);
+    if(config_->engine.vsync){
+        SDL_GL_SetSwapInterval(1);
+    } else {
+        SDL_GL_SetSwapInterval(0);
+    }
 
     glDisable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -160,62 +106,57 @@ eos::GameEngine::GameEngine() {
 #ifdef DEBUG
     GLint flags;
     glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+
+    if ((GLVersion.major > 4 || (GLVersion.major == 4 && GLVersion.minor >= 3)) && flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
         glEnable(GL_DEBUG_OUTPUT);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(glDebugOutput, nullptr);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
 #endif //DEBUG
-    eos::ServiceProvider::getWindow()
-            .set_swap_interval(0)
-            .set_error_callback(error_callback)
-            .set_key_callback(key_callback)
-            .set_cursor_pos_callback(mouse_callback)
-            .set_scroll_callback(scroll_callback)
-            .set_framebuffer_size_callback(framebuffer_size_callback);
 
-    dt_ = 1.0 / eos::ServiceProvider::getConfig().engine.targetUps;
-    fpu_ = eos::ServiceProvider::getConfig().engine.targetFps * dt_;
-    maxFrameTime_ = eos::ServiceProvider::getConfig().engine.targetUps * 25;
+    dt_ = config_->engine.targetUps / 10.0f;
+    fpu_ = config_->engine.targetFps / static_cast<float>(config_->engine.targetUps);
+    maxFrameTime_ = dt_ * 25;
 }
 
 [[maybe_unused]] void eos::GameEngine::target_fps(int fps, bool cap) {
-    eos::ServiceProvider::getConfig().engine.targetFps = fps;
-    fpu_ = eos::ServiceProvider::getConfig().engine.targetFps * dt_;
-    eos::ServiceProvider::getConfig().engine.capFps = cap;
+    config_->engine.targetFps = fps;
+    fpu_ = config_->engine.targetFps / static_cast<float>(config_->engine.targetUps);
+    config_->engine.capFps = cap;
 }
 
 [[maybe_unused]] void eos::GameEngine::target_ups(int ups) {
-    eos::ServiceProvider::getConfig().engine.targetUps = ups;
-    maxFrameTime_ = eos::ServiceProvider::getConfig().engine.targetUps * 25;
-    dt_ = 1.0 / eos::ServiceProvider::getConfig().engine.targetUps;
-    fpu_ = eos::ServiceProvider::getConfig().engine.targetFps * dt_;
+    config_->engine.targetUps = ups;
+    dt_ = config_->engine.targetUps / 10.0f;
+    fpu_ = config_->engine.targetFps / static_cast<float>(config_->engine.targetUps);
+    maxFrameTime_ = dt_ * 25;
 }
 
 bool eos::GameEngine::run() {
-    double previousTime = glfwGetTime();
-    double accumulator = 0.0f;
+    uint32_t previousTime = SDL_GetTicks();
+    uint32_t accumulator = 0;
     double t = 0.0f;
     int frames = 0;
     int updates = 0;
 
-    double prevSec = 0;
+    uint32_t prevSec = 0;
     int fps = 0;
     int ups = 0;
 
     SPDLOG_TRACE("Starting game loop...");
 
-    while (!eos::ServiceProvider::getWindow().get_should_close()) {
-        double currentTime = glfwGetTime();
-        double frameTime = currentTime - previousTime;
+    while (!quit_) {
+        uint32_t currentTime = SDL_GetTicks();
+        uint32_t frameTime = currentTime - previousTime;
         if (frameTime > maxFrameTime_) frameTime = maxFrameTime_; // Avoid Spiral of Death
         previousTime = currentTime;
         accumulator += frameTime;
+        SDL_Event event;
 
-        if (currentTime - prevSec >= 1.0f) {
+        if (currentTime - prevSec >= 1000) {
 #ifdef DEBUG
-            //std::printf("\rcurrentTime: %f, t: %f, _dt: %f, accumulator %f, frameTime: %f, FPS: %i, UPS: %i ", currentTime, t, dt_, accumulator, frameTime, fps, ups);
+            //std::printf("\rcurrentTime: %u, t: %f, _dt: %f, accumulator %u, frameTime: %u, FPS: %i, UPS: %i ", currentTime, t, dt_, accumulator, frameTime, fps, ups);
 #endif //DEBUG
             fps_ = fps;
             ups_ = ups;
@@ -227,8 +168,172 @@ bool eos::GameEngine::run() {
 
         // Run update every dt
         while (accumulator >= dt_) {
-            glfwPollEvents();
-            eos::ServiceProvider::getStateManager().getState()->update(t, dt_);
+            if (SDL_PollEvent(&event)) {
+                auto state = stateManager_->getState();
+                do {
+                    switch (event.type) {
+                        // Application events
+                        case SDL_QUIT:
+                            state->quit();
+                            break;
+                        case SDL_APP_TERMINATING:
+                            quit_ = true;
+                            break;
+                        case SDL_APP_LOWMEMORY:
+                            break;
+                        case SDL_APP_WILLENTERBACKGROUND:
+                            break;
+                        case SDL_APP_DIDENTERBACKGROUND:
+                            break;
+                        case SDL_APP_WILLENTERFOREGROUND:
+                            break;
+                        case SDL_APP_DIDENTERFOREGROUND:
+                            break;
+                            // Window events
+                        case SDL_WINDOWEVENT: {
+                            switch (event.window.event) {
+                                case SDL_WINDOWEVENT_SHOWN:
+                                    break;
+                                case SDL_WINDOWEVENT_HIDDEN:
+                                    break;
+                                case SDL_WINDOWEVENT_EXPOSED:
+                                    break;
+                                case SDL_WINDOWEVENT_MOVED:
+                                    break;
+                                case SDL_WINDOWEVENT_RESIZED:
+                                    window_->resize(event.window);
+                                    state->resize(event.window.data1, event.window.data2);
+                                    break;
+                                case SDL_WINDOWEVENT_SIZE_CHANGED:
+                                    break;
+                                case SDL_WINDOWEVENT_MINIMIZED:
+                                    break;
+                                case SDL_WINDOWEVENT_MAXIMIZED:
+                                    break;
+                                case SDL_WINDOWEVENT_RESTORED:
+                                    break;
+                                case SDL_WINDOWEVENT_ENTER:
+                                    break;
+                                case SDL_WINDOWEVENT_LEAVE:
+                                    break;
+                                case SDL_WINDOWEVENT_FOCUS_GAINED:
+                                    break;
+                                case SDL_WINDOWEVENT_FOCUS_LOST:
+                                    break;
+                                case SDL_WINDOWEVENT_CLOSE:
+                                    break;
+                                case SDL_WINDOWEVENT_TAKE_FOCUS:
+                                    break;
+                                case SDL_WINDOWEVENT_HIT_TEST:
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        }
+                        case SDL_SYSWMEVENT:
+                            break;
+                            // Keyboard events
+                        case SDL_KEYDOWN:
+                            state->key_down(event.key);
+                            break;
+                        case SDL_KEYUP:
+                            state->key_up(event.key);
+                            break;
+                        case SDL_TEXTEDITING:
+                            break;
+                        case SDL_TEXTINPUT:
+                            break;
+                        case SDL_KEYMAPCHANGED:
+                            break;
+                            // Mouse events
+                        case SDL_MOUSEMOTION:
+                            state->mouse_motion(event.motion);
+                            break;
+                        case SDL_MOUSEBUTTONDOWN:
+                            state->mouse_button_down(event.button);
+                            break;
+                        case SDL_MOUSEBUTTONUP:
+                            state->mouse_button_up(event.button);
+                            break;
+                        case SDL_MOUSEWHEEL:
+                            state->mouse_wheel(event.wheel);
+                            break;
+                            // Joystick events
+                        case SDL_JOYAXISMOTION:
+                            break;
+                        case SDL_JOYBALLMOTION:
+                            break;
+                        case SDL_JOYHATMOTION:
+                            break;
+                        case SDL_JOYBUTTONDOWN:
+                            break;
+                        case SDL_JOYBUTTONUP:
+                            break;
+                        case SDL_JOYDEVICEADDED:
+                            break;
+                        case SDL_JOYDEVICEREMOVED:
+                            break;
+                            // Controller events
+                        case SDL_CONTROLLERAXISMOTION:
+                            break;
+                        case SDL_CONTROLLERBUTTONDOWN:
+                            break;
+                        case SDL_CONTROLLERBUTTONUP:
+                            break;
+                        case SDL_CONTROLLERDEVICEADDED:
+                            break;
+                        case SDL_CONTROLLERDEVICEREMOVED:
+                            break;
+                        case SDL_CONTROLLERDEVICEREMAPPED:
+                            break;
+                            // Touch events
+                        case SDL_FINGERDOWN:
+                            break;
+                        case SDL_FINGERUP:
+                            break;
+                        case SDL_FINGERMOTION:
+                            break;
+                            // Gesture events
+                        case SDL_DOLLARGESTURE:
+                            break;
+                        case SDL_DOLLARRECORD:
+                            break;
+                        case SDL_MULTIGESTURE:
+                            break;
+                            // Clipboard events
+                        case SDL_CLIPBOARDUPDATE:
+                            break;
+                            // Drag and drop events
+                        case SDL_DROPFILE:
+                            break;
+                        case SDL_DROPTEXT:
+                            break;
+                        case SDL_DROPBEGIN:
+                            break;
+                        case SDL_DROPCOMPLETE:
+                            break;
+                            // Audio hotplug events
+                        case SDL_AUDIODEVICEADDED:
+                            break;
+                        case SDL_AUDIODEVICEREMOVED:
+                            break;
+                            // Render events
+                        case SDL_RENDER_TARGETS_RESET:
+                            break;
+                        case SDL_RENDER_DEVICE_RESET:
+                            break;
+                            // User specified events
+                        case SDL_USEREVENT:
+                            break;
+                        case SDL_LASTEVENT:
+                            break;
+                        default:
+                            break;
+                    }
+                } while (SDL_PollEvent(&event));
+            }
+            stateManager_->getState()->update(t, dt_);
             accumulator -= dt_;
             t += dt_;
 
@@ -239,11 +344,11 @@ bool eos::GameEngine::run() {
         double interpolation = accumulator / dt_;
 
         // FPS Cap
-        if (eos::ServiceProvider::getConfig().engine.capFps && updates * fpu_ <= frames) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        if (config_->engine.capFps && updates * fpu_ <= frames) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         } else {
-            eos::ServiceProvider::getStateManager().getState()->render(interpolation);
-            eos::ServiceProvider::getWindow().swap_buffers();
+            stateManager_->getState()->render(interpolation);
+            window_->swap();
             frames++;
             fps++;
         }

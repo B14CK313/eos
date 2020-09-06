@@ -6,14 +6,17 @@
 #define EOS_GAMEENGINE_HPP
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
+#include <eos/scene/Window.h>
 #include "eos/scene/StateManager.hpp"
 #include "eos/core/io/Config.hpp"
 
 namespace eos {
 
     class GameEngine {
+    public:
+        bool quit_ = false;
+
     public:
         explicit GameEngine();
 
@@ -28,6 +31,13 @@ namespace eos {
         int get_ups() const;
 
     private:
+        std::shared_ptr<eos::Config> config_;
+
+        std::shared_ptr<eos::Window> window_;
+
+        std::shared_ptr<eos::StateManager> stateManager_;
+
+
         double maxFrameTime_{};
         double dt_{};
         double fpu_{};

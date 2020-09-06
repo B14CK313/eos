@@ -30,9 +30,8 @@ void eos::ArcballCamera::apply_view_matrix(const eos::Shader& shader, const std:
 }
 
 glm::mat4 eos::ArcballCamera::get_projection_matrix(float zNear, float zFar) const {
-    int windowWidth, windowHeight;
-    eos::ServiceProvider::getWindow().get_size(windowWidth, windowHeight);
-    return glm::perspective(glm::radians(zoom_), static_cast<float>(windowWidth) / static_cast<float>(windowHeight), zNear, zFar);
+    const auto& windowSize = eos::ServiceProvider::getWindow().size_;
+    return glm::perspective(glm::radians(zoom_), static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y), zNear, zFar);
 }
 
 void eos::ArcballCamera::apply_projection_matrix(const eos::Shader& shader, const std::string& name, float zNear,

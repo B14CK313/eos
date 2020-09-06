@@ -2,38 +2,62 @@
 // Created by jakob on 13.07.20.
 //
 
-#include "eos/core/ServiceProvider.h"
 #include <memory>
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include "eos/core/ServiceProvider.h"
 
-std::unique_ptr<eos::GameEngine> eos::ServiceProvider::gameEngine_;
-std::unique_ptr<eos::StateManager> eos::ServiceProvider::stateManager_;
-std::unique_ptr<eos::Config> eos::ServiceProvider::config_;
-std::unique_ptr<eos::Window> eos::ServiceProvider::window_;
-std::unique_ptr<FT_Library> eos::ServiceProvider::freetype_;
+std::shared_ptr<eos::GameEngine> eos::ServiceProvider::gameEngine_;
+std::shared_ptr<eos::StateManager> eos::ServiceProvider::stateManager_;
+std::shared_ptr<eos::Config> eos::ServiceProvider::config_;
+std::shared_ptr<eos::Window> eos::ServiceProvider::window_;
+std::shared_ptr<FT_Library> eos::ServiceProvider::freetype_;
 
-void eos::ServiceProvider::init(const std::string& configPath, std::unique_ptr<eos::IGameState> initialState) {
-    provide(std::make_unique<eos::Config>(configPath));
-    provide(std::make_unique<eos::StateManager>(std::move(initialState)));
+void eos::ServiceProvider::init(const std::string& configPath, std::unique_ptr<eos::GameState> initialState) {
+    std::vector<spdlog::sink_ptr> sinks;
+    sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+    sinks[0]->set_level(spdlog::level::trace);
+
+    config_ = std::make_shared<eos::Config>(configPath);
+
+    sinks.push_back(
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>(config_->log.fileName, true));
+    sinks[1]->set_level(spdlog::level::warn);
+
+    auto defaultLogger = std::make_shared<spdlog::logger>("default", sinks.begin(), sinks.end());
+    defaultLogger->set_level(spdlog::level::trace);
+    defaultLogger->set_pattern("[%Y-%m-%d %T.%e] [%^%l%$] [%s:%#] %v");
+    spdlog::register_logger(defaultLogger);
+    spdlog::set_default_logger(defaultLogger);
+    SPDLOG_TRACE("Logger initialized");
+
+    window_ = std::make_shared<eos::Window>(config_->window.title, config_->window.width, config_->window.height);
+    stateManager_ = std::make_shared<eos::StateManager>(std::move(initialState));
+    gameEngine_ = std::make_shared<eos::GameEngine>();
 }
 
 void eos::ServiceProvider::cleanup() {
     if(freetype_) FT_Done_FreeType(*freetype_);
 }
 
-void eos::ServiceProvider::provide(std::unique_ptr<eos::GameEngine> gameEngine) {
-    gameEngine_ = std::move(gameEngine);
+void eos::ServiceProvider::provide(std::shared_ptr<eos::GameEngine> gameEngine) {
+    gameEngine_ = gameEngine;
 }
 
 eos::GameEngine& eos::ServiceProvider::getGameEngine() {
     if(!gameEngine_) {
-        gameEngine_ = std::make_unique<eos::GameEngine>();
+        throw;
     }
     return *gameEngine_;
 }
 
-void eos::ServiceProvider::provide(std::unique_ptr<eos::StateManager> stateManager) {
-    stateManager_ = std::move(stateManager);
+std::shared_ptr<eos::GameEngine> eos::ServiceProvider::getGameEnginePtr() {
+    return gameEngine_;
+}
+
+void eos::ServiceProvider::provide(std::shared_ptr<eos::StateManager> stateManager) {
+    stateManager_ = stateManager;
 }
 
 eos::StateManager& eos::ServiceProvider::getStateManager() {
@@ -43,8 +67,12 @@ eos::StateManager& eos::ServiceProvider::getStateManager() {
     return *stateManager_;
 }
 
-void eos::ServiceProvider::provide(std::unique_ptr<eos::Config> config) {
-    config_ = std::move(config);
+std::shared_ptr<eos::StateManager> eos::ServiceProvider::getStateManagerPtr() {
+    return stateManager_;
+}
+
+void eos::ServiceProvider::provide(std::shared_ptr<eos::Config> config) {
+    config_ = config;
 }
 
 eos::Config& eos::ServiceProvider::getConfig() {
@@ -54,17 +82,23 @@ eos::Config& eos::ServiceProvider::getConfig() {
     return *config_;
 }
 
-void eos::ServiceProvider::provide(std::unique_ptr<eos::Window> window) {
-    window_ = std::move(window);
+std::shared_ptr<eos::Config> eos::ServiceProvider::getConfigPtr() {
+    return config_;
+}
+
+void eos::ServiceProvider::provide(std::shared_ptr<eos::Window> window) {
+    window_ = window;
 }
 
 eos::Window& eos::ServiceProvider::getWindow() {
     if(!window_) {
-        if(!gameEngine_) {
-            getGameEngine();
-        }
+        throw;
     }
     return *window_;
+}
+
+std::shared_ptr<eos::Window> eos::ServiceProvider::getWindowPtr() {
+    return window_;
 }
 
 FT_Library& eos::ServiceProvider::getFreetype() {

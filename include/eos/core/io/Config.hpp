@@ -29,6 +29,7 @@ namespace eos {
             int targetUps{100};
             int targetFps{120};
             bool capFps{true};
+            bool vsync{false};
         } engine;
 
     private:

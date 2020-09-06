@@ -94,8 +94,8 @@ void eos::Text::render(const std::string& text, glm::vec2 pos, eos::ColorRGB col
 
 std::u32string eos::Text::setup_render(const std::string& text) const {
     shader_->use();
-    glm::vec2 windowDim = eos::ServiceProvider::getWindow().get_size();
-    glm::mat4 projection = glm::ortho(0.0f, windowDim.x, 0.0f, windowDim.y);
+    glm::vec2 windowSize = eos::ServiceProvider::getWindow().size_;
+    glm::mat4 projection = glm::ortho(0.0f, windowSize.x, 0.0f, windowSize.y);
     shader_->set_mat4_uniform("projection", projection);
 
     font_->use();

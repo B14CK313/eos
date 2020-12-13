@@ -53,7 +53,7 @@ namespace eos {
 
         int get_attribute_location(const std::string& name) const;
 
-    private:
+    public:
         // the program ID
         unsigned int id_;
 

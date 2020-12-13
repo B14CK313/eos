@@ -41,13 +41,13 @@ eos::ColorHSV::operator ColorRGB() const {
 }
 
 eos::ColorHSV eos::ColorHSV::operator+(const eos::ColorHSV& color) const {
-    return {std::fmod(this->hue_ + color.hue_, 360.0f), this->saturation_ + color.saturation_,
-            this->value_ + color.value_, this->alpha_ + color.alpha_};
+    return {std::fmod(hue_ + color.hue_, 360.0f), saturation_ + color.saturation_,
+            value_ + color.value_, alpha_ + color.alpha_};
 }
 
 eos::ColorHSV eos::ColorHSV::operator-(const eos::ColorHSV& color) const {
-    return {std::fmod(this->hue_ - color.hue_, 360.0f), this->saturation_ - color.saturation_,
-            this->value_ - color.value_, this->alpha_ - color.alpha_};
+    return {std::fmod(hue_ - color.hue_, 360.0f), saturation_ - color.saturation_,
+            value_ - color.value_, alpha_ - color.alpha_};
 }
 
 eos::ColorHSV eos::ColorHSV::operator*(float scalar) const {

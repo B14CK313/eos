@@ -34,6 +34,22 @@ namespace eos {
         operator glm::vec4() const;
 
         operator glm::vec3() const;
+
+        ColorRGB operator+(const ColorRGB& color) const;
+
+        ColorRGB operator-(const ColorRGB& color) const;
+
+        ColorRGB operator*(float scalar) const;
+
+        ColorRGB operator/(float scalar) const;
+
+        ColorRGB& operator+=(const ColorRGB& color);
+
+        ColorRGB& operator-=(const ColorRGB& color);
+
+        ColorRGB& operator*=(float scalar);
+
+        ColorRGB& operator/=(float scalar);
     };
 }
 

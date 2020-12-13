@@ -77,6 +77,54 @@ eos::ColorRGB::operator glm::vec3() const {
     return glm::vec3(red_, green_, blue_);
 }
 
+eos::ColorRGB eos::ColorRGB::operator+(const eos::ColorRGB& color) const {
+    return {red_ + color.red_, green_ + color.green_, blue_ + color.blue_, alpha_ + color.alpha_};
+}
+
+eos::ColorRGB eos::ColorRGB::operator-(const eos::ColorRGB& color) const {
+    return {red_ - color.red_, green_ - color.green_, blue_ - color.blue_, alpha_ - color.alpha_};
+}
+
+eos::ColorRGB eos::ColorRGB::operator*(float scalar) const {
+    return {red_ * scalar, green_ * scalar, blue_ * scalar, alpha_ * scalar};
+}
+
+eos::ColorRGB eos::ColorRGB::operator/(float scalar) const {
+    return {red_ / scalar, green_ / scalar, blue_ / scalar, alpha_ / scalar};
+}
+
+eos::ColorRGB& eos::ColorRGB::operator+=(const eos::ColorRGB& color) {
+    red_ += color.red_;
+    green_ += color.green_;
+    blue_ += color.blue_;
+    alpha_ += color.alpha_;
+    return *this;
+}
+
+eos::ColorRGB& eos::ColorRGB::operator-=(const eos::ColorRGB& color) {
+    red_ -= color.red_;
+    green_ -= color.green_;
+    blue_ -= color.blue_;
+    alpha_ -= color.alpha_;
+    return *this;
+}
+
+eos::ColorRGB& eos::ColorRGB::operator*=(float scalar) {
+    red_ *= scalar;
+    green_ *= scalar;
+    blue_ *= scalar;
+    alpha_ *= scalar;
+    return *this;
+}
+
+eos::ColorRGB& eos::ColorRGB::operator/=(float scalar) {
+    red_ /= scalar;
+    green_ /= scalar;
+    blue_ /= scalar;
+    alpha_ /= scalar;
+    return *this;
+}
+
 eos::ColorRGB operator ""_l(unsigned long long int hex) {
     float value = hex / 255.0f;
     return eos::ColorRGB(value, value, value, 1.0f);

@@ -89,6 +89,8 @@ glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsi
     SPDLOG_ERROR(sstream.str());
 }
 
+// TODO: use namespaced intX_t (e.g. std::int8_t instead of int8_t) and include <cstdint>
+
 eos::GameEngine::GameEngine() {
     config_ = eos::ServiceProvider::getConfigPtr();
     window_ = eos::ServiceProvider::getWindowPtr();

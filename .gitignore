@@ -159,6 +159,6 @@ _deps
 bin
 lib
 ext
-test
+test-game
 build
 .idea

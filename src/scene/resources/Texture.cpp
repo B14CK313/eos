@@ -3,13 +3,14 @@
 //
 
 #include <glad/glad.h>
-#include <mango/image/image.hpp>
 
 #include <spdlog/spdlog.h>
 #include "eos/scene/resources/Texture.h"
 
 eos::Texture::Texture(const std::string& path, unsigned int colorFormat, unsigned int wrapS, unsigned int wrapT,
                       unsigned int filterMin, unsigned int filterMag) {
+	// FIXME: replace mango code
+	/*
     // Creates memory mapped file
     mango::filesystem::File file(path.c_str());
     mango::ImageDecoder decoder(file, mango::filesystem::getExtension(path.c_str()));
@@ -62,6 +63,7 @@ eos::Texture::Texture(const std::string& path, unsigned int colorFormat, unsigne
         // Buffer is not used anymore, unbind
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
     }
+    */
 }
 
 eos::Texture::~Texture() {

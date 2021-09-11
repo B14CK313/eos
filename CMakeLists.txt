@@ -1,6 +1,11 @@
+# CMake setup
 cmake_minimum_required(VERSION 3.16)
 project(eos VERSION 0.0.1)
 
+include(cmake/CompilerFlagHelper.cmake)
+include(cmake/CPM.cmake)
+
+# Project setup
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -13,6 +18,7 @@ endif ()
 
 option(EOS_TEST "Generate the test target." ${MASTER_PROJECT})
 
+# OS detection
 if (WIN32 OR CMAKE_BUILD_TYPE MATCHES .*Win)
     message("Compiling for Windows")
     set(OS win)
@@ -20,76 +26,89 @@ else ()
     set(OS unix)
 endif ()
 
-include(CheckCXXCompilerFlag)
-function(enable_cxx_compiler_flag_if_supported flag)
-    string(FIND "${CMAKE_CXX_FLAGS}" "${flag}" flag_already_set)
-    if(flag_already_set EQUAL -1)
-        check_cxx_compiler_flag("${flag}" flag_supported)
-        if(flag_supported)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}" PARENT_SCOPE)
-        endif()
-        unset(flag_supported CACHE)
-    endif()
-endfunction()
-
+# Output dirs & compiler flags
 if (CMAKE_BUILD_TYPE MATCHES Debug.*)
     set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib/${OS}/debug)
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${OS}/debug)
+
     add_compile_definitions(DEBUG GLAD_DEBUG SPDLOG_ACTIVE_LEVEL=0)
+    add_compile_options(-Og)
+
     enable_cxx_compiler_flag_if_supported("-Wall")
     enable_cxx_compiler_flag_if_supported("-Wextra")
     enable_cxx_compiler_flag_if_supported("-pedantic")
 elseif (CMAKE_BUILD_TYPE MATCHES RelWithDebInfo.*)
     set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib/${OS}/relwithdebinfo)
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${OS}/relwithdebinfo)
+
     add_compile_definitions(DEBUG SPDLOG_ACTIVE_LEVEL=0)
     add_compile_options(-O3)
 else ()
     set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib/${OS}/release)
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${OS}/release)
+
     add_compile_definitions(SPDLOG_ACTIVE_LEVEL=2)
     add_compile_options(-O3)
 endif ()
 
+# Sources
 set(EOS_SOURCES src/core/GameEngine.cpp include/eos/core/GameEngine.hpp include/eos/scene/GameState.hpp src/scene/StateManager.cpp include/eos/scene/StateManager.hpp src/utils.cpp include/eos/utils.hpp src/core/io/Config.cpp include/eos/core/io/Config.hpp src/Constants.cpp include/eos/Constants.hpp src/scene/resources/Shader.cpp include/eos/scene/resources/Shader.h src/stb_image.cpp src/scene/resources/Texture.cpp include/eos/scene/resources/Texture.h src/scene/3d/WorldObject.cpp include/eos/scene/3d/WorldObject.h src/core/ServiceProvider.cpp include/eos/core/ServiceProvider.h src/scene/Window.cpp include/eos/scene/Window.h src/scene/3d/ArcballCamera.cpp include/eos/scene/3d/ArcballCamera.h src/scene/3d/Camera.cpp include/eos/scene/3d/Camera.hpp src/scene/3d/PhysicsObject.cpp include/eos/scene/3d/PhysicsObject.hpp src/scene/3d/LightObject.cpp include/eos/scene/3d/LightObject.hpp src/core/ColorRGB.cpp include/eos/core/ColorRGB.hpp src/scene/resources/Font.cpp include/eos/scene/resources/Font.hpp src/scene/3d/GuiObject.cpp include/eos/scene/3d/GuiObject.hpp src/scene/resources/RegularTextureAtlas.cpp include/eos/scene/resources/RegularTextureAtlas.hpp include/eos/scene/resources/IrregularTextureAtlas.hpp src/scene/resources/IrregularTextureAtlas.cpp include/eos/scene/resources/TextureAtlas.hpp src/scene/resources/TextureAtlas.cpp src/core/ColorHSV.cpp include/eos/core/ColorHSV.hpp src/scene/resources/GradientText.cpp include/eos/scene/resources/GradientText.hpp src/scene/resources/Text.cpp include/eos/scene/resources/Text.hpp src/scene/GameState.cpp src/scene/resources/Material.cpp include/eos/scene/resources/Material.hpp)
 
-add_library(eos ${EOS_SOURCES} ${EOS_HEADERS})
-add_library(eos::eos ALIAS eos)
-
-set(OpenGL_GL_PREFERENCE GLVND)
-
-find_package(OpenGL REQUIRED)
-find_package(SDL2 REQUIRED)
-find_package(glm REQUIRED)
-find_package(Freetype REQUIRED)
-add_subdirectory(ext/glad)
-add_subdirectory(ext/nowide)
-add_subdirectory(ext/mango)
-add_subdirectory(ext/quill/quill)
-add_subdirectory(ext/utfcpp)
-add_subdirectory(ext/msdfgen)
-add_subdirectory(ext/stb)
-target_link_libraries(eos PUBLIC stb)
-
+# Load dependencies
+CPMAddPackage("gh:TheLartians/Ccache.cmake@1.2.3")
+CPMAddPackage("gh:onqtam/doctest#2.4.6")
+CPMAddPackage("gh:nemtrif/utfcpp@3.2.1")
+CPMAddPackage("gh:boostorg/nowide#02f40f0b5f5686627fcddae93ff88ca399db4766")
+CPMAddPackage("gh:gabime/spdlog@1.9.2")
+CPMAddPackage("gh:fmtlib/fmt#8.0.1")
+CPMAddPackage("gh:libsdl-org/SDL#release-2.0.16")
+CPMAddPackage("gh:Dav1dde/glad@0.1.34")
 if (OS MATCHES win)
-    add_subdirectory(ext/fmt)
-    #add_subdirectory(ext/rapidjson)
-    add_subdirectory(ext/spdlog)
-    target_compile_definitions(eos PUBLIC WIN UNICODE _UNICODE)
-    target_compile_definitions(mango PUBLIC NTDDI_VERSION=NTDDI_WIN7 _WIN32_WINNT=_WIN32_WINNT_WIN7)
-    target_compile_options(mango PUBLIC $<$<COMPILE_LANGUAGE:CXX>:-fpermissive>)
-    include_directories(eos PUBLIC ext/rapidjson/include)
+    CPMAddPackage(
+            NAME freetype
+            GITHUB_REPOSITORY ubawurinna/freetype-windows-binaries
+            VERSION 2.11.0
+            DOWNLOAD_ONLY YES
+    )
+    if (freetype_ADDED)
+        message("FREETYPE WINDOWS")
+        add_library(freetype INTERFACE)
+        target_include_directories(freetype INTERFACE ${freetype_SOURCE_DIR}/include)
+    endif ()
 else ()
-    find_package(fmt REQUIRED)
-    find_package(spdlog REQUIRED)
-    find_package(RapidJSON REQUIRED)
+    CPMAddPackage("gh:aseprite/freetype2#VER-2-10-0")
+    if (freetype_ADDED)
+        add_library(Freetype::Freetype ALIAS freetype)
+    endif ()
+endif ()
+CPMAddPackage("gh:Chlumsky/msdfgen@1.9.1")
+CPMAddPackage(
+        NAME stb
+        GITHUB_REPOSITORY nothings/stb
+        GIT_TAG af1a5bc352164740c1cc1354942b1c6b72eacb8a
+        DOWNLOAD_ONLY YES
+)
+if (stb_ADDED)
+    add_library(stb INTERFACE)
+    target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})
 endif ()
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include ${GLFW_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIRS} ${RAPIDJSON_INCLUDE_DIRS})
+# Includes
+#include_directories()
 
-target_link_libraries(eos PUBLIC SDL2::SDL2 ${OPENGL_LIBRARY} Boost::nowide Freetype::Freetype utf8cpp msdfgen::msdfgen msdfgen::msdfgen-ext fmt::fmt spdlog::spdlog glad mango glm)
+# Dependency configuration
+set(OpenGL_GL_PREFERENCE GLVND)
+
+# Setup compilation & linking
+add_library(eos STATIC ${EOS_SOURCES} ${EOS_HEADERS})
+add_library(eos::eos ALIAS eos)
+
+target_link_libraries(eos PUBLIC utf8cpp nowide spdlog fmt SDL2-static glad msdfgen::msdfgen msdfgen::msdfgen-ext freetype)
 target_include_directories(eos PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
+add_subdirectory(test)
+
+# Add tests
 if (EOS_TEST)
-    add_subdirectory(test)
+    add_subdirectory(test-game)
 endif ()

@@ -18,40 +18,34 @@ eos::IrregularTextureAtlas::SubTexture eos::IrregularTextureAtlas::insert(const 
 }
 
 glm::uvec2 eos::IrregularTextureAtlas::get_free_slot(glm::uvec2 textureDim) {
-    for (auto it = lines_.begin(); it != lines_.end(); ++it) {
-        if (textureDim.y < it->first) { // if texture height fits in line
-            SPDLOG_TRACE("Texture height ({}) fits into {} high line at {} ", textureDim.y, it->first, it->second.y);
-            if(textureDim.y < it->first * minTexHeightMultiplier) { // texture too small for line -> create new line
-                SPDLOG_TRACE("Texture too small for line (min {}) -> create new line", it->first * minTexHeightMultiplier);
+	for (auto& [lineHeight, slotCoords] : lines_) {
+        if (textureDim.y < lineHeight) { // if texture height fits in line
+			if(textureDim.y < lineHeight * minTexHeightMultiplier) { // texture too small for line -> create new line
+                SPDLOG_TRACE("Texture {}x{} too small for line (min {}px) at ({}/{})", textureDim.x, textureDim.y, lineHeight * minTexHeightMultiplier, slotCoords.x, slotCoords.y);
                 break;
-            }
-            if(it->second.x + textureDim.x <= atlasDim_.x){ // if texture width fits in line
-                SPDLOG_TRACE("Texture width ({}) fits in {} in line {} high at ({}/{})", textureDim.x, atlasDim_.x - it->second.x, it->first, it->second.x, it->second.y);
-                glm::uvec2 slot = {it->second.x, it->second.y};
-                it->second.x += textureDim.x;
+            } else if(slotCoords.x + textureDim.x <= atlasDim_.x){ // if texture width fits in line
+                SPDLOG_TRACE("Texture {}⨉{} fits into {}⨉{} at ({}/{})", textureDim.x, textureDim.y, atlasDim_.x - slotCoords.x, lineHeight, slotCoords.x, slotCoords.y);
+                glm::uvec2 slot{slotCoords.x, slotCoords.y};
+                slotCoords.x += textureDim.x;
                 return slot;
-            } else {
-                SPDLOG_TRACE("Texture width ({}) fits not in {} in line {} high at ({}/{})", textureDim.x, atlasDim_.x - it->second.x, it->first, it->second.x, it->second.y);
-                continue;
             }
-        } else continue;
+			SPDLOG_TRACE("Texture {}⨉{} doesn't fit into {}⨉{} at ({}/{})", textureDim.x, textureDim.y, atlasDim_.x - slotCoords.x, lineHeight, slotCoords.x, slotCoords.y);
+        }
     }
 
-    // no fitting line was found, create new line if texture fits
-    SPDLOG_TRACE("No fitting line was found");
-    unsigned int previousLineEnd = 0;
-    if(auto previousLine = lines_.rbegin(); previousLine != lines_.rend()){
+    // no fitting line was found, create new line if texture fits into atlas
+    unsigned int previousLineEnd{0};
+    if(auto previousLine{lines_.rbegin()}; previousLine != lines_.rend()){
         previousLineEnd = previousLine->second.y + previousLine->first;
     }
-    unsigned int requiredSpace = previousLineEnd + textureDim.y;
-    SPDLOG_TRACE("Texture ({}x{}) at {}: Requires space {} of {}", textureDim.x, textureDim.y, previousLineEnd, requiredSpace, atlasDim_.y);
-    if(lines_.empty() || requiredSpace <= atlasDim_.y){
-        unsigned int lineHeight = std::min(static_cast<unsigned int>(std::ceil(textureDim.y * newLineHeightMultiplier)), atlasDim_.y - requiredSpace);
-        SPDLOG_TRACE("Creating new {} high line at {}", lineHeight, previousLineEnd);
+    unsigned int availableSpace{atlasDim_.y - previousLineEnd};
+    if(textureDim.y <= availableSpace){
+        unsigned int lineHeight = std::min(static_cast<unsigned int>(std::ceil(textureDim.y * newLineHeightMultiplier)), availableSpace);
+        SPDLOG_TRACE("Creating new {} high line at (0/{}) for Texture {}⨉{}", lineHeight, previousLineEnd, textureDim.x, textureDim.y);
         lines_.emplace(lineHeight, glm::uvec2{textureDim.x, previousLineEnd});
         return {0, previousLineEnd};
     } else { // texture does not fit in atlas
-        SPDLOG_ERROR("TextureAtlas cache overflow!");
+        SPDLOG_ERROR("TextureAtlas overflow: No new line could be created for Texture {}⨉{} (available space: {})!", textureDim.x, textureDim.y, availableSpace);
         return atlasDim_;
     }
 }

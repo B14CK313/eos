@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 #include "eos/core/graphics/Window.hpp"
 
-void eos::GraphicsOpenGL::setup() {
+void eos::GraphicsOpenGL::setup(std::string_view title) {
 	SDL_GL_LoadLibrary(nullptr);
 #ifdef DEBUG
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG | SDL_GL_CONTEXT_DEBUG_FLAG);

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <SDL_video.h>
+#include <vulkan/vulkan.hpp>
 #include <experimental/memory>
 
 namespace eos {
@@ -19,7 +20,7 @@ namespace eos {
 
 		virtual ~Graphics() = default;
 
-		virtual void setup() = 0;
+		virtual void setup(std::string_view title) = 0;
 
 		virtual void instantiate(std::experimental::observer_ptr<SDL_Window> window) = 0;
 
@@ -37,7 +38,7 @@ namespace eos {
 
 	class GraphicsOpenGL : public Graphics {
 	public:
-		void setup() override;
+		void setup(std::string_view title) override;
 
 		void instantiate(std::experimental::observer_ptr<SDL_Window> window) override;
 
@@ -52,7 +53,9 @@ namespace eos {
 
 	class GraphicsVulkan : public Graphics {
 	public:
-		void setup() override;
+		~GraphicsVulkan() override;
+
+		void setup(std::string_view title) override;
 
 		void instantiate(std::experimental::observer_ptr<SDL_Window> window) override;
 
@@ -63,6 +66,11 @@ namespace eos {
 		void resize(int width, int height) override;
 
 		[[nodiscard]] glm::ivec2 size() const override;
+
+	private:
+		VkApplicationInfo app_;
+		VkInstance instance_;
+		VkSurfaceKHR surface_;
 	};
 
 }

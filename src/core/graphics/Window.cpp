@@ -20,7 +20,7 @@ eos::Window::Window(const std::string& title, int width, int height, Graphics::T
 			break;
 	}
 
-	graphics_->setup();
+	graphics_->setup(title);
 
 	window_ = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, static_cast<int>(type) | SDL_WINDOW_RESIZABLE);
 	if(!window_) {

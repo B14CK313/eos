@@ -18,6 +18,7 @@ namespace eos {
             std::string title{"EOS GameEngine"};
             int width{800};
             int height{600};
+			int type; // FIXME: this should not be an int but a Graphics::Type enum
         } window;
 
         struct Log {

@@ -25,6 +25,7 @@ eos::Config::Config(const std::string& path) : path_(path) {
                 LOAD_CONFIG_OPTION(window, title, String);
                 LOAD_CONFIG_OPTION(window, width, Int);
                 LOAD_CONFIG_OPTION(window, height, Int);
+	            LOAD_CONFIG_OPTION(window, type, Int);
             } else
                 SPDLOG_WARN("Config missing section window, using default values");
 

@@ -8,7 +8,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "eos/core/GameEngine.hpp"
-#include "eos/scene/Window.h"
+#include "eos/core/graphics/Window.hpp"
 
 namespace eos {
 

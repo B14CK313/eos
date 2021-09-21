@@ -6,6 +6,8 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <eos/core/graphics/Window.hpp>
+#include <eos/core/graphics/Graphics.hpp>
 #include "eos/core/ServiceProvider.h"
 
 std::shared_ptr<eos::GameEngine> eos::ServiceProvider::gameEngine_;
@@ -32,7 +34,7 @@ void eos::ServiceProvider::init(const std::string& configPath, std::unique_ptr<e
     spdlog::set_default_logger(defaultLogger);
     SPDLOG_TRACE("Logger initialized");
 
-    window_ = std::make_shared<eos::Window>(config_->window.title, config_->window.width, config_->window.height);
+	window_ = std::make_shared<eos::Window>(config_->window.title, config_->window.width, config_->window.height, static_cast<Graphics::Type>(config_->window.type));
     stateManager_ = std::make_shared<eos::StateManager>(std::move(initialState));
     gameEngine_ = std::make_shared<eos::GameEngine>();
 }

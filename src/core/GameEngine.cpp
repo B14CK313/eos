@@ -96,11 +96,7 @@ eos::GameEngine::GameEngine() {
     window_ = eos::ServiceProvider::getWindowPtr();
     stateManager_ = eos::ServiceProvider::getStateManagerPtr();
 
-    if(config_->engine.vsync){
-        SDL_GL_SetSwapInterval(1);
-    } else {
-        SDL_GL_SetSwapInterval(0);
-    }
+    window_->graphics()->vsync(config_->engine.vsync);
 
     glDisable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -146,6 +142,8 @@ bool eos::GameEngine::run() {
     uint32_t prevSec = 0;
     int fps = 0;
     int ups = 0;
+
+	auto graphics = window_->graphics();
 
     SPDLOG_TRACE("Starting game loop...");
 
@@ -204,7 +202,7 @@ bool eos::GameEngine::run() {
                                 case SDL_WINDOWEVENT_MOVED:
                                     break;
                                 case SDL_WINDOWEVENT_RESIZED:
-                                    window_->resize(event.window);
+                                    window_->resize(event.window.data1, event.window.data2);
                                     state->resize(event.window.data1, event.window.data2);
                                     break;
                                 case SDL_WINDOWEVENT_SIZE_CHANGED:
@@ -351,7 +349,7 @@ bool eos::GameEngine::run() {
             std::this_thread::sleep_for(std::chrono::milliseconds(5));
         } else {
             stateManager_->getState()->render(interpolation);
-            window_->swap();
+            graphics->swap();
             frames++;
             fps++;
         }
@@ -362,10 +360,10 @@ bool eos::GameEngine::run() {
     return true;
 }
 
-int eos::GameEngine::get_fps() const {
+int eos::GameEngine::fps() const {
     return fps_;
 }
 
-int eos::GameEngine::get_ups() const {
+int eos::GameEngine::ups() const {
     return ups_;
 }

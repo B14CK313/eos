@@ -7,7 +7,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <eos/scene/Window.h>
+#include <eos/core/graphics/Window.hpp>
 #include "eos/scene/StateManager.hpp"
 #include "eos/core/io/Config.hpp"
 
@@ -26,9 +26,9 @@ namespace eos {
 
         void target_ups(int ups);
 
-        int get_fps() const;
+        [[nodiscard]] int fps() const;
 
-        int get_ups() const;
+        [[nodiscard]] int ups() const;
 
     private:
         std::shared_ptr<eos::Config> config_;

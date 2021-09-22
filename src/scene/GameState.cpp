@@ -2,7 +2,7 @@
 // Created by jakob on 06.09.20.
 //
 
-#include <eos/core/ServiceProvider.h>
+#include <eos/core/ServiceProvider.hpp>
 #include "eos/scene/GameState.hpp"
 
 void eos::GameState::quit() {

@@ -3,7 +3,7 @@
 //
 
 #include <spdlog/spdlog.h>
-#include "eos/core/ServiceProvider.h"
+#include "eos/core/ServiceProvider.hpp"
 #include "eos/core/graphics/Window.hpp"
 
 eos::Window::Window(const std::string& title, int width, int height, Graphics::Type type) {

@@ -2,8 +2,7 @@
 // Created by jakob on 03.08.20.
 //
 
-#ifndef EOS_LIGHTOBJECT_HPP
-#define EOS_LIGHTOBJECT_HPP
+#pragma once
 
 #include <eos/core/ColorRGB.hpp>
 
@@ -14,5 +13,3 @@ namespace eos {
         LightObject();
     };
 }
-
-#endif //EOS_LIGHTOBJECT_HPP

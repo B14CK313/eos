@@ -8,7 +8,7 @@
 #include <spdlog/sinks/basic_file_sink.h>
 #include <eos/core/graphics/Window.hpp>
 #include <eos/core/graphics/Graphics.hpp>
-#include "eos/core/ServiceProvider.h"
+#include "eos/core/ServiceProvider.hpp"
 
 std::shared_ptr<eos::GameEngine> eos::ServiceProvider::gameEngine_;
 std::shared_ptr<eos::StateManager> eos::ServiceProvider::stateManager_;

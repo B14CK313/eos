@@ -5,7 +5,7 @@
 #include <glad/glad.h>
 
 #include <spdlog/spdlog.h>
-#include "eos/scene/resources/Texture.h"
+#include "eos/scene/resources/Texture.hpp"
 
 eos::Texture::Texture(const std::string& path, unsigned int colorFormat, unsigned int wrapS, unsigned int wrapT,
                       unsigned int filterMin, unsigned int filterMag) {

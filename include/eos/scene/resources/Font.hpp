@@ -2,8 +2,7 @@
 // Created by jakob on 26.08.20.
 //
 
-#ifndef EOS_FONT_HPP
-#define EOS_FONT_HPP
+#pragma once
 
 /*
  * Glyph metrics:
@@ -80,5 +79,3 @@ namespace eos {
         std::unordered_map<char32_t, Character> characterMap_;
     };
 }
-
-#endif //EOS_FONT_HPP

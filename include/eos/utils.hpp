@@ -2,8 +2,7 @@
 // Created by jakob on 09.10.19.
 //
 
-#ifndef EOS_UTILS_HPP
-#define EOS_UTILS_HPP
+#pragma once
 
 #include <string>
 #include <vector>
@@ -37,5 +36,3 @@ namespace eos {
         }
     }
 }
-
-#endif //EOS_UTILS_HPP

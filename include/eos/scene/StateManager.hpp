@@ -2,8 +2,7 @@
 // Created by jakob on 23.09.19.
 //
 
-#ifndef EOS_STATEMANAGER_HPP
-#define EOS_STATEMANAGER_HPP
+#pragma once
 
 #include <vector>
 #include "GameState.hpp"
@@ -25,5 +24,3 @@ namespace eos {
     };
 
 }
-
-#endif //EOS_STATEMANAGER_HPP

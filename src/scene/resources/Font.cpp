@@ -3,7 +3,7 @@
 //
 
 #include <spdlog/spdlog.h>
-#include <eos/core/ServiceProvider.h>
+#include <eos/core/ServiceProvider.hpp>
 #include <utf8/checked.h>
 #include "eos/scene/resources/Font.hpp"
 

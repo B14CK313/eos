@@ -2,14 +2,13 @@
 // Created by jakob on 29.08.20.
 //
 
-#ifndef EOS_REGULARTEXTUREATLAS_HPP
-#define EOS_REGULARTEXTUREATLAS_HPP
+#pragma once
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <vector>
 #include <spdlog/spdlog.h>
-#include "Shader.h"
+#include "Shader.hpp"
 #include "TextureAtlas.hpp"
 
 namespace eos {
@@ -32,5 +31,3 @@ namespace eos {
         unsigned int slotsPerRow_;
     };
 }
-
-#endif //EOS_REGULARTEXTUREATLAS_HPP

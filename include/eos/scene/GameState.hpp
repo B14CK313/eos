@@ -2,8 +2,7 @@
 // Created by jakob on 23.09.19.
 //
 
-#ifndef EOS_GAMESTATE_HPP
-#define EOS_GAMESTATE_HPP
+#pragma once
 
 #include <memory>
 #include <SDL_events.h>
@@ -42,5 +41,3 @@ namespace eos {
     };
 
 }
-
-#endif //EOS_GAMESTATE_HPP

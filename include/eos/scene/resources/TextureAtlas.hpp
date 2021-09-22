@@ -2,13 +2,12 @@
 // Created by jakob on 30.08.20.
 //
 
-#ifndef EOS_TEXTUREATLAS_HPP
-#define EOS_TEXTUREATLAS_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
-#include "Shader.h"
+#include "Shader.hpp"
 
 namespace eos {
     class TextureAtlas {
@@ -33,5 +32,3 @@ namespace eos {
 #endif //DEBUG
     };
 }
-
-#endif //EOS_TEXTUREATLAS_HPP

@@ -2,9 +2,7 @@
 // Created by jakob on 25.06.20.
 //
 
-#ifndef EOS_TEXTURE_H
-#define EOS_TEXTURE_H
-
+#pragma once
 
 #include <string>
 #include <glad/glad.h>
@@ -34,5 +32,3 @@ namespace eos {
     };
 
 }
-
-#endif //EOS_TEXTURE_H

@@ -2,8 +2,7 @@
 // Created by jakob on 04.09.20.
 //
 
-#ifndef EOS_COLORHSV_HPP
-#define EOS_COLORHSV_HPP
+#pragma once
 
 namespace eos {
     class ColorRGB;
@@ -41,5 +40,3 @@ namespace eos {
         ColorHSV& operator/=(float scalar);
     };
 }
-
-#endif //EOS_COLORHSV_HPP

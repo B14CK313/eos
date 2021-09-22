@@ -2,8 +2,7 @@
 // Created by jakob on 16.07.20.
 //
 
-#ifndef EOS_ARCBALL_CAMERA_H
-#define EOS_ARCBALL_CAMERA_H
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -65,6 +64,3 @@ namespace eos {
         void update_vectors();
     };
 }
-
-
-#endif //EOS_ARCBALL_CAMERA_H

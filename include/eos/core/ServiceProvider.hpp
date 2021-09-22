@@ -2,8 +2,7 @@
 // Created by jakob on 13.07.20.
 //
 
-#ifndef EOS_SERVICEPROVIDER_HPP
-#define EOS_SERVICEPROVIDER_HPP
+#pragma once
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -61,5 +60,3 @@ namespace eos {
         static std::shared_ptr<FT_Library> freetype_;
     };
 }
-
-#endif //EOS_SERVICEPROVIDER_HPP

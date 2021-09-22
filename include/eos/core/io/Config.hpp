@@ -2,8 +2,7 @@
 // Created by jakob on 26.11.19.
 //
 
-#ifndef EOS_CONFIG_HPP
-#define EOS_CONFIG_HPP
+#pragma once
 
 #include <string>
 #include <rapidjson/document.h>
@@ -38,5 +37,3 @@ namespace eos {
     };
 
 }
-
-#endif //EOS_CONFIG_HPP

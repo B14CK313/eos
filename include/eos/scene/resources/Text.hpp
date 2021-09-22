@@ -2,9 +2,7 @@
 // Created by jakob on 05.09.20.
 //
 
-#ifndef EOS_TEXT_HPP
-#define EOS_TEXT_HPP
-
+#pragma once
 
 #include "Font.hpp"
 
@@ -31,5 +29,3 @@ namespace eos {
         std::u32string setup_render(const std::string& text) const;
     };
 }
-
-#endif //EOS_TEXT_HPP

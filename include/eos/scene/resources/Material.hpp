@@ -2,9 +2,7 @@
 // Created by jakob on 09.09.20.
 //
 
-#ifndef EOS_MATERIAL_HPP
-#define EOS_MATERIAL_HPP
-
+#pragma once
 
 #include <eos/core/ColorRGB.hpp>
 
@@ -26,6 +24,3 @@ namespace eos {
     private:
     };
 }
-
-
-#endif //EOS_MATERIAL_HPP

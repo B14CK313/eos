@@ -2,8 +2,7 @@
 // Created by jakob on 10.09.19.
 //
 
-#ifndef EOS_GAMEENGINE_HPP
-#define EOS_GAMEENGINE_HPP
+#pragma once
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -47,5 +46,3 @@ namespace eos {
     };
 
 }
-
-#endif //EOS_GAMEENGINE_HPP

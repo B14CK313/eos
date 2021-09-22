@@ -2,8 +2,7 @@
 // Created by jakob on 12.07.20.
 //
 
-#ifndef EOS_GAMEOBJECT_H
-#define EOS_GAMEOBJECT_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <eos/core/ColorRGB.hpp>
@@ -50,5 +49,3 @@ namespace eos {
     };
 
 }
-
-#endif //EOS_GAMEOBJECT_H

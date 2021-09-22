@@ -2,8 +2,7 @@
 // Created by jakob on 29.08.20.
 //
 
-#ifndef EOS_IRREGULARTEXTUREATLAS_HPP
-#define EOS_IRREGULARTEXTUREATLAS_HPP
+#pragma once
 
 #include <map>
 #include "RegularTextureAtlas.hpp"
@@ -30,5 +29,3 @@ namespace eos {
         std::map<unsigned int, glm::uvec2> lines_; // <lineHeight, {xEmptyGlyphSlot, yEmptyGlyphSlot}>
     };
 }
-
-#endif //EOS_IRREGULARTEXTUREATLAS_HPP

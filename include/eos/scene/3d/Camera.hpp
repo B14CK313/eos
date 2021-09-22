@@ -2,8 +2,7 @@
 // Created by jakob on 19.07.20.
 //
 
-#ifndef EOS_CAMERA_HPP
-#define EOS_CAMERA_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 #include <string>
@@ -30,5 +29,3 @@ class Camera : public WorldObject{
         void apply_projection_matrix(const std::initializer_list<std::shared_ptr<eos::Shader>>& shaders, const std::string& name = "projection", float zNear = 0.1f, float zFar = 100.0f) const;
     };
 }
-
-#endif //EOS_CAMERA_HPP

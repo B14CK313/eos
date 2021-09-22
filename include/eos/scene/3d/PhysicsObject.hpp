@@ -2,8 +2,7 @@
 // Created by jakob on 03.08.20.
 //
 
-#ifndef EOS_PHYSICSOBJECT_HPP
-#define EOS_PHYSICSOBJECT_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 #include "WorldObject.hpp"
@@ -23,5 +22,3 @@ namespace eos {
         glm::vec3 velocity_{0.0f};
     };
 }
-
-#endif //EOS_PHYSICSOBJECT_HPP

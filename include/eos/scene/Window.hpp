@@ -2,9 +2,7 @@
 // Created by jakob on 14.07.20.
 //
 
-#ifndef EOS_WINDOW_HPP
-#define EOS_WINDOW_HPP
-
+#pragma once
 
 #include <string>
 #include <glm/glm.hpp>
@@ -31,5 +29,3 @@ namespace eos {
         void update_size();
     };
 }
-
-#endif //EOS_WINDOW_HPP

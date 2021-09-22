@@ -2,8 +2,7 @@
 // Created by jakob on 03.08.20.
 //
 
-#ifndef EOS_COLORRGB_HPP
-#define EOS_COLORRGB_HPP
+#pragma once
 
 #include <glm/glm.hpp>
 #include <string>
@@ -82,5 +81,3 @@ eos::ColorRGB operator ""_rgb(unsigned long long hex);
  * @param hex An int in RGBA format (e.g. 0x336699FF)
  */
 eos::ColorRGB operator ""_rgba(unsigned long long hex);
-
-#endif //EOS_COLORRGB_HPP

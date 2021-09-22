@@ -20,13 +20,31 @@ namespace eos {
 		virtual ~Window();
 
 		void resize(int width, int height);
-
 		[[nodiscard]] glm::ivec2 size() const;
+
+		void maximize();
+		[[nodiscard]] bool is_maximized() const;
+
+		void minimize();
+		[[nodiscard]] bool is_minimized() const;
+
+		void restore();
+
+		void set_resizeable(bool resizeable);
+		[[nodiscard]] bool is_resizeable() const;
+
+		void set_borderless(bool borderless);
+		[[nodiscard]] bool is_borderless() const;
+
+		void set_fullscreen(bool fullscreen);
+		[[nodiscard]] bool is_fullscreen() const;
+
+		void set_title(const std::string& title);
+		[[nodiscard]] std::string title() const;
 
 		[[nodiscard]] std::experimental::observer_ptr<Graphics> graphics() const;
 
 	private:
-		glm::ivec2 size_;
 		std::unique_ptr<Graphics> graphics_;
 		SDL_Window* window_;
 	};

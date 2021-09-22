@@ -30,7 +30,7 @@ void eos::ArcballCamera::apply_view_matrix(const eos::Shader& shader, const std:
 }
 
 glm::mat4 eos::ArcballCamera::get_projection_matrix(float zNear, float zFar) const {
-    const auto& windowSize = eos::ServiceProvider::getWindow().size();
+    const auto& windowSize = eos::ServiceProvider::getWindow().graphics()->size();
     return glm::perspective(glm::radians(zoom_), static_cast<float>(windowSize.x) / static_cast<float>(windowSize.y), zNear, zFar);
 }
 

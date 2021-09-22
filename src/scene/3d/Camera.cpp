@@ -23,7 +23,7 @@ void eos::Camera::apply_view_matrix(const std::initializer_list<std::shared_ptr<
 }
 
 glm::mat4 eos::Camera::get_projection_matrix(float zNear, float zFar) const {
-    const auto& windowSize = eos::ServiceProvider::getWindow().size();
+    const auto& windowSize = eos::ServiceProvider::getWindow().graphics()->size();
     return glm::perspectiveFov(fov_, static_cast<float>(windowSize.x), static_cast<float>(windowSize.y), zNear, zFar);
 }
 

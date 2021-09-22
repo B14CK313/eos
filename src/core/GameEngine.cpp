@@ -202,7 +202,7 @@ bool eos::GameEngine::run() {
                                 case SDL_WINDOWEVENT_MOVED:
                                     break;
                                 case SDL_WINDOWEVENT_RESIZED:
-                                    window_->resize(event.window.data1, event.window.data2);
+                                    window_->graphics()->resize(event.window.data1, event.window.data2);
                                     state->resize(event.window.data1, event.window.data2);
                                     break;
                                 case SDL_WINDOWEVENT_SIZE_CHANGED:

@@ -4,7 +4,7 @@
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include <doctest/doctest.h>
-#include <eos/core/ServiceProvider.h>
+#include <eos/core/ServiceProvider.hpp>
 
 class TestGameState : public eos::GameState{
 	void on_enter() override {

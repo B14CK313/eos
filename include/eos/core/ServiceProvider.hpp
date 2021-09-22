@@ -2,13 +2,13 @@
 // Created by jakob on 13.07.20.
 //
 
-#ifndef EOS_SERVICEPROVIDER_H
-#define EOS_SERVICEPROVIDER_H
+#ifndef EOS_SERVICEPROVIDER_HPP
+#define EOS_SERVICEPROVIDER_HPP
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "eos/core/GameEngine.hpp"
-#include "eos/scene/Window.h"
+#include "eos/scene/Window.hpp"
 
 namespace eos {
 
@@ -62,4 +62,4 @@ namespace eos {
     };
 }
 
-#endif //EOS_SERVICEPROVIDER_H
+#endif //EOS_SERVICEPROVIDER_HPP

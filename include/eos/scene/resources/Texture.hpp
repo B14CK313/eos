@@ -2,8 +2,8 @@
 // Created by jakob on 25.06.20.
 //
 
-#ifndef EOS_TEXTURE_H
-#define EOS_TEXTURE_H
+#ifndef EOS_TEXTURE_HPP
+#define EOS_TEXTURE_HPP
 
 
 #include <string>
@@ -35,4 +35,4 @@ namespace eos {
 
 }
 
-#endif //EOS_TEXTURE_H
+#endif //EOS_TEXTURE_HPP

@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <memory>
-#include "Shader.h"
+#include "Shader.hpp"
 
 namespace eos {
     class TextureAtlas {

@@ -9,7 +9,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <spdlog/spdlog.h>
-#include "Shader.h"
+#include "Shader.hpp"
 #include "TextureAtlas.hpp"
 
 namespace eos {

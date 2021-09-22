@@ -6,7 +6,7 @@
 #define EOS_PHYSICSOBJECT_HPP
 
 #include <glm/glm.hpp>
-#include "WorldObject.h"
+#include "WorldObject.hpp"
 
 namespace eos {
 

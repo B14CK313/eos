@@ -7,7 +7,7 @@
 
 #include <glm/glm.hpp>
 #include <string>
-#include "WorldObject.h"
+#include "WorldObject.hpp"
 
 namespace eos {
 

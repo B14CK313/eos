@@ -3,9 +3,9 @@
 //
 
 #include <glm/gtc/matrix_transform.hpp>
-#include <eos/core/ServiceProvider.h>
-#include <eos/scene/resources/Shader.h>
-#include "eos/scene/3d/ArcballCamera.h"
+#include <eos/core/ServiceProvider.hpp>
+#include <eos/scene/resources/Shader.hpp>
+#include "eos/scene/3d/ArcballCamera.hpp"
 
 
 

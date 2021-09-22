@@ -3,8 +3,8 @@
 //
 
 #include <spdlog/spdlog.h>
-#include <eos/core/ServiceProvider.h>
-#include "eos/scene/Window.h"
+#include <eos/core/ServiceProvider.hpp>
+#include "eos/scene/Window.hpp"
 
 eos::Window::Window(const std::string& title, int width, int height) : size_(width, height) {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {

@@ -2,7 +2,7 @@
 // Created by jakob on 19.07.20.
 //
 
-#include "eos/scene/3d/WorldObject.h"
+#include "eos/scene/3d/WorldObject.hpp"
 
 eos::WorldObject::WorldObject(glm::vec3 pos) : pos_{pos} {
 

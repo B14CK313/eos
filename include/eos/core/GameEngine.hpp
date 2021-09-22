@@ -7,7 +7,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <eos/scene/Window.h>
+#include <eos/scene/Window.hpp>
 #include "eos/scene/StateManager.hpp"
 #include "eos/core/io/Config.hpp"
 

@@ -4,7 +4,7 @@
 
 #include <utf8.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <eos/core/ServiceProvider.h>
+#include <eos/core/ServiceProvider.hpp>
 #include "eos/scene/resources/Text.hpp"
 
 eos::Text::Text(std::shared_ptr<Font> font) : Text(font, std::make_shared<Shader>("res/text.vert", "res/text.frag")) {}

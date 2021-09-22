@@ -2,8 +2,8 @@
 // Created by jakob on 14.07.20.
 //
 
-#ifndef EOS_WINDOW_H
-#define EOS_WINDOW_H
+#ifndef EOS_WINDOW_HPP
+#define EOS_WINDOW_HPP
 
 
 #include <string>
@@ -32,4 +32,4 @@ namespace eos {
     };
 }
 
-#endif //EOS_WINDOW_H
+#endif //EOS_WINDOW_HPP

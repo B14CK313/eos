@@ -2,8 +2,8 @@
 // Created by jakob on 19.06.20.
 //
 
-#ifndef EOS_SHADER_H
-#define EOS_SHADER_H
+#ifndef EOS_SHADER_HPP
+#define EOS_SHADER_HPP
 
 #include <string>
 #include <glm/glm.hpp>
@@ -62,4 +62,4 @@ namespace eos {
 
 }
 
-#endif //EOS_SHADER_H
+#endif //EOS_SHADER_HPP

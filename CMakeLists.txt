@@ -2,6 +2,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(eos VERSION 0.0.1)
 
+include(CheckIPOSupported)
 include(cmake/CompilerFlagHelper.cmake)
 include(cmake/CPM.cmake)
 
@@ -105,6 +106,15 @@ add_library(eos::eos ALIAS eos)
 
 target_link_libraries(eos PUBLIC utf8cpp nowide spdlog fmt SDL2-static glad msdfgen::msdfgen msdfgen::msdfgen-ext freetype)
 target_include_directories(eos PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
+
+check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
+if (ipo_supported)
+    message(STATUS "IPO / LTO enabled")
+    set_property(TARGET eos PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+else ()
+    message(STATUS "IPO / LTO not supported: <${ipo_error}>")
+endif ()
+
 
 add_subdirectory(test)
 

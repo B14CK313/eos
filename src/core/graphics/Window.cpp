@@ -5,11 +5,13 @@
 #include <spdlog/spdlog.h>
 #include "eos/core/ServiceProvider.hpp"
 #include "eos/core/graphics/Window.hpp"
+#include "eos/core/graphics/GraphicsOpenGL.hpp"
+#include "eos/core/graphics/GraphicsVulkan.hpp"
 
 eos::Window::Window(const std::string& title, int width, int height, Graphics::Type type) {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        SPDLOG_CRITICAL("Failed to initialize SDL: {}", SDL_GetError());
-    }
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+		SPDLOG_CRITICAL("Failed to initialize SDL: {}", SDL_GetError());
+	}
 
 	switch (type) {
 		case Graphics::Type::OPENGL:
@@ -22,8 +24,9 @@ eos::Window::Window(const std::string& title, int width, int height, Graphics::T
 
 	graphics_->setup(title);
 
-	window_ = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, static_cast<int>(type));
-	if(!window_) {
+	window_ = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
+	                           static_cast<int>(type));
+	if (!window_) {
 		SPDLOG_CRITICAL("Failed to create SDL_Window: {}", SDL_GetError());
 		SDL_Quit();
 		throw;
@@ -33,8 +36,8 @@ eos::Window::Window(const std::string& title, int width, int height, Graphics::T
 }
 
 eos::Window::~Window() {
-    SDL_DestroyWindow(window_);
-    SDL_Quit();
+	SDL_DestroyWindow(window_);
+	SDL_Quit();
 }
 
 void eos::Window::resize(int width, int height) {

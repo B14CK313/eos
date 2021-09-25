@@ -5,8 +5,8 @@
 #pragma once
 
 #include <SDL_video.h>
-#include <vulkan/vulkan.hpp>
 #include <experimental/memory>
+#include <glm/glm.hpp>
 
 namespace eos {
 	class Window;
@@ -34,43 +34,6 @@ namespace eos {
 
 	protected:
 		std::experimental::observer_ptr<SDL_Window> window_;
-	};
-
-	class GraphicsOpenGL : public Graphics {
-	public:
-		void setup(std::string_view title) override;
-
-		void instantiate(std::experimental::observer_ptr<SDL_Window> window) override;
-
-		void swap() override;
-
-		void vsync(bool value) override;
-
-		void resize(int width, int height) override;
-
-		[[nodiscard]] glm::ivec2 size() const override;
-	};
-
-	class GraphicsVulkan : public Graphics {
-	public:
-		~GraphicsVulkan() override;
-
-		void setup(std::string_view title) override;
-
-		void instantiate(std::experimental::observer_ptr<SDL_Window> window) override;
-
-		void swap() override;
-
-		void vsync(bool value) override;
-
-		void resize(int width, int height) override;
-
-		[[nodiscard]] glm::ivec2 size() const override;
-
-	private:
-		VkApplicationInfo app_;
-		VkInstance instance_;
-		VkSurfaceKHR surface_;
 	};
 
 }

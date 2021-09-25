@@ -42,7 +42,7 @@ elseif (CMAKE_BUILD_TYPE MATCHES RelWithDebInfo.*)
     set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib/${OS}/relwithdebinfo)
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${OS}/relwithdebinfo)
 
-    add_compile_definitions(DEBUG SPDLOG_ACTIVE_LEVEL=0)
+    add_compile_definitions(DEBUG SPDLOG_ACTIVE_LEVEL=1)
     add_compile_options(-O3)
 else ()
     set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib/${OS}/release)
@@ -53,9 +53,10 @@ else ()
 endif ()
 
 # Sources
-set(EOS_SOURCES src/core/GameEngine.cpp include/eos/core/GameEngine.hpp include/eos/scene/GameState.hpp src/scene/StateManager.cpp include/eos/scene/StateManager.hpp src/utils.cpp include/eos/utils.hpp src/core/io/Config.cpp include/eos/core/io/Config.hpp src/Constants.cpp include/eos/Constants.hpp src/scene/resources/Shader.cpp include/eos/scene/resources/Shader.hpp src/stb_image.cpp src/scene/resources/Texture.cpp include/eos/scene/resources/Texture.hpp src/scene/3d/WorldObject.cpp include/eos/scene/3d/WorldObject.hpp src/core/ServiceProvider.cpp include/eos/core/ServiceProvider.hpp src/core/graphics/Window.cpp include/eos/core/graphics/Window.hpp src/scene/3d/ArcballCamera.cpp include/eos/scene/3d/ArcballCamera.hpp src/scene/3d/Camera.cpp include/eos/scene/3d/Camera.hpp src/scene/3d/PhysicsObject.cpp include/eos/scene/3d/PhysicsObject.hpp src/scene/3d/LightObject.cpp include/eos/scene/3d/LightObject.hpp src/core/ColorRGB.cpp include/eos/core/ColorRGB.hpp src/scene/resources/Font.cpp include/eos/scene/resources/Font.hpp src/scene/3d/GuiObject.cpp include/eos/scene/3d/GuiObject.hpp src/scene/resources/RegularTextureAtlas.cpp include/eos/scene/resources/RegularTextureAtlas.hpp include/eos/scene/resources/IrregularTextureAtlas.hpp src/scene/resources/IrregularTextureAtlas.cpp include/eos/scene/resources/TextureAtlas.hpp src/scene/resources/TextureAtlas.cpp src/core/ColorHSV.cpp include/eos/core/ColorHSV.hpp src/scene/resources/GradientText.cpp include/eos/scene/resources/GradientText.hpp src/scene/resources/Text.cpp include/eos/scene/resources/Text.hpp src/scene/GameState.cpp src/scene/resources/Material.cpp include/eos/scene/resources/Material.hpp include/eos/core/graphics/Graphics.hpp src/core/graphics/GraphicsOpenGL.cpp src/core/graphics/GraphicsVulkan.cpp)
+set(EOS_SOURCES src/core/GameEngine.cpp include/eos/core/GameEngine.hpp include/eos/scene/GameState.hpp src/scene/StateManager.cpp include/eos/scene/StateManager.hpp src/utils.cpp include/eos/utils.hpp src/core/io/Config.cpp include/eos/core/io/Config.hpp src/Constants.cpp include/eos/Constants.hpp src/scene/resources/Shader.cpp include/eos/scene/resources/Shader.hpp src/stb_image.cpp src/scene/resources/Texture.cpp include/eos/scene/resources/Texture.hpp src/scene/3d/WorldObject.cpp include/eos/scene/3d/WorldObject.hpp src/core/ServiceProvider.cpp include/eos/core/ServiceProvider.hpp src/core/graphics/Window.cpp include/eos/core/graphics/Window.hpp src/scene/3d/ArcballCamera.cpp include/eos/scene/3d/ArcballCamera.hpp src/scene/3d/Camera.cpp include/eos/scene/3d/Camera.hpp src/scene/3d/PhysicsObject.cpp include/eos/scene/3d/PhysicsObject.hpp src/scene/3d/LightObject.cpp include/eos/scene/3d/LightObject.hpp src/core/ColorRGB.cpp include/eos/core/ColorRGB.hpp src/scene/resources/Font.cpp include/eos/scene/resources/Font.hpp src/scene/3d/GuiObject.cpp include/eos/scene/3d/GuiObject.hpp src/scene/resources/RegularTextureAtlas.cpp include/eos/scene/resources/RegularTextureAtlas.hpp include/eos/scene/resources/IrregularTextureAtlas.hpp src/scene/resources/IrregularTextureAtlas.cpp include/eos/scene/resources/TextureAtlas.hpp src/scene/resources/TextureAtlas.cpp src/core/ColorHSV.cpp include/eos/core/ColorHSV.hpp src/scene/resources/GradientText.cpp include/eos/scene/resources/GradientText.hpp src/scene/resources/Text.cpp include/eos/scene/resources/Text.hpp src/scene/GameState.cpp src/scene/resources/Material.cpp include/eos/scene/resources/Material.hpp include/eos/core/graphics/Graphics.hpp src/core/graphics/GraphicsOpenGL.cpp src/core/graphics/GraphicsVulkan.cpp include/eos/core/graphics/GraphicsVulkan.hpp include/eos/core/graphics/GraphicsOpenGL.hpp)
 
 # Load dependencies
+find_package(OpenMP REQUIRED)
 find_package(Vulkan REQUIRED)
 CPMAddPackage("gh:TheLartians/Ccache.cmake@1.2.3")
 CPMAddPackage("gh:onqtam/doctest#2.4.6")
@@ -105,7 +106,7 @@ set(OpenGL_GL_PREFERENCE GLVND)
 add_library(eos STATIC ${EOS_SOURCES} ${EOS_HEADERS})
 add_library(eos::eos ALIAS eos)
 
-target_link_libraries(eos PUBLIC utf8cpp nowide spdlog fmt SDL2-static glad Vulkan::Vulkan msdfgen::msdfgen msdfgen::msdfgen-ext freetype)
+target_link_libraries(eos PUBLIC OpenMP::OpenMP_CXX utf8cpp nowide spdlog fmt SDL2-static glad Vulkan::Vulkan msdfgen::msdfgen msdfgen::msdfgen-ext freetype)
 target_include_directories(eos PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include> $<INSTALL_INTERFACE:include>)
 
 check_ipo_supported(RESULT ipo_supported OUTPUT ipo_error)
@@ -115,7 +116,6 @@ if (ipo_supported)
 else ()
     message(STATUS "IPO / LTO not supported: <${ipo_error}>")
 endif ()
-
 
 add_subdirectory(test)
 

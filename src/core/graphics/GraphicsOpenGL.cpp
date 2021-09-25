@@ -5,7 +5,7 @@
 #include <spdlog/spdlog.h>
 #include <SDL.h>
 #include <glad/glad.h>
-#include "eos/core/graphics/Window.hpp"
+#include <eos/core/graphics/GraphicsOpenGL.hpp>
 
 void eos::GraphicsOpenGL::setup(std::string_view title) {
 	SDL_GL_LoadLibrary(nullptr);
@@ -69,4 +69,3 @@ glm::ivec2 eos::GraphicsOpenGL::size() const {
 	SDL_GL_GetDrawableSize(window_.get(), &size[0], &size[1]);
 	return size;
 }
-

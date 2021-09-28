@@ -32,7 +32,7 @@ if (CMAKE_BUILD_TYPE MATCHES Debug.*)
     set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib/${OS}/debug)
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${OS}/debug)
 
-    add_compile_definitions(DEBUG GLAD_DEBUG SPDLOG_ACTIVE_LEVEL=0)
+    add_compile_definitions(DEBUG GLAD_DEBUG SPDLOG_ACTIVE_LEVEL=0 EOS_VEC_ERROR_CHECKS EOS_VEC_ALIAS_DIMENSIONS EOS_VEC_ALIAS_TYPES)
     add_compile_options(-Og)
 
     enable_cxx_compiler_flag_if_supported("-Wall")
@@ -42,18 +42,18 @@ elseif (CMAKE_BUILD_TYPE MATCHES RelWithDebInfo.*)
     set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib/${OS}/relwithdebinfo)
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${OS}/relwithdebinfo)
 
-    add_compile_definitions(DEBUG SPDLOG_ACTIVE_LEVEL=0)
+    add_compile_definitions(DEBUG SPDLOG_ACTIVE_LEVEL=0 EOS_VEC_ALIAS_DIMENSIONS EOS_VEC_ALIAS_TYPES)
     add_compile_options(-O3)
 else ()
     set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib/${OS}/release)
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin/${OS}/release)
 
-    add_compile_definitions(SPDLOG_ACTIVE_LEVEL=2)
+    add_compile_definitions(SPDLOG_ACTIVE_LEVEL=2 EOS_VEC_ALIAS_DIMENSIONS EOS_VEC_ALIAS_TYPES)
     add_compile_options(-O3)
 endif ()
 
 # Sources
-set(EOS_SOURCES src/core/GameEngine.cpp include/eos/core/GameEngine.hpp include/eos/scene/GameState.hpp src/scene/StateManager.cpp include/eos/scene/StateManager.hpp src/utils.cpp include/eos/utils.hpp src/core/io/Config.cpp include/eos/core/io/Config.hpp src/Constants.cpp include/eos/Constants.hpp src/scene/resources/Shader.cpp include/eos/scene/resources/Shader.hpp src/stb_image.cpp src/scene/resources/Texture.cpp include/eos/scene/resources/Texture.hpp src/scene/3d/WorldObject.cpp include/eos/scene/3d/WorldObject.hpp src/core/ServiceProvider.cpp include/eos/core/ServiceProvider.hpp src/scene/Window.cpp include/eos/scene/Window.hpp src/scene/3d/ArcballCamera.cpp include/eos/scene/3d/ArcballCamera.hpp src/scene/3d/Camera.cpp include/eos/scene/3d/Camera.hpp src/scene/3d/PhysicsObject.cpp include/eos/scene/3d/PhysicsObject.hpp src/scene/3d/LightObject.cpp include/eos/scene/3d/LightObject.hpp src/core/ColorRGB.cpp include/eos/core/ColorRGB.hpp src/scene/resources/Font.cpp include/eos/scene/resources/Font.hpp src/scene/3d/GuiObject.cpp include/eos/scene/3d/GuiObject.hpp src/scene/resources/RegularTextureAtlas.cpp include/eos/scene/resources/RegularTextureAtlas.hpp include/eos/scene/resources/IrregularTextureAtlas.hpp src/scene/resources/IrregularTextureAtlas.cpp include/eos/scene/resources/TextureAtlas.hpp src/scene/resources/TextureAtlas.cpp src/core/ColorHSV.cpp include/eos/core/ColorHSV.hpp src/scene/resources/GradientText.cpp include/eos/scene/resources/GradientText.hpp src/scene/resources/Text.cpp include/eos/scene/resources/Text.hpp src/scene/GameState.cpp src/scene/resources/Material.cpp include/eos/scene/resources/Material.hpp)
+set(EOS_SOURCES src/core/GameEngine.cpp include/eos/core/GameEngine.hpp include/eos/scene/GameState.hpp src/scene/StateManager.cpp include/eos/scene/StateManager.hpp src/utils.cpp include/eos/utils.hpp src/core/io/Config.cpp include/eos/core/io/Config.hpp src/Constants.cpp include/eos/Constants.hpp src/scene/resources/Shader.cpp include/eos/scene/resources/Shader.hpp src/stb_image.cpp src/scene/resources/Texture.cpp include/eos/scene/resources/Texture.hpp src/scene/3d/WorldObject.cpp include/eos/scene/3d/WorldObject.hpp src/core/ServiceProvider.cpp include/eos/core/ServiceProvider.hpp src/scene/Window.cpp include/eos/scene/Window.hpp src/scene/3d/ArcballCamera.cpp include/eos/scene/3d/ArcballCamera.hpp src/scene/3d/Camera.cpp include/eos/scene/3d/Camera.hpp src/scene/3d/PhysicsObject.cpp include/eos/scene/3d/PhysicsObject.hpp src/scene/3d/LightObject.cpp include/eos/scene/3d/LightObject.hpp src/core/ColorRGB.cpp include/eos/core/ColorRGB.hpp src/scene/resources/Font.cpp include/eos/scene/resources/Font.hpp src/scene/3d/GuiObject.cpp include/eos/scene/3d/GuiObject.hpp src/scene/resources/RegularTextureAtlas.cpp include/eos/scene/resources/RegularTextureAtlas.hpp include/eos/scene/resources/IrregularTextureAtlas.hpp src/scene/resources/IrregularTextureAtlas.cpp include/eos/scene/resources/TextureAtlas.hpp src/scene/resources/TextureAtlas.cpp src/core/ColorHSV.cpp include/eos/core/ColorHSV.hpp src/scene/resources/GradientText.cpp include/eos/scene/resources/GradientText.hpp src/scene/resources/Text.cpp include/eos/scene/resources/Text.hpp src/scene/GameState.cpp src/scene/resources/Material.cpp include/eos/scene/resources/Material.hpp include/eos/core/math/Vec.hpp)
 
 # Load dependencies
 CPMAddPackage("gh:TheLartians/Ccache.cmake@1.2.3")

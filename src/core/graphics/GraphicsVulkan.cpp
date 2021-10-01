@@ -54,9 +54,7 @@ void eos::GraphicsVulkan::instantiate(std::experimental::observer_ptr<SDL_Window
 	create_image_views();
 }
 
-void eos::GraphicsVulkan::swap() {
-
-}
+void eos::GraphicsVulkan::draw_frame() {}
 
 void eos::GraphicsVulkan::vsync(bool value) {
 

@@ -14,7 +14,7 @@ namespace eos {
 
 		void instantiate(std::experimental::observer_ptr<SDL_Window> window) override;
 
-		void swap() override;
+		void draw_frame() override;
 
 		void vsync(bool value) override;
 

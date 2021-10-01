@@ -9,18 +9,18 @@
 
 namespace eos {
 
-    class StateManager {
-    public:
-        explicit StateManager(std::unique_ptr<GameState> initialState);
+	class StateManager {
+	public:
+		explicit StateManager(std::unique_ptr<GameState> initialState);
 
-        void push_state(std::unique_ptr<GameState> state);
+		void push_state(std::unique_ptr<GameState> state);
 
-        void pop_state();
+		void pop_state();
 
-        eos::GameState* getState();
+		std::experimental::observer_ptr<eos::GameState> get_state();
 
-    private:
-        std::vector<std::unique_ptr<GameState>> stateStack_;
-    };
+	private:
+		std::vector<std::unique_ptr<GameState>> stateStack_;
+	};
 
 }

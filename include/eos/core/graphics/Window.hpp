@@ -10,12 +10,13 @@
 #include <glm/glm.hpp>
 #include <SDL.h>
 #include "eos/core/graphics/Graphics.hpp"
+#include "eos/core/io/Config.hpp"
 
 namespace eos {
 
 	class Window {
 	public:
-		Window(const std::string& title, int width, int height, Graphics::Type type);
+		Window(std::experimental::observer_ptr<Config> config);
 
 		virtual ~Window();
 

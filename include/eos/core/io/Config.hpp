@@ -9,32 +9,32 @@
 
 namespace eos {
 
-    class Config {
-    public:
-        explicit Config(const std::string& path);
+	class Config {
+	public:
+		explicit Config(const std::string& path);
 
-        struct Window {
-            std::string title{"EOS GameEngine"};
-            int width{800};
-            int height{600};
-			int type; // FIXME: this should not be an int but a Graphics::Type enum
-        } window;
+		struct Window {
+			std::string title{"EOS GameEngine"};
+			int width{800};
+			int height{600};
+			int type{0x2}; // FIXME: this should not be an int but a Graphics::Type enum
+		} window;
 
-        struct Log {
-            int maxFiles{3};
-            std::string fileName{"log.log"};
-        } log;
+		struct Log {
+			int maxFiles{3};
+			std::string fileName{"log.log"};
+		} log;
 
-        struct Engine {
-            int targetUps{100};
-            int targetFps{120};
-            bool capFps{true};
-            bool vsync{false};
-        } engine;
+		struct Engine {
+			int targetUps{100};
+			int targetFps{120};
+			bool capFps{true};
+			bool vsync{false};
+		} engine;
 
-    private:
-        std::string path_;
-        rapidjson::Document config_;
-    };
+	private:
+		std::string path_;
+		rapidjson::Document config_;
+	};
 
 }

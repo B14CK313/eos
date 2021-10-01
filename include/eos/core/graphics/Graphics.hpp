@@ -24,7 +24,7 @@ namespace eos {
 
 		virtual void instantiate(std::experimental::observer_ptr<SDL_Window> window) = 0;
 
-		virtual void swap() = 0;
+		virtual void draw_frame() = 0;
 
 		virtual void vsync(bool value) = 0;
 

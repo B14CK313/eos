@@ -135,7 +135,7 @@ namespace eos {
 		constexpr Vec<T, dim>& operator/=(U scalar) {
 			T temp{static_cast<T>(scalar)};
 #ifdef EOS_VEC_ERROR_CHECKS
-			if(temp == 0) throw std::domain_error{"Vec::operator/=: Division by 0 is not defined"};
+			if (temp == 0) throw std::domain_error{"Vec::operator/=: Division by 0 is not defined"};
 #endif //EOS_VEC_ERROR_CHECKS
 			for (int i{0}; i < dim; ++i) {
 				values_[i] /= temp;
@@ -148,7 +148,7 @@ namespace eos {
 		constexpr Vec<T, dim>& operator/=(const Vec<U, 1>& vec) {
 			T temp{static_cast<T>(vec.x())};
 #ifdef EOS_VEC_ERROR_CHECKS
-			if(temp == 0) throw std::domain_error{"Vec::operator/=: Division by 0 is not defined"};
+			if (temp == 0) throw std::domain_error{"Vec::operator/=: Division by 0 is not defined"};
 #endif //EOS_VEC_ERROR_CHECKS
 			for (int i{0}; i < dim; ++i) {
 				values_[i] /= temp;
@@ -162,7 +162,7 @@ namespace eos {
 			for (int i{0}; i < dim; ++i) {
 #ifdef EOS_VEC_ERROR_CHECKS
 				T temp{static_cast<T>(vec[i])};
-				if(temp == 0) throw std::domain_error("Vec::operator/=: Division by 0 is not defined");
+				if (temp == 0) throw std::domain_error("Vec::operator/=: Division by 0 is not defined");
 				values_[i] /= temp;
 #else //EOS_VEC_ERROR_CHECKS
 				values_[i] /= static_cast<T>(vec[i]);
@@ -208,7 +208,7 @@ namespace eos {
 		constexpr Vec<T, dim>& operator%=(U scalar) {
 			T temp{static_cast<T>(scalar)};
 #ifdef EOS_VEC_ERROR_CHECKS
-			if(temp == 0) throw std::domain_error{"Vec::operator%=: Division by 0 is not defined"};
+			if (temp == 0) throw std::domain_error{"Vec::operator%=: Division by 0 is not defined"};
 #endif //EOS_VEC_ERROR_CHECKS
 			for (int i{0}; i < dim; ++i) {
 				values_[i] %= temp;
@@ -221,7 +221,7 @@ namespace eos {
 		constexpr Vec<T, dim>& operator%=(const Vec<U, 1>& vec) {
 			T temp{static_cast<T>(vec.x())};
 #ifdef EOS_VEC_ERROR_CHECKS
-			if(temp == 0) throw std::domain_error{"Vec::operator%=: Division by 0 is not defined"};
+			if (temp == 0) throw std::domain_error{"Vec::operator%=: Division by 0 is not defined"};
 #endif //EOS_VEC_ERROR_CHECKS
 			for (int i{0}; i < dim; ++i) {
 				values_[i] %= temp;
@@ -235,7 +235,7 @@ namespace eos {
 			for (int i{0}; i < dim; ++i) {
 #ifdef EOS_VEC_ERROR_CHECKS
 				T temp{static_cast<T>(vec[i])};
-				if(temp == 0) throw std::domain_error("Vec::operator%=: Division by 0 is not defined");
+				if (temp == 0) throw std::domain_error("Vec::operator%=: Division by 0 is not defined");
 				values_[i] %= temp;
 #else //EOS_VEC_ERROR_CHECKS
 				values_[i] %= static_cast<T>(vec[i]);

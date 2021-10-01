@@ -3,17 +3,16 @@
 //
 
 #include <spdlog/spdlog.h>
-#include "eos/core/ServiceProvider.hpp"
 #include "eos/core/graphics/Window.hpp"
 #include "eos/core/graphics/GraphicsOpenGL.hpp"
 #include "eos/core/graphics/GraphicsVulkan.hpp"
 
-eos::Window::Window(const std::string& title, int width, int height, Graphics::Type type) {
+eos::Window::Window(std::experimental::observer_ptr<Config> config) {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		SPDLOG_CRITICAL("Failed to initialize SDL: {}", SDL_GetError());
 	}
 
-	switch (type) {
+	switch (static_cast<Graphics::Type>(config->window.type)) {
 		case Graphics::Type::OPENGL:
 			graphics_ = std::make_unique<GraphicsOpenGL>();
 			break;
@@ -22,10 +21,11 @@ eos::Window::Window(const std::string& title, int width, int height, Graphics::T
 			break;
 	}
 
-	graphics_->setup(title);
+	graphics_->setup(config->window.title);
 
-	window_ = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height,
-	                           static_cast<int>(type));
+	window_ = SDL_CreateWindow(config->window.title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+	                           config->window.width, config->window.height,
+	                           static_cast<int>(config->window.type));
 	if (!window_) {
 		SPDLOG_CRITICAL("Failed to create SDL_Window: {}", SDL_GetError());
 		SDL_Quit();

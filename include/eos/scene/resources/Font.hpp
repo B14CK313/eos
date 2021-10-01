@@ -44,38 +44,38 @@
 #include "IrregularTextureAtlas.hpp"
 
 namespace eos {
-    class Font {
-    public:
-        struct Character {
-            IrregularTextureAtlas::SubTexture texture;
-            glm::uvec2 bearing;
-            long advance;
-        };
+	class Font {
+	public:
+		struct Character {
+			IrregularTextureAtlas::SubTexture texture;
+			glm::uvec2 bearing;
+			long advance;
+		};
 
-    public:
-        Font(const std::string& path, float size);
+	public:
+		Font(const FT_Library& freetypeLib, const std::string& path, float size);
 
-        ~Font();
+		~Font();
 
-        void cache(const std::string& chars);
+		void cache(const std::string& chars);
 
-        void cache(const std::basic_string<char8_t>& chars);
+		void cache(const std::basic_string<char8_t>& chars);
 
-        void cache(char32_t codepoint);
+		void cache(char32_t codepoint);
 
-        Character get(char32_t codepoint);
+		Character get(char32_t codepoint);
 
-        void use();
+		void use();
 
-        void render(glm::vec2 pos, glm::vec2 scale);
+		void render(glm::vec2 pos, glm::vec2 scale);
 
-    private:
-        const std::string& path_;
+	private:
+		const std::string& path_;
 
-        FT_Face fontFace_;
+		FT_Face fontFace_;
 
-        IrregularTextureAtlas textureAtlas_{{512, 512}, GL_UNSIGNED_BYTE, GL_RED};
+		IrregularTextureAtlas textureAtlas_{{512, 512}, GL_UNSIGNED_BYTE, GL_RED};
 
-        std::unordered_map<char32_t, Character> characterMap_;
-    };
+		std::unordered_map<char32_t, Character> characterMap_;
+	};
 }

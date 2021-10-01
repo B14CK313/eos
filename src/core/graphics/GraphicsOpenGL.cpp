@@ -50,7 +50,7 @@ void eos::GraphicsOpenGL::instantiate(std::experimental::observer_ptr<SDL_Window
 	            glGetString(GL_RENDERER));
 }
 
-void eos::GraphicsOpenGL::swap() {
+void eos::GraphicsOpenGL::draw_frame() {
 	SDL_GL_SwapWindow(window_.get());
 }
 

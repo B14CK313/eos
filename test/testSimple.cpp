@@ -3,10 +3,11 @@
 //
 
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include <doctest/doctest.h>
-#include <eos/core/ServiceProvider.hpp>
 
-class TestGameState : public eos::GameState{
+#include <doctest/doctest.h>
+#include <eos/core/GameEngine.hpp>
+
+class TestGameState : public eos::GameState {
 	void on_enter() override {
 		std::cout << "Enter";
 	}
@@ -25,6 +26,6 @@ class TestGameState : public eos::GameState{
 };
 
 TEST_CASE("Simple startup test") {
-	eos::ServiceProvider::init("", std::make_unique<TestGameState>());
-	eos::ServiceProvider::getGameEngine().run();
+	eos::GameEngine gameEngine{"", std::make_unique<TestGameState>()};
+	gameEngine.run();
 }

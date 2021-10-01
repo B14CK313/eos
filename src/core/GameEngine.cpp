@@ -3,10 +3,11 @@
 //
 
 #include "eos/core/GameEngine.hpp"
+#include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include <sstream>
 #include <thread>
 #include <spdlog/spdlog.h>
-#include <eos/core/ServiceProvider.hpp>
 
 void APIENTRY
 glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message,
@@ -91,10 +92,31 @@ glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsi
 
 // TODO: use namespaced intX_t (e.g. std::int8_t instead of int8_t) and include <cstdint>
 
-eos::GameEngine::GameEngine() {
-	config_ = eos::ServiceProvider::getConfigPtr();
-	window_ = eos::ServiceProvider::getWindowPtr();
-	stateManager_ = eos::ServiceProvider::getStateManagerPtr();
+eos::GameEngine::GameEngine(const std::string& configPath, std::unique_ptr<eos::GameState> initialState) {
+	std::vector<spdlog::sink_ptr> sinks;
+	sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+	sinks[0]->set_level(spdlog::level::trace);
+
+	config_ = std::make_unique<Config>(configPath);
+
+	sinks.push_back(
+			std::make_shared<spdlog::sinks::basic_file_sink_mt>(config_->log.fileName, true));
+	sinks[1]->set_level(spdlog::level::warn);
+
+	auto defaultLogger = std::make_shared<spdlog::logger>("default", sinks.begin(), sinks.end());
+	defaultLogger->set_level(spdlog::level::trace);
+	defaultLogger->set_pattern("[%Y-%m-%d %T.%e] [%^%l%$] [%s:%#] %v");
+	spdlog::register_logger(defaultLogger);
+	spdlog::set_default_logger(defaultLogger);
+	SPDLOG_TRACE("Logger initialized");
+
+	window_ = std::make_unique<Window>(std::experimental::make_observer(config_.get()));
+	stateManager_ = std::make_unique<StateManager>(std::move(initialState));
+
+	freetypeLib_ = std::make_unique<FT_Library>();
+	if (FT_Error error = FT_Init_FreeType(freetypeLib_.get())) {
+		SPDLOG_ERROR("Could not initialize Freetype Library, error code {}", error);
+	}
 
 	window_->graphics()->vsync(config_->engine.vsync);
 
@@ -135,6 +157,8 @@ eos::GameEngine::GameEngine() {
 }
 
 bool eos::GameEngine::run() {
+	stateManager_->get_state()->init(std::experimental::make_observer(this));
+
 	uint32_t previousTime = SDL_GetTicks();
 	uint32_t accumulator = 0;
 	double t = 0.0f;
@@ -144,8 +168,6 @@ bool eos::GameEngine::run() {
 	uint32_t prevSec = 0;
 	int fps = 0;
 	int ups = 0;
-
-	auto graphics = window_->graphics();
 
 	SPDLOG_TRACE("Starting game loop...");
 
@@ -172,7 +194,7 @@ bool eos::GameEngine::run() {
 		// Run update every dt
 		while (accumulator >= dt_) {
 			if (SDL_PollEvent(&event)) {
-				auto state = stateManager_->getState();
+				auto state = stateManager_->get_state();
 				do {
 					switch (event.type) {
 						// Application events
@@ -336,7 +358,7 @@ bool eos::GameEngine::run() {
 					}
 				} while (SDL_PollEvent(&event));
 			}
-			stateManager_->getState()->update(t, dt_);
+			stateManager_->get_state()->update(t, dt_);
 			accumulator -= dt_;
 			t += dt_;
 
@@ -350,16 +372,17 @@ bool eos::GameEngine::run() {
 		if (config_->engine.capFps && updates * fpu_ <= frames) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(5));
 		} else {
-			stateManager_->getState()->render(interpolation);
-			graphics->swap();
+			stateManager_->get_state()->render(interpolation);
 			frames++;
 			fps++;
 		}
 	}
 
-	ServiceProvider::cleanup();
-
 	return true;
+}
+
+void eos::GameEngine::quit() {
+	quit_ = true;
 }
 
 int eos::GameEngine::fps() const {
@@ -368,4 +391,16 @@ int eos::GameEngine::fps() const {
 
 int eos::GameEngine::ups() const {
 	return ups_;
+}
+
+std::experimental::observer_ptr<eos::Config> eos::GameEngine::config() const {
+	return std::experimental::make_observer(config_.get());
+}
+
+std::experimental::observer_ptr<eos::Window> eos::GameEngine::window() const {
+	return std::experimental::make_observer(window_.get());
+}
+
+std::experimental::observer_ptr<eos::StateManager> eos::GameEngine::state_manager() const {
+	return std::experimental::make_observer(stateManager_.get());
 }

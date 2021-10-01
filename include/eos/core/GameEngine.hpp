@@ -6,43 +6,50 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 #include <eos/core/graphics/Window.hpp>
 #include "eos/scene/StateManager.hpp"
 #include "eos/core/io/Config.hpp"
 
 namespace eos {
+	class GameEngine {
+	public:
+		explicit GameEngine(const std::string& configPath, std::unique_ptr<eos::GameState> initialState);
 
-    class GameEngine {
-    public:
-        bool quit_ = false;
+		bool run();
 
-    public:
-        explicit GameEngine();
+		void quit();
 
-        bool run();
+		void target_fps(int fps, bool cap = true);
 
-        void target_fps(int fps, bool cap = true);
+		void target_ups(int ups);
 
-        void target_ups(int ups);
+		[[nodiscard]] int fps() const;
 
-        [[nodiscard]] int fps() const;
+		[[nodiscard]] int ups() const;
 
-        [[nodiscard]] int ups() const;
+		[[nodiscard]] std::experimental::observer_ptr<eos::Config> config() const;
+		[[nodiscard]] std::experimental::observer_ptr<eos::Window> window() const;
+		[[nodiscard]] std::experimental::observer_ptr<eos::StateManager> state_manager() const;
 
-    private:
-        std::shared_ptr<eos::Config> config_;
+	private:
+		std::unique_ptr<eos::Config> config_;
 
-        std::shared_ptr<eos::Window> window_;
+		std::unique_ptr<eos::Window> window_;
 
-        std::shared_ptr<eos::StateManager> stateManager_;
+		std::unique_ptr<eos::StateManager> stateManager_;
 
+		std::unique_ptr<FT_Library> freetypeLib_;
 
-        double maxFrameTime_{};
-        double dt_{};
-        double fpu_{};
+		bool quit_{false};
 
-        int fps_;
-        int ups_;
-    };
+		double maxFrameTime_{};
+		double dt_{};
+		double fpu_{};
+
+		int fps_;
+		int ups_;
+	};
 
 }

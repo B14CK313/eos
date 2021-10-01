@@ -5,62 +5,73 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <experimental/memory>
 
 namespace eos {
 
-    class ArcballCamera {
-    private:
-        // Default camera values
-        constexpr static const glm::vec3 FRONT{0.0f, 0.0f, -1.0f};
-        constexpr static const glm::vec3 WORLD_UP{0.0f, 1.0f, 0.0f};
-        constexpr static const float YAW = -90.0f;
-        constexpr static const float PITCH = 0.0f;
-        constexpr static const float SPEED = 2.5f;
-        constexpr static const float SENSITIVITY = 0.1f;
-        constexpr static const float ZOOM = 45.0f;
+	class Graphics;
 
-    public:
-        enum struct Movement {
-            FORWARD,
-            BACKWARD,
-            LEFT,
-            RIGHT
-        };
+	class ArcballCamera {
+	private:
+		// Default camera values
+		constexpr static const glm::vec3 FRONT{0.0f, 0.0f, -1.0f};
+		constexpr static const glm::vec3 WORLD_UP{0.0f, 1.0f, 0.0f};
+		constexpr static const float YAW = -90.0f;
+		constexpr static const float PITCH = 0.0f;
+		constexpr static const float SPEED = 2.5f;
+		constexpr static const float SENSITIVITY = 0.1f;
+		constexpr static const float ZOOM = 45.0f;
 
-        glm::vec3 pos_;
-        glm::vec3 front_{FRONT};
-        glm::vec3 worldUp_{WORLD_UP};
-        glm::vec3 up_;
-        glm::vec3 right_;
+	public:
+		enum struct Movement {
+			FORWARD,
+			BACKWARD,
+			LEFT,
+			RIGHT
+		};
 
-        float yaw_{YAW};
-        float pitch_{PITCH};
+		glm::vec3 pos_;
+		glm::vec3 front_{FRONT};
+		glm::vec3 worldUp_{WORLD_UP};
+		glm::vec3 up_;
+		glm::vec3 right_;
 
-        float speed_{SPEED};
-        float sensitivity_{SENSITIVITY};
-        float zoom_{ZOOM};
+		float yaw_{YAW};
+		float pitch_{PITCH};
 
-        explicit ArcballCamera(glm::vec3 pos = {0.0f, 0.0f, 0.0f}, float yaw = YAW, float pitch = PITCH, glm::vec3 worldUp = WORLD_UP);
+		float speed_{SPEED};
+		float sensitivity_{SENSITIVITY};
+		float zoom_{ZOOM};
 
-        explicit ArcballCamera(glm::vec3 pos, glm::vec3 front, glm::vec3 worldUp = WORLD_UP);
+		explicit ArcballCamera(std::experimental::observer_ptr<Graphics> graphics, glm::vec3 pos = {0.0f, 0.0f, 0.0f},
+		                       float yaw = YAW, float pitch = PITCH,
+		                       glm::vec3 worldUp = WORLD_UP);
 
-        ArcballCamera(glm::vec3 pos, float speed, float sensitivity = SENSITIVITY, float zoom = ZOOM);
+		explicit ArcballCamera(std::experimental::observer_ptr<Graphics> graphics, glm::vec3 pos, glm::vec3 front,
+		                       glm::vec3 worldUp = WORLD_UP);
 
-        [[nodiscard]] glm::mat4 get_view_matrix() const;
+		ArcballCamera(std::experimental::observer_ptr<Graphics> graphics, glm::vec3 pos, float speed,
+		              float sensitivity = SENSITIVITY, float zoom = ZOOM);
 
-        void apply_view_matrix(const eos::Shader& shader, const std::string& name = "view") const;
+		[[nodiscard]] glm::mat4 get_view_matrix() const;
 
-        [[nodiscard]] glm::mat4 get_projection_matrix(float zNear = 0.1f, float zFar = 100.0f) const;
+		void apply_view_matrix(const eos::Shader& shader, const std::string& name = "view") const;
 
-        void apply_projection_matrix(const eos::Shader& shader, const std::string& name = "projection", float zNear = 0.1f, float zFar = 100.0f) const;
+		[[nodiscard]] glm::mat4 get_projection_matrix(float zNear = 0.1f, float zFar = 100.0f) const;
 
-        void key_input(Movement dir);
+		void
+		apply_projection_matrix(const eos::Shader& shader, const std::string& name = "projection", float zNear = 0.1f,
+		                        float zFar = 100.0f) const;
 
-        void mouse_input(float xOffset, float yOffset, bool constrainPitch = true);
+		void key_input(Movement dir);
 
-        void scroll_input(float yOffset);
+		void mouse_input(float xOffset, float yOffset, bool constrainPitch = true);
 
-    private:
-        void update_vectors();
-    };
+		void scroll_input(float yOffset);
+
+	private:
+		void update_vectors();
+
+		std::experimental::observer_ptr<Graphics> graphics_;
+	};
 }

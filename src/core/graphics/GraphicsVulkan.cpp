@@ -6,9 +6,23 @@
 #include <glm/glm.hpp>
 #include <spdlog/spdlog.h>
 #include <SDL_vulkan.h>
+#include "eos/utils.hpp"
 #include "eos/core/graphics/GraphicsVulkan.hpp"
 
 eos::GraphicsVulkan::~GraphicsVulkan() {
+	vkDeviceWaitIdle(device_);
+	for (std::size_t i{0}; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+		vkDestroySemaphore(device_, renderFinishedSemaphores_[i], nullptr);
+		vkDestroySemaphore(device_, imageAvailableSemaphores_[i], nullptr);
+		vkDestroyFence(device_, inFlightFences_[i], nullptr);
+	}
+	vkDestroyCommandPool(device_, commandPool_, nullptr);
+	for (auto framebuffer: swapchainFramebuffers_) {
+		vkDestroyFramebuffer(device_, framebuffer, nullptr);
+	}
+	vkDestroyPipeline(device_, graphicsPipeline_, nullptr);
+	vkDestroyPipelineLayout(device_, pipelineLayout_, nullptr);
+	vkDestroyRenderPass(device_, renderPass_, nullptr);
 	for (auto imageView: swapchainImageViews_) {
 		vkDestroyImageView(device_, imageView, nullptr);
 	}
@@ -52,9 +66,66 @@ void eos::GraphicsVulkan::instantiate(std::experimental::observer_ptr<SDL_Window
 	create_logical_device();
 	create_swapchain();
 	create_image_views();
+	create_render_pass();
+	create_graphics_pipeline();
+	create_framebuffers();
+	create_command_pool();
+	create_command_buffers();
+	create_semaphores_and_fences();
 }
 
-void eos::GraphicsVulkan::draw_frame() {}
+void eos::GraphicsVulkan::draw_frame() {
+	vkWaitForFences(device_, 1, &inFlightFences_[currentFrame_], VK_TRUE, std::numeric_limits<uint64_t>::max());
+
+	uint32_t imageIndex;
+	if (vkAcquireNextImageKHR(device_, swapchain_, std::numeric_limits<uint64_t>::max(),
+	                          imageAvailableSemaphores_[currentFrame_],
+	                          VK_NULL_HANDLE, &imageIndex) != VK_SUCCESS) {
+		SPDLOG_ERROR("Error while acquiring next image");
+	}
+
+	std::array<VkSemaphore, 1> waitSemaphores{imageAvailableSemaphores_[currentFrame_]};
+	std::array<VkPipelineStageFlags, 1> waitStages{VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+	std::array<VkSemaphore, 1> signalSemaphores{renderFinishedSemaphores_[currentFrame_]};
+	VkSubmitInfo submitInfo{
+			.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+			.waitSemaphoreCount = 1,
+			.pWaitSemaphores = waitSemaphores.data(),
+			.pWaitDstStageMask = waitStages.data(),
+			.commandBufferCount = 1,
+			.pCommandBuffers = &commandBuffers_[imageIndex],
+			.signalSemaphoreCount = 1,
+			.pSignalSemaphores = signalSemaphores.data(),
+	};
+
+	if (inFlightImages_[imageIndex] != VK_NULL_HANDLE) {
+		vkWaitForFences(device_, 1, &inFlightImages_[imageIndex], VK_TRUE, std::numeric_limits<uint64_t>::max());
+	}
+
+	vkResetFences(device_, 1, &inFlightFences_[currentFrame_]);
+
+	if (vkQueueSubmit(graphicsQueue_, 1, &submitInfo, inFlightFences_[currentFrame_]) != VK_SUCCESS) {
+		SPDLOG_CRITICAL("Failed to submit draw command buffer");
+		throw;
+	}
+
+	std::array<VkSwapchainKHR, 1> swapchains{swapchain_};
+	VkPresentInfoKHR presentInfo{
+			.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+			.waitSemaphoreCount = signalSemaphores.size(),
+			.pWaitSemaphores = signalSemaphores.data(),
+			.swapchainCount = swapchains.size(),
+			.pSwapchains = swapchains.data(),
+			.pImageIndices = &imageIndex,
+			.pResults = nullptr,
+	};
+
+	if (vkQueuePresentKHR(presentQueue_, &presentInfo) != VK_SUCCESS) {
+		SPDLOG_ERROR("Error while presenting queue");
+	}
+
+	currentFrame_ = (currentFrame_ + 1) % MAX_FRAMES_IN_FLIGHT;
+}
 
 void eos::GraphicsVulkan::vsync(bool value) {
 
@@ -273,6 +344,315 @@ void eos::GraphicsVulkan::create_image_views() {
 	}
 }
 
+
+void eos::GraphicsVulkan::create_render_pass() {
+	VkAttachmentDescription colorAttachmentDescription{
+			.format = swapchainImageFormat_,
+			.samples = VK_SAMPLE_COUNT_1_BIT,
+			.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+			.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+			.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+			.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+			.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+			.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+	};
+	VkAttachmentReference colorAttachmentReference{
+			.attachment = 0,
+			.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+	};
+	VkSubpassDescription subpassDescription{
+			.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+			.colorAttachmentCount = 1,
+			.pColorAttachments = &colorAttachmentReference,
+	};
+	VkSubpassDependency subpassDependency{
+			.srcSubpass = VK_SUBPASS_EXTERNAL,
+			.dstSubpass = 0,
+			.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			.srcAccessMask = 0,
+			.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+	};
+	VkRenderPassCreateInfo renderPassCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+			.attachmentCount = 1,
+			.pAttachments = &colorAttachmentDescription,
+			.subpassCount = 1,
+			.pSubpasses = &subpassDescription,
+			.dependencyCount = 1,
+			.pDependencies = &subpassDependency,
+	};
+
+	if (vkCreateRenderPass(device_, &renderPassCreateInfo, nullptr, &renderPass_) != VK_SUCCESS) {
+		SPDLOG_CRITICAL("Failed to create render pass");
+		throw;
+	}
+}
+
+void eos::GraphicsVulkan::create_graphics_pipeline() {
+	std::vector<char> vertShaderCode{};
+	std::vector<char> fragShaderCode{};
+
+	eos::utils::load_file("./shaders/vert.spv", vertShaderCode);
+	eos::utils::load_file("./shaders/frag.spv", fragShaderCode);
+
+	VkShaderModule vertShaderModule = create_shader_module(vertShaderCode);
+	VkShaderModule fragShaderModule = create_shader_module(fragShaderCode);
+
+	VkPipelineShaderStageCreateInfo vertPipelineShaderStageCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			.stage = VK_SHADER_STAGE_VERTEX_BIT,
+			.module = vertShaderModule,
+			.pName = "main",
+			.pSpecializationInfo = nullptr // optional constant options
+	};
+	VkPipelineShaderStageCreateInfo fragPipelineShaderStageCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			.stage = VK_SHADER_STAGE_FRAGMENT_BIT,
+			.module = fragShaderModule,
+			.pName = "main",
+			.pSpecializationInfo = nullptr
+	};
+
+	std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages{vertPipelineShaderStageCreateInfo,
+	                                                            fragPipelineShaderStageCreateInfo};
+
+	VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+			.vertexBindingDescriptionCount = 0,
+			.pVertexBindingDescriptions = nullptr,
+			.vertexAttributeDescriptionCount = 0,
+			.pVertexAttributeDescriptions = nullptr,
+	};
+	VkPipelineInputAssemblyStateCreateInfo pipelineInputAssemblyStateCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+			.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+			.primitiveRestartEnable = VK_FALSE,
+	};
+	VkViewport viewport{
+			.x = 0.0f,
+			.y = 0.0f,
+			.width = static_cast<float>(swapchainExtent_.width),
+			.height = static_cast<float>(swapchainExtent_.height),
+			.minDepth = 0.0f,
+			.maxDepth = 1.0f,
+	};
+	VkRect2D scissor{
+			.offset = {0, 0},
+			.extent = swapchainExtent_,
+	};
+	VkPipelineViewportStateCreateInfo pipelineViewportStateCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+			.viewportCount = 1,
+			.pViewports = &viewport,
+			.scissorCount = 1,
+			.pScissors = &scissor,
+	};
+	VkPipelineRasterizationStateCreateInfo pipelineRasterizationStateCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+			.depthClampEnable = VK_FALSE,
+			.rasterizerDiscardEnable = VK_FALSE,
+			.polygonMode = VK_POLYGON_MODE_FILL,
+			.cullMode = VK_CULL_MODE_BACK_BIT,
+			.frontFace = VK_FRONT_FACE_CLOCKWISE,
+			.depthBiasEnable = VK_FALSE,
+			.depthBiasConstantFactor = 0.0f,
+			.depthBiasClamp = 0.0f,
+			.depthBiasSlopeFactor = 0.0f,
+			.lineWidth = 1.0f,
+	};
+	VkPipelineMultisampleStateCreateInfo pipelineMultisampleStateCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+			.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT,
+			.sampleShadingEnable = VK_FALSE,
+			.minSampleShading = 1.0f,
+			.pSampleMask = nullptr,
+			.alphaToCoverageEnable = VK_FALSE,
+			.alphaToOneEnable = VK_FALSE,
+	};
+	VkPipelineColorBlendAttachmentState pipelineColorBlendAttachmentState{
+			.blendEnable = VK_FALSE,
+			.srcColorBlendFactor = VK_BLEND_FACTOR_ONE,
+			.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO,
+			.colorBlendOp = VK_BLEND_OP_ADD,
+			.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE,
+			.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+			.alphaBlendOp = VK_BLEND_OP_ADD,
+			.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
+			                  VK_COLOR_COMPONENT_A_BIT,
+	};
+	VkPipelineColorBlendStateCreateInfo pipelineColorBlendStateCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+			.logicOpEnable = VK_FALSE,
+			.logicOp = VK_LOGIC_OP_COPY,
+			.attachmentCount = 1,
+			.pAttachments = &pipelineColorBlendAttachmentState,
+			.blendConstants = {0.0f, 0.0f, 0.0f, 0.0f}
+	};
+	std::array<VkDynamicState, 2> dynamicStates{
+			VK_DYNAMIC_STATE_VIEWPORT,
+			VK_DYNAMIC_STATE_LINE_WIDTH,
+	};
+	VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+			.dynamicStateCount = 2,
+			.pDynamicStates = dynamicStates.data(),
+	};
+	VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+			.setLayoutCount = 0,
+			.pSetLayouts = nullptr,
+			.pushConstantRangeCount = 0,
+			.pPushConstantRanges = nullptr,
+	};
+	if (vkCreatePipelineLayout(device_, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout_) != VK_SUCCESS) {
+		SPDLOG_CRITICAL("Failed to create pipeline layout");
+		throw;
+	}
+
+	VkGraphicsPipelineCreateInfo pipelineCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+			.stageCount = 2,
+			.pStages = shaderStages.data(),
+			.pVertexInputState = &vertexInputStateCreateInfo,
+			.pInputAssemblyState = &pipelineInputAssemblyStateCreateInfo,
+			.pViewportState = &pipelineViewportStateCreateInfo,
+			.pRasterizationState = &pipelineRasterizationStateCreateInfo,
+			.pMultisampleState = &pipelineMultisampleStateCreateInfo,
+			.pDepthStencilState = nullptr,
+			.pColorBlendState = &pipelineColorBlendStateCreateInfo,
+			.pDynamicState = nullptr,
+			.layout = pipelineLayout_,
+			.renderPass = renderPass_,
+			.subpass = 0,
+			.basePipelineHandle = VK_NULL_HANDLE,
+			.basePipelineIndex = -1,
+	};
+
+	if (vkCreateGraphicsPipelines(device_, VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &graphicsPipeline_) !=
+	    VK_SUCCESS) {
+		SPDLOG_CRITICAL("Failed to create graphics pipeline");
+		throw;
+	}
+
+	vkDestroyShaderModule(device_, fragShaderModule, nullptr);
+	vkDestroyShaderModule(device_, vertShaderModule, nullptr);
+}
+
+void eos::GraphicsVulkan::create_framebuffers() {
+	swapchainFramebuffers_.resize(swapchainImageViews_.size());
+	for (std::size_t i{0}; i < swapchainImageViews_.size(); ++i) {
+		std::array<VkImageView, 1> attachments{
+				swapchainImageViews_[i]
+		};
+
+		VkFramebufferCreateInfo framebufferCreateInfo{
+				.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+				.renderPass = renderPass_,
+				.attachmentCount = 1,
+				.pAttachments = attachments.data(),
+				.width = swapchainExtent_.width,
+				.height = swapchainExtent_.height,
+				.layers = 1,
+		};
+
+		if (vkCreateFramebuffer(device_, &framebufferCreateInfo, nullptr, &swapchainFramebuffers_[i]) != VK_SUCCESS) {
+			SPDLOG_CRITICAL("Failed to create framebuffer");
+			throw;
+		}
+	}
+}
+
+void eos::GraphicsVulkan::create_command_pool() {
+	QueueFamilyIndices queueFamilyIndices = find_queue_families(physicalDevice_);
+
+	VkCommandPoolCreateInfo commandPoolCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+			.flags = 0,
+			.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(),
+	};
+
+	if (vkCreateCommandPool(device_, &commandPoolCreateInfo, nullptr, &commandPool_) != VK_SUCCESS) {
+		SPDLOG_CRITICAL("Failed to create command pool");
+		throw;
+	}
+}
+
+void eos::GraphicsVulkan::create_command_buffers() {
+	commandBuffers_.resize(swapchainFramebuffers_.size());
+	VkCommandBufferAllocateInfo commandBufferAllocateInfo{
+			.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+			.commandPool = commandPool_,
+			.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+			.commandBufferCount = static_cast<uint32_t>(commandBuffers_.size()),
+	};
+
+	if (vkAllocateCommandBuffers(device_, &commandBufferAllocateInfo, commandBuffers_.data()) != VK_SUCCESS) {
+		SPDLOG_CRITICAL("Failed to allocate command buffers");
+		throw;
+	}
+
+	for (std::size_t i{0}; i < commandBuffers_.size(); ++i) {
+		VkCommandBufferBeginInfo commandBufferBeginInfo{
+				.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+				.flags = 0,
+				.pInheritanceInfo = nullptr,
+		};
+
+		if (vkBeginCommandBuffer(commandBuffers_[i], &commandBufferBeginInfo) != VK_SUCCESS) {
+			SPDLOG_CRITICAL("Failed to begin recording command buffer");
+			throw;
+		}
+
+		VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
+		VkRenderPassBeginInfo renderPassBeginInfo{
+				.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+				.renderPass = renderPass_,
+				.framebuffer = swapchainFramebuffers_[i],
+				.renderArea{
+						.offset = {0, 0},
+						.extent = swapchainExtent_,
+				},
+				.clearValueCount = 1,
+				.pClearValues = &clearColor,
+		};
+
+		vkCmdBeginRenderPass(commandBuffers_[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBindPipeline(commandBuffers_[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline_);
+		vkCmdDraw(commandBuffers_[i], 3, 1, 0, 0);
+		vkCmdEndRenderPass(commandBuffers_[i]);
+		if (vkEndCommandBuffer(commandBuffers_[i]) != VK_SUCCESS) {
+			SPDLOG_CRITICAL("Failed to record command buffer");
+			throw;
+		}
+	}
+}
+
+void eos::GraphicsVulkan::create_semaphores_and_fences() {
+	inFlightImages_.resize(swapchainImages_.size(), VK_NULL_HANDLE);
+
+	VkSemaphoreCreateInfo semaphoreCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+	};
+
+	VkFenceCreateInfo fenceCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+			.flags = VK_FENCE_CREATE_SIGNALED_BIT,
+	};
+
+	for (std::size_t i{0}; i < MAX_FRAMES_IN_FLIGHT; ++i) {
+		if (!(vkCreateSemaphore(device_, &semaphoreCreateInfo, nullptr, &imageAvailableSemaphores_[i]) == VK_SUCCESS &&
+		      vkCreateSemaphore(device_, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores_[i]) == VK_SUCCESS)) {
+			SPDLOG_CRITICAL("Failed to create semaphore for a frame");
+			throw;
+		}
+		if (vkCreateFence(device_, &fenceCreateInfo, nullptr, &inFlightFences_[i]) != VK_SUCCESS) {
+			SPDLOG_CRITICAL("Failed to create fence for a frame");
+			throw;
+		}
+	}
+}
+
 std::vector<const char*> eos::GraphicsVulkan::get_required_extensions() {
 	unsigned int requiredExtensionCount;
 	if (!SDL_Vulkan_GetInstanceExtensions(window_.get(), &requiredExtensionCount, nullptr)) {
@@ -471,6 +851,20 @@ bool eos::GraphicsVulkan::check_validation_layer_support() {
 	return true;
 }
 
+VkShaderModule eos::GraphicsVulkan::create_shader_module(const std::vector<char>& code) {
+	VkShaderModuleCreateInfo shaderModuleCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+			.codeSize = code.size(),
+			.pCode = reinterpret_cast<const uint32_t*>(code.data()),
+	};
+	VkShaderModule shaderModule;
+	if (vkCreateShaderModule(device_, &shaderModuleCreateInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+		SPDLOG_CRITICAL("Failed to create shader module");
+		throw;
+	}
+	return shaderModule;
+}
+
 VkDebugUtilsMessengerCreateInfoEXT eos::GraphicsVulkan::get_debug_utils_messenger_create_info() {
 	static auto debug_callback = [](VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 	                                VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -528,5 +922,4 @@ void eos::GraphicsVulkan::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkD
 	if (func != nullptr) {
 		func(instance, debugMessenger, pAllocator);
 	}
-
 }

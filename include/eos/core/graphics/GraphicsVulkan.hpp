@@ -49,6 +49,12 @@ namespace eos {
 		void create_logical_device();
 		void create_swapchain();
 		void create_image_views();
+		void create_graphics_pipeline();
+		void create_render_pass();
+		void create_framebuffers();
+		void create_command_pool();
+		void create_command_buffers();
+		void create_semaphores_and_fences();
 
 		bool is_device_suitable(VkPhysicalDevice physicalDevice);
 		bool check_device_extensions_support(VkPhysicalDevice physicalDevice);
@@ -59,6 +65,7 @@ namespace eos {
 		SwapChainSupportDetails query_swapchain_support(VkPhysicalDevice device);
 		std::vector<const char*> get_required_extensions();
 		bool check_validation_layer_support();
+		VkShaderModule create_shader_module(const std::vector<char>& code);
 
 		static VkDebugUtilsMessengerCreateInfoEXT get_debug_utils_messenger_create_info();
 		// helper function for creating debug utils messenger
@@ -76,6 +83,10 @@ namespace eos {
 		const std::vector<const char*> requiredDeviceExtensions_{
 				VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
+
+		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+		std::size_t currentFrame_{0};
+
 		VkApplicationInfo applicationInfo_;
 		VkInstanceCreateInfo instanceCreateInfo_;
 		VkInstance instance_;
@@ -90,6 +101,16 @@ namespace eos {
 		std::vector<VkImageView> swapchainImageViews_;
 		VkFormat swapchainImageFormat_;
 		VkExtent2D swapchainExtent_;
+		VkRenderPass renderPass_;
+		VkPipelineLayout pipelineLayout_;
+		VkPipeline graphicsPipeline_;
+		std::vector<VkFramebuffer> swapchainFramebuffers_;
+		VkCommandPool commandPool_;
+		std::vector<VkCommandBuffer> commandBuffers_;
+		std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> imageAvailableSemaphores_;
+		std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> renderFinishedSemaphores_;
+		std::array<VkFence, MAX_FRAMES_IN_FLIGHT> inFlightFences_;
+		std::vector<VkFence> inFlightImages_;
 	};
 
 }
